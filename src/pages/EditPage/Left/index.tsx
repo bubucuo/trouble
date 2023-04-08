@@ -7,7 +7,7 @@ import ImgSide from "./ImgSide";
 import TplSide from "./TplSide";
 import GraphSide from "./GraphSide";
 
-export const isTplSide = 4; //"TplSide";
+export const isTplSide = 4;
 export const isTextComponent = 1;
 export const isImgComponent = 2;
 export const isGraphComponent = 3;

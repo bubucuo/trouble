@@ -1,28 +1,56 @@
 import {create} from "zustand";
 import type {ICanvas, ICmp, _Style} from "./canvas";
 import {getCanvas} from "../request/canvas";
+import {cloneDeep, isFunction} from "lodash";
+import {getOnlyKey} from "../utils";
+import produce from "immer";
 
 export interface IEditStore {
+  // 画布数据
   canvas: ICanvas;
-  canvasChangeHistory: [];
+  // 编辑历史
+  canvasChangeHistory: Array<ICanvas>;
+  // 当前历史下标记
   canvasChangeHistoryIndex: number;
+  // 选中的组件的下标 Set
   assembly: Set<number>;
 
+  // 同步设置画布数据
+  setCanvas: (_canvas: ICanvas, dontRecordHistory?: string) => void;
+
+  // 获取服务端数据，并渲染画布
   fetchCanvas: (id: number) => void;
-  setCanvas: (_canvas: ICanvas) => void;
+
+  // ? 获取画布组件数据
   getCanvasCmps: () => Array<ICmp>;
 
-  getCanvasComponents: () => Array<ICmp>;
+  // ! 更新画布属性
+  updateCanvasStyle: (newStyle: any) => void;
+  updateCanvasTitle: (title: string) => void;
+
+  // 添加组件
+  addCmp: (_cmp: ICmp) => void;
 
   // 选中的组件
   getSelectedCmp: () => ICmp;
   setSelectedCmpIndex: (index: number) => void;
   getSelectedCmpIndex: () => number;
-  updateSelectedCmp: () => void;
+  updateSelectedCmpStyle: (newStyle: _Style) => void;
+  updateSelectedCmpValue: (newValue: string) => void;
+  updateSelectedCmpStyleAndValue: (newStyle: _Style, newValue: string) => void;
   updateAssemblyCmps: (newStyle: _Style) => void;
+  addAndUpdateAssembly: (indexes: Array<string>) => void;
+
+  // ! 更新组件属性
+  updateSelectedCmpAttr: (name: string, value: string) => void;
+
+  // 判断下标为index的组件是否被批量选中
+  belongingToAssembly: (index: number) => boolean;
 
   // 历史
   recordCanvasChangeHistory: () => void;
+  goPrevCanvasHistory: () => void;
+  goNextCanvasHistory: () => void;
 
   // 层级
   addCmpZIndex: () => void;
@@ -35,86 +63,83 @@ const maxCanvasChangeHistory = 100;
 const useEditStore = create((set, get) => ({
   canvas: getDefaultCanvas(),
   // 历史
-  canvasChangeHistory: getDefaultCanvas(),
+  canvasChangeHistory: [getDefaultCanvas()],
 
   canvasChangeHistoryIndex: 0,
   assembly: new Set(),
 
-  // 异步获取数据
+  // 同步设置画布数据
+  setCanvas: (_canvas: ICanvas | null, dontRecordHistory?: string) => {
+    const store = get() as IEditStore;
+
+    set({canvas: _canvas || getDefaultCanvas()});
+    if (dontRecordHistory === undefined) {
+      store.recordCanvasChangeHistory();
+    }
+  },
+
+  // 获取服务端数据，并渲染画布
   fetchCanvas: async (id: number) => {
+    const store = get() as IEditStore;
+
     getCanvas(id, (res: any) => {
       if (res.content.length > 100) {
-        set({
-          canvas: JSON.parse(res.content),
-        });
+        store.setCanvas(JSON.parse(res.content));
+        // set({
+        //   canvas: JSON.parse(res.content),
+        // });
       }
     });
   },
 
-  setCanvas: (_canvas: ICanvas) => set({canvas: _canvas}),
-
+  // ? 获取画布组件数据
   getCanvasCmps: () => {
     const store = get() as IEditStore;
 
     return store.canvas.cmps;
   },
-  getSelectedCmpIndex: () => {
+
+  // ! 更新画布属性
+  updateCanvasStyle: (newStyle: any) => {
     const store = get() as IEditStore;
-    const selectedCmpIndex = Array.from(store.assembly)[0];
-    return selectedCmpIndex === undefined ? -1 : selectedCmpIndex;
+
+    const _canvas = produce(store.canvas, (draft) => {
+      draft.style = {
+        ...draft.style,
+        ...newStyle,
+      };
+    });
+    store.setCanvas(_canvas);
   },
 
+  updateCanvasTitle: (title: string) => {
+    const store = get() as IEditStore;
+
+    const _canvas = produce(store.canvas, (draft) => {
+      draft.title = title;
+    });
+    store.setCanvas(_canvas);
+  },
+
+  // 新增组件
+  addCmp: (_cmp: ICmp) => {
+    const store = get() as IEditStore;
+
+    const _canvas = produce(store.canvas, (draft) => {
+      draft.cmps.push({..._cmp, key: getOnlyKey()});
+    });
+
+    store.setCanvas(_canvas);
+  },
+
+  // ! 选中的组件
   getSelectedCmp: () => {
     const store = get() as IEditStore;
 
-    const cmps = store.getCanvasComponents();
+    const cmps = store.getCanvasCmps();
 
     const selectedIndex = store.getSelectedCmpIndex();
     return selectedIndex > -1 ? cmps[selectedIndex] : null;
-  },
-
-  getCanvasComponents: () => {
-    const store = get() as IEditStore;
-    return [...store.canvas.cmps];
-  },
-
-  // todo
-  updateAssemblyCmps: (newStyle: _Style) => {
-    const store = get() as IEditStore;
-    store.assembly.forEach((index) => {
-      const cmp = store.canvas.cmps[index];
-      for (const key in newStyle) {
-        cmp.style[key] += newStyle[key] - 0;
-
-        if (cmp.style.width < 10) {
-          cmp.style.width = 10;
-        }
-        if (cmp.style.height < 10) {
-          cmp.style.height = 10;
-        }
-      }
-    });
-  },
-  recordCanvasChangeHistory: () => {},
-  updateSelectedCmp: (newStyle: _Style, newValue?: string | undefined) => {
-    const store = get() as IEditStore;
-
-    const selectedCmp = store.getSelectedCmp();
-
-    const _canvas = store.canvas;
-
-    if (newStyle) {
-      _canvas.cmps[store.getSelectedCmpIndex()].style = {
-        ...selectedCmp?.style,
-        ...newStyle,
-      };
-    }
-
-    if (newValue !== undefined) {
-      _canvas.cmps[store.getSelectedCmpIndex()].value = newValue;
-    }
-
-    set({canvas: _canvas});
   },
 
   setSelectedCmpIndex: (index: number) => {
@@ -123,9 +148,166 @@ const useEditStore = create((set, get) => ({
       return;
     }
 
-    set({assembly: [...store.assembly, index]});
+    set({assembly: new Set([index])});
   },
 
+  getSelectedCmpIndex: () => {
+    const store = get() as IEditStore;
+    const selectedCmpIndex = Array.from(store.assembly)[0];
+    return selectedCmpIndex === undefined ? -1 : selectedCmpIndex;
+  },
+
+  updateSelectedCmpStyle: (newStyle: _Style) => {
+    const store = get() as IEditStore;
+    const selectedCmp = store.getSelectedCmp();
+
+    const _canvas = produce(store.canvas, (draft) => {
+      draft.cmps[store.getSelectedCmpIndex()].style = {
+        ...selectedCmp?.style,
+        ...newStyle,
+      };
+    });
+
+    store.setCanvas(_canvas);
+  },
+  updateSelectedCmpValue: (newValue: string) => {
+    const store = get() as IEditStore;
+    const _canvas = produce(store.canvas, (draft) => {
+      draft.cmps[store.getSelectedCmpIndex()].value = newValue;
+    });
+
+    store.setCanvas(_canvas);
+  },
+
+  updateSelectedCmpStyleAndValue: (newStyle: _Style, newValue: string) => {
+    const store = get() as IEditStore;
+    const selectedCmp = store.getSelectedCmp();
+
+    const _canvas = produce(store.canvas, (draft) => {
+      draft.cmps[store.getSelectedCmpIndex()].style = {
+        ...selectedCmp?.style,
+        ...newStyle,
+      };
+
+      draft.cmps[store.getSelectedCmpIndex()].value = newValue;
+    });
+
+    store.setCanvas(_canvas);
+  },
+
+  // todo
+  updateAssemblyCmps: (newStyle: _Style) => {
+    const store = get() as IEditStore;
+
+    const _canvas = produce(store.canvas, (draft) => {
+      store.assembly.forEach((index) => {
+        const cmp = draft.cmps[index];
+        for (const key in newStyle) {
+          cmp.style[key] += newStyle[key] - 0;
+
+          if (cmp.style.width < 10) {
+            cmp.style.width = 10;
+          }
+          if (cmp.style.height < 10) {
+            cmp.style.height = 10;
+          }
+        }
+      });
+    });
+
+    store.setCanvas(_canvas, "dontRecordHistory");
+  },
+
+  addAndUpdateAssembly: (indexes: Array<number>) => {
+    const store = get() as IEditStore;
+    set({assembly: new Set([...store.assembly, ...indexes])});
+  },
+
+  updateSelectedCmpAttr: (name: string, value: string) => {
+    const store = get() as IEditStore;
+
+    const selectedIndex = store.getSelectedCmpIndex();
+
+    const _canvas = produce(store.canvas, (draft) => {
+      draft.cmps[selectedIndex][name] = value;
+    });
+
+    store.setCanvas(_canvas);
+  },
+
+  // ! 判断下标为index的组件是否被批量选中
+  belongingToAssembly: (index: number) => {
+    const store = get() as IEditStore;
+    return isFunction(store.assembly.has) && store.assembly.has(index);
+  },
+
+  // ! 历史
+  recordCanvasChangeHistory: () => {
+    const store = get() as IEditStore;
+
+    let _canvasChangeHistoryIndex = store.canvasChangeHistoryIndex;
+
+    let _canvasChangeHistory = produce(store.canvasChangeHistory, (draft) => {
+      draft.push(cloneDeep(store.canvas));
+      _canvasChangeHistoryIndex++;
+    });
+
+    _canvasChangeHistory = _canvasChangeHistory.slice(
+      0,
+      _canvasChangeHistoryIndex + 1
+    );
+
+    // 最多记录100条
+    if (_canvasChangeHistory.length > maxCanvasChangeHistory) {
+      _canvasChangeHistory.shift();
+      _canvasChangeHistoryIndex--;
+    }
+
+    set({
+      canvasChangeHistory: _canvasChangeHistory,
+      canvasChangeHistoryIndex: _canvasChangeHistoryIndex,
+    });
+  },
+
+  goPrevCanvasHistory: () => {
+    const store = get() as IEditStore;
+
+    let newIndex = store.canvasChangeHistoryIndex - 1;
+    if (newIndex < 0) {
+      newIndex = 0;
+    }
+
+    if (store.canvasChangeHistoryIndex === newIndex) {
+      return;
+    }
+    const newCanvas = cloneDeep(store.canvasChangeHistory[newIndex]);
+    set({
+      canvasChangeHistoryIndex: newIndex,
+      canvas: newCanvas,
+    });
+  },
+
+  goNextCanvasHistory: () => {
+    const store = get() as IEditStore;
+
+    let newIndex = store.canvasChangeHistoryIndex + 1;
+    if (newIndex >= store.canvasChangeHistory.length) {
+      newIndex = store.canvasChangeHistory.length - 1;
+    }
+
+    if (store.canvasChangeHistoryIndex === newIndex) {
+      return;
+    }
+
+    const newCanvas = cloneDeep(store.canvasChangeHistory[newIndex]);
+
+    set({
+      canvasChangeHistoryIndex: newIndex,
+      canvas: newCanvas,
+    });
+  },
+
+  // ! 层级
   // 0 1  3 2 4
   // 上移
   addCmpZIndex: () => {
@@ -208,8 +390,6 @@ const useEditStore = create((set, get) => ({
 
     store.recordCanvasChangeHistory();
   },
-
-  // removeAllBears: () => set({bears: 0}),
 }));
 
 export default useEditStore;

@@ -1,12 +1,12 @@
 import {useEffect} from "react";
-import {useCanvasId, useCanvas} from "./hooks";
-import useEditStore from "./editStore";
+import {useCanvasId} from "./hooks";
+import useEditStore, {IEditStore} from "./editStore";
 import {isEqual} from "lodash";
 
 // 通过网络请求获取画布数据
 export function useFetchCanvas() {
   const id = useCanvasId();
-  const editStore = useEditStore();
+  const editStore = useEditStore() as IEditStore;
 
   useEffect(() => {
     if (id !== null) {
@@ -16,7 +16,7 @@ export function useFetchCanvas() {
 }
 
 export function useCanvasFromEditStore() {
-  const editStore = useEditStore();
+  const editStore = useEditStore() as IEditStore;
   return editStore.canvas;
 }
 

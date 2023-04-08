@@ -1,5 +1,7 @@
 import {defaultCommonStyle} from "src/utils/const";
 import {isImgComponent} from "../index";
+import useEditStore from "src/store/editStore";
+import leftSideStyles from "../leftSide.module.less";
 
 const defaultStyle = {
   ...defaultCommonStyle,
@@ -291,9 +293,9 @@ arithmetic.forEach((item) => {
 });
 
 export default function ImgSide() {
-  // const canvas = useCanvasByContext();
+  const editStore = useEditStore();
   const addCmp = (_cmp: any) => {
-    // canvas.addCmp(_cmp);
+    editStore.addCmp(_cmp);
   };
 
   const onDragStart = (e: any, _cmp: any) => {

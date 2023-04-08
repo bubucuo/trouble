@@ -2,33 +2,45 @@ import classNames from "classnames";
 import styles from "./index.module.less";
 import {useNavigate} from "react-router-dom";
 import {Link} from "react-router-dom";
+import useEditStore, {IEditStore} from "src/store/editStore";
+import {useCanvasId} from "src/store/hooks";
+import {useEditStoreCanvas} from "src/store/editHooks";
+import {saveCanvas} from "src/request/canvas";
 
 export default function Header() {
-  // const canvas = useCanvasByContext();
-
+  const editStore = useEditStore() as IEditStore;
+  const canvas = useEditStoreCanvas();
   const navigate = useNavigate();
 
-  // const id = useCanvasId();
+  const id = useCanvasId();
 
   const save = () => {
-    // const data = canvas.getCanvas();
-    // console.log(
-    //   "%c [  ]-25",
-    //   "font-size:13px; background:pink; color:#bf2c9f;",
-    //   data
-    // );
+    saveCanvas(
+      {
+        id,
+        content: JSON.stringify(canvas),
+        title: canvas.title,
+        type: "template",
+      },
+      (res: any) => {
+        alert("保存成功");
+        if (id == null) {
+          navigate("?id=" + res.id);
+        }
+      }
+    );
   };
 
   const emptyCanvas = () => {
-    // canvas.setCanvas(null);
+    editStore.setCanvas(null);
   };
 
   const goPrevCanvasHistory = () => {
-    // canvas.goPrevCanvasHistory();
+    editStore.goPrevCanvasHistory();
   };
 
   const goNextCanvasHistory = () => {
-    // canvas.goNextCanvasHistory();
+    editStore.goNextCanvasHistory();
   };
 
   return (

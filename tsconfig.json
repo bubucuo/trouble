@@ -15,7 +15,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react"
+    "jsx": "react",
+    "paths": {
+      "src/*": ["./src/*"]
+    }
+
+
   },
   "include": ["src", "**/*.ts", "**/*.tsx"], // 默认只支持ts文件，这里支持下tsx
   "references": [{ "path": "./tsconfig.node.json" }]

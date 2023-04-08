@@ -2,6 +2,7 @@ import {defaultCommonStyle} from "src/utils/const";
 import {isTextComponent} from "../index";
 
 import leftSideStyles from "../leftSide.module.less";
+import useEditStore from "src/store/editStore";
 
 const defaultStyle = {
   ...defaultCommonStyle,
@@ -34,9 +35,9 @@ const settings = [
 ];
 
 export default function TextSide() {
-  // const canvas = useCanvasByContext();
+  const editStore = useEditStore();
   const addCmp = (_cmp: any) => {
-    // canvas.addCmp(_cmp);
+    editStore.addCmp(_cmp);
   };
   const onDragStart = (e: any, _cmp: any) => {
     e.dataTransfer.setData("drag-cmp", JSON.stringify(_cmp));

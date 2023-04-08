@@ -1,6 +1,8 @@
 import {defaultCommonStyle} from "src/utils/const";
 import leftSideStyles from "../leftSide.module.less";
 import {isGraphComponent} from "../index";
+import useEditStore from "src/store/editStore";
+import {ICmp} from "src/store/canvas";
 
 const defaultStyle = {
   ...defaultCommonStyle,
@@ -27,9 +29,9 @@ const settings = [
 ];
 
 export default function GraphSide() {
-  // const canvas = useCanvasByContext();
-  const addCmp = (_cmp: any) => {
-    // canvas.addCmp(_cmp);
+  const editStore = useEditStore();
+  const addCmp = (_cmp: ICmp) => {
+    editStore.addCmp(_cmp);
   };
 
   const onDragStart = (e: any, _cmp: any) => {

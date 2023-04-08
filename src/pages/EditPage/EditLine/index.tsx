@@ -89,7 +89,10 @@ export default class EditLine extends Component<
     const newValue = e.target.value;
     // 如果改变文本高度，则调整组件框高度
     const textHeight = this.textareaRef?.current?.scrollHeight;
-    this.props.editStore.updateSelectedCmp({height: textHeight}, newValue);
+    this.props.editStore.updateSelectedCmpStyleAndValue(
+      {height: textHeight},
+      newValue
+    );
     this.props.editStore.recordCanvasChangeHistory();
   };
 

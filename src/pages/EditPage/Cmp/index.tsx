@@ -8,12 +8,14 @@ import {ICmp} from "src/store/canvas";
 
 import styles from "./index.module.less";
 import {isImgComponent, isTextComponent} from "../Left";
+import {IEditStore} from "../../../store/editStore";
 
 // todo 拖拽、删除、改变层级关系等
 
 interface ICmpProps {
   cmp: ICmp;
   index: number;
+  editStore: IEditStore;
 }
 
 // 按键小幅度移动的事件写在了Center中
@@ -23,12 +25,16 @@ export default class Cmp extends Component<ICmpProps> {
   // context: any;
 
   setSelected = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log(
+      "%c [  ]-29",
+      "font-size:13px; background:pink; color:#bf2c9f;"
+    );
     //
     if (e.metaKey) {
       // 把选中的组件填入组件集合
-      // this.context.addAndUpdateAssembly(this.props.index);
+      this.props.editStore.addAndUpdateAssembly(this.props.index);
     } else {
-      // this.context.setSelectedCmpIndex(this.props.index);
+      this.props.editStore.setSelectedCmpIndex(this.props.index);
     }
   };
 
@@ -41,12 +47,12 @@ export default class Cmp extends Component<ICmpProps> {
 
     const zIndex = index;
 
-    // const belongingToAssembly = this.context.belongingToAssembly(index);
+    const belongingToAssembly = this.props.editStore.belongingToAssembly(index);
 
     const innerWidth = style.width - (style.borderWidth || 0) * 2;
     const innerHeight = style.height - (style.borderWidth || 0) * 2;
 
-    // const selectedIndex = this.context.getSelectedCmpIndex();
+    const selectedIndex = this.props.editStore.getSelectedCmpIndex();
     return (
       <div
         id={cmp.key + ""}
@@ -57,12 +63,12 @@ export default class Cmp extends Component<ICmpProps> {
           zIndex,
         }}
         onClick={this.setSelected}>
-        {/* {selectedIndex !== index && belongingToAssembly && (
+        {selectedIndex !== index && belongingToAssembly && (
           <Lines
             style={{width, height, transform}}
             basePos={style.borderWidth}
           />
-        )} */}
+        )}
 
         {/* 组件本身 , 注意如果是文本组件 ，如果处于选中状态，则目前处理是，textarea与这里的div Text重叠*/}
         <div

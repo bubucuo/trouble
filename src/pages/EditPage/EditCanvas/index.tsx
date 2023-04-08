@@ -2,11 +2,12 @@ import InputColor from "src/lib/InputColor";
 import Item from "src/lib/Item";
 import {ChangeEvent} from "react";
 import styles from "./index.module.less";
-import useEditStore from "../../../store/editStore";
+import useEditStore, {IEditStore} from "src/store/editStore";
+import {useEditStoreCanvas} from "src/store/editHooks";
 
 export default function EditCanvas() {
-  const editStore = useEditStore(); //useCanvasByContext();
-  const canvasData = editStore.canvas; // canvas.getCanvas();
+  const editStore = useEditStore() as IEditStore;
+  const canvasData = useEditStoreCanvas(); // editStore.canvas; // canvas.getCanvas();
   const style = canvasData.style; // editStore.getCanvas().style;
 
   const handleStyleChange = (
@@ -26,7 +27,8 @@ export default function EditCanvas() {
           value={canvasData.title}
           onChange={(e) => {
             let newValue = e.target.value;
-            editStore.setCanvas({title: newValue});
+            // editStore.setCanvas({title: newValue});
+            editStore.updateCanvasTitle(newValue);
           }}
         />
       </Item>

@@ -1,8 +1,8 @@
 import {Component} from "react";
 import classNames from "classnames";
 import {CanvasContext} from "src/Context";
-import styles from "./index.less";
-import {IEditStore} from "../../../../store/editStore";
+import {IEditStore} from "src/store/editStore";
+import styles from "./index.module.less";
 
 interface IRotateProps {
   zoom: number;

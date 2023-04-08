@@ -1,20 +1,21 @@
 import InputColor from "src/lib/InputColor";
 import Item from "src/lib/Item";
-import {isImgComponent} from "../Left";
+import {isImgComponent, isTextComponent} from "../Left";
 import styles from "./index.module.less";
-import useEditStore from "../../../store/editStore";
+import useEditStore, {IEditStore} from "src/store/editStore";
+import {useEditStoreCanvas} from "src/store/editHooks";
 
 export default function EditCmp() {
-  const canvas = useEditStore();
+  const editStore = useEditStore() as IEditStore;
 
-  const selectedCmp = canvas.getSelectedCmp();
+  const selectedCmp = editStore.getSelectedCmp();
 
   const {value, style, onClick = ""} = selectedCmp;
 
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    canvas.updateSelectedCmp(null, newValue);
-    canvas.recordCanvasChangeHistory();
+    editStore.updateSelectedCmpValue(newValue);
+    // editStore.recordCanvasChangeHistory();
   };
 
   const handleStyleChange = (
@@ -22,20 +23,25 @@ export default function EditCmp() {
     {name, value}: {name: string; value: string | number}
   ) => {
     const newStyle = {[name]: value};
+    console.log(
+      "%c [ newStyle ]-26",
+      "font-size:13px; background:pink; color:#bf2c9f;",
+      newStyle
+    );
 
-    canvas.updateSelectedCmp(newStyle);
-    canvas.recordCanvasChangeHistory();
+    editStore.updateSelectedCmpStyle(newStyle);
+    // editStore.recordCanvasChangeHistory();
   };
 
   const handleAttrChange = (
     e: any,
     {name, value}: {name: string; value: string}
   ) => {
-    canvas.updateSelectedCmpAttr(name, value);
-    canvas.recordCanvasChangeHistory();
+    editStore.updateSelectedCmpAttr(name, value);
+    // editStore.recordCanvasChangeHistory();
   };
 
-  const canvasData = canvas.getCanvas();
+  const canvasData = useEditStoreCanvas();
   const canvasWidth = canvasData.style.width;
   const selectCmpWidth = selectedCmp.style.width;
 

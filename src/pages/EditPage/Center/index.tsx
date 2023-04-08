@@ -7,7 +7,7 @@ import Cmp from "../Cmp";
 import EditLine from "../EditLine";
 
 export default function Center() {
-  const editStore = useEditStore(); // useCanvasByContext();
+  const editStore = useEditStore() as IEditStore;
 
   const canvasData = useEditStoreCanvas();
 
@@ -161,7 +161,7 @@ export default function Center() {
           }}>
           {/* 组件区域 */}
           {cmps.map((cmp: any, index: number) => (
-            <Cmp key={cmp.key} cmp={cmp} index={index} />
+            <Cmp key={cmp.key} cmp={cmp} index={index} editStore={editStore} />
           ))}
         </div>
       </div>

@@ -1,12 +1,12 @@
 import {useState} from "react";
-import styles from "./index.module.less";
-import useEditStore from "../../../store/editStore";
+import useEditStore, {IEditStore} from "src/store/editStore";
 import EditCmp from "../EditCmp";
 import EditCanvas from "../EditCanvas";
+import styles from "./index.module.less";
 
 export default function Right() {
-  const canvas = useEditStore(); // useCanvasByContext();
-  const selectedCmp = canvas.getSelectedCmp();
+  const editStore = useEditStore() as IEditStore;
+  const selectedCmp = editStore.getSelectedCmp();
 
   const [showEdit, setShowEdit] = useState(true);
 
