@@ -1,6 +1,6 @@
-import styles from "./index.less";
 import classNames from "classnames";
 import useEditStore from "../../../../store/editStore";
+import styles from "./index.module.less";
 
 export default function ContextMenu({style}: any) {
   // const editStore = useCanvasByContext();

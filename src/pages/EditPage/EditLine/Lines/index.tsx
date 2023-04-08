@@ -1,7 +1,6 @@
 import {Component} from "react";
 import classNames from "classnames";
-import styles from "./index.less";
-
+import styles from "./index.module.less";
 interface ILinesProps {
   style: any;
   basePos?: number;
