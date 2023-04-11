@@ -5,6 +5,13 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // server: {
+  //   proxy: {
+  //     "/api": "http://admin.josephxia.com:4000",
+  //     "/auth": "http://admin.josephxia.com:4000",
+  //   },
+  // },
+
   plugins: [tsconfigPaths(), react()],
 
   // resolve: {
