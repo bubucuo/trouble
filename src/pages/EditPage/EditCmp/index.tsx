@@ -15,7 +15,7 @@ export default function EditCmp() {
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     editStore.updateSelectedCmpValue(newValue);
-    // editStore.recordCanvasChangeHistory();
+    editStore.recordCanvasChangeHistoryAfterBatch();
   };
 
   const handleStyleChange = (
@@ -30,7 +30,7 @@ export default function EditCmp() {
     );
 
     editStore.updateSelectedCmpStyle(newStyle);
-    // editStore.recordCanvasChangeHistory();
+    editStore.recordCanvasChangeHistoryAfterBatch();
   };
 
   const handleAttrChange = (
@@ -38,7 +38,7 @@ export default function EditCmp() {
     {name, value}: {name: string; value: string}
   ) => {
     editStore.updateSelectedCmpAttr(name, value);
-    // editStore.recordCanvasChangeHistory();
+    editStore.recordCanvasChangeHistoryAfterBatch();
   };
 
   const canvasData = useEditStoreCanvas();

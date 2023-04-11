@@ -1,7 +1,7 @@
 import {Component} from "react";
 import classNames from "classnames";
 import {CanvasContext} from "src/Context";
-import {IEditStore} from "src/store/editStore";
+import {IEditStore, dontRecordHistory} from "src/store/editStore";
 import styles from "./index.module.less";
 
 interface IRotateProps {
@@ -48,15 +48,18 @@ export default class Rotate extends Component<IRotateProps> {
 
       deg = Math.ceil(deg); // parseInt(deg);
 
-      this.props.editStore.updateAssemblyCmps({
-        transform: deg - transform,
-      });
+      this.props.editStore.updateAssemblyCmps(
+        {
+          transform: deg - transform,
+        },
+        dontRecordHistory
+      );
     };
 
     const up = () => {
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
-      this.props.editStore.recordCanvasChangeHistory();
+      this.props.editStore.recordCanvasChangeHistoryAfterBatch();
     };
 
     document.addEventListener("mousemove", move);

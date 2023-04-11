@@ -74,7 +74,10 @@ export default function Center() {
     if (e.metaKey && e.code === "KeyA") {
       // 选中所有组件
       const allCmps = editStore.getCanvasCmps();
-      editStore.addAndUpdateAssembly(Object.keys(allCmps));
+      // 返回所有数组下标
+      editStore.addAndUpdateAssembly(
+        Object.keys(allCmps).map((item: string): number => parseInt(item))
+      );
       e.preventDefault();
       return;
     }
@@ -121,7 +124,6 @@ export default function Center() {
     }
 
     editStore.updateAssemblyCmps(newStyle);
-    editStore.recordCanvasChangeHistory();
   };
 
   return (

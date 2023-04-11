@@ -5,7 +5,7 @@ import Rotate from "./Rotate";
 import Lines from "./Lines";
 import {isTextComponent} from "../Left";
 import styles from "./index.module.less";
-import {IEditStore} from "../../../store/editStore";
+import {IEditStore, dontRecordHistory} from "../../../store/editStore";
 
 interface IEditLineProps {
   zoom: number;
@@ -15,7 +15,6 @@ interface IEditLineProps {
 
 interface IEditLineState {
   textareaFocused: boolean;
-  showContextMenu: boolean;
 }
 
 // todo 拖拽、删除、改变层级关系等
@@ -34,17 +33,7 @@ export default class EditLine extends Component<
   constructor(props: IEditLineProps) {
     super(props);
 
-    this.state = {textareaFocused: false, showContextMenu: false};
-  }
-
-  componentDidUpdate(prevProps: IEditLineProps) {
-    // 切换选中组件的时候，如果右键出现的菜单栏出现，则藏掉
-    if (
-      prevProps.selectedIndex !== this.props.selectedIndex &&
-      this.state.showContextMenu
-    ) {
-      this.hideShowContextMenu();
-    }
+    this.state = {textareaFocused: false};
   }
 
   // 在画布上移动组件位置
@@ -70,7 +59,10 @@ export default class EditLine extends Component<
       disX = disX * (100 / zoom);
       disY = disY * (100 / zoom);
 
-      this.props.editStore.updateAssemblyCmps({top: disY, left: disX});
+      this.props.editStore.updateAssemblyCmps(
+        {top: disY, left: disX},
+        dontRecordHistory
+      );
 
       startX = x;
       startY = y;
@@ -79,7 +71,7 @@ export default class EditLine extends Component<
     const up = () => {
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
-      this.props.editStore.recordCanvasChangeHistory();
+      this.props.editStore.recordCanvasChangeHistoryAfterBatch();
     };
     document.addEventListener("mousemove", move);
     document.addEventListener("mouseup", up);
@@ -93,16 +85,6 @@ export default class EditLine extends Component<
       {height: textHeight},
       newValue
     );
-    this.props.editStore.recordCanvasChangeHistory();
-  };
-
-  handleShowContextMenu = (e) => {
-    e.preventDefault();
-    this.setState({showContextMenu: true});
-  };
-
-  hideShowContextMenu = () => {
-    this.setState({showContextMenu: false});
   };
 
   render() {
@@ -138,7 +120,7 @@ export default class EditLine extends Component<
         }}
         // 双击，编辑文本
         onDoubleClick={(e) => {
-          this.setState({textareaFocused: true, showContextMenu: false});
+          this.setState({textareaFocused: true});
         }}>
         {cmp.type === isTextComponent && this.state.textareaFocused ? (
           <textarea
@@ -164,26 +146,19 @@ export default class EditLine extends Component<
               width,
               height,
             }}
-            onMouseDown={this.onMouseDownOfCmp}
-            onContextMenu={this.handleShowContextMenu}></div>
+            onMouseDown={this.onMouseDownOfCmp}></div>
         )}
-
-        {this.state.showContextMenu && (
-          <ContextMenu
-            style={{
-              top: 2,
-              left: width / 2,
-              transform: `scale(${100 / zoom}) rotate(${
-                0 - style.transform
-              }deg)`,
-            }}
-            editStore={this.props.editStore}
-          />
-        )}
+        <ContextMenu
+          style={{
+            top: 2,
+            left: width / 2,
+            transform: `scale(${100 / zoom}) rotate(${0 - style.transform}deg)`,
+          }}
+          editStore={this.props.editStore}
+        />
 
         {/* 选中组件的边界线 */}
         <Lines style={{width, height}} editStore={this.props.editStore} />
-
         {/* 拉伸组件的八个点 */}
         <StretchDots
           zoom={zoom}
@@ -194,7 +169,6 @@ export default class EditLine extends Component<
           }}
           editStore={this.props.editStore}
         />
-
         {/* 旋转组件的标记 */}
         <Rotate
           zoom={zoom}

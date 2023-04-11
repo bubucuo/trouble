@@ -4,6 +4,12 @@ import {getCanvas} from "../request/canvas";
 import {cloneDeep, isFunction} from "lodash";
 import {getOnlyKey} from "../utils";
 import {immer} from "zustand/middleware/immer";
+import produce from "immer";
+
+export const dontRecordHistory = "dontRecordHistory";
+
+export type Draft = any;
+type SetDraftFC = (draft: Draft) => void;
 
 export type EditStoreState = {
   // 画布数据
@@ -18,7 +24,10 @@ export type EditStoreState = {
 
 export type EditStoreAction = {
   // 同步设置画布数据
-  setCanvas: (_canvas: ICanvas, dontRecordHistory?: string) => void;
+  setCanvas: (
+    _canvas: ICanvas | null | SetDraftFC,
+    dontRecordHistory?: string
+  ) => void;
 
   // 获取服务端数据，并渲染画布
   fetchCanvas: (id: number) => void;
@@ -34,14 +43,14 @@ export type EditStoreAction = {
   addCmp: (_cmp: ICmp) => void;
 
   // 选中的组件
-  getSelectedCmp: () => ICmp;
+  getSelectedCmp: () => ICmp | null;
   setSelectedCmpIndex: (index: number) => void;
   getSelectedCmpIndex: () => number;
   updateSelectedCmpStyle: (newStyle: _Style) => void;
   updateSelectedCmpValue: (newValue: string) => void;
   updateSelectedCmpStyleAndValue: (newStyle: _Style, newValue: string) => void;
-  updateAssemblyCmps: (newStyle: _Style) => void;
-  addAndUpdateAssembly: (indexes: Array<string>) => void;
+  updateAssemblyCmps: (newStyle: _Style, dontRecordHistory?: string) => void;
+  addAndUpdateAssembly: (indexes: Array<number>) => void;
 
   // ! 更新组件属性
   updateSelectedCmpAttr: (name: string, value: string) => void;
@@ -50,80 +59,35 @@ export type EditStoreAction = {
   belongingToAssembly: (index: number) => boolean;
 
   // 历史
-  recordCanvasChangeHistory: () => void;
+  recordCanvasChangeHistory: (
+    newHistoryItem: ICanvas,
+    otherState?: Object
+  ) => void;
   goPrevCanvasHistory: () => void;
   goNextCanvasHistory: () => void;
+  recordCanvasChangeHistoryAfterBatch: () => void;
+
+  // ! 右键
+  // 批量添加、删除组件
+  addAssemblyCms: () => void;
+  deleteCmps: () => void;
 
   // 层级
   addCmpZIndex: () => void;
   subCmpZIndex: () => void;
   topZIndex: () => void;
   bottomZIndex: () => void;
+
+  //
 };
 
-export type Draft = any;
-
-// todo https://docs.pmnd.rs/zustand/integrations/immer-middleware
-export interface IEditStore {
-  // 画布数据
-  canvas: ICanvas;
-  // 编辑历史
-  canvasChangeHistory: Array<ICanvas>;
-  // 当前历史下标记
-  canvasChangeHistoryIndex: number;
-  // 选中的组件的下标 Set
-  assembly: Set<number>;
-
-  // 同步设置画布数据
-  setCanvas: (_canvas: ICanvas, dontRecordHistory?: string) => void;
-
-  // 获取服务端数据，并渲染画布
-  fetchCanvas: (id: number) => void;
-
-  // ? 获取画布组件数据
-  getCanvasCmps: () => Array<ICmp>;
-
-  // ! 更新画布属性
-  updateCanvasStyle: (newStyle: any) => void;
-  updateCanvasTitle: (title: string) => void;
-
-  // 添加组件
-  addCmp: (_cmp: ICmp) => void;
-
-  // 选中的组件
-  getSelectedCmp: () => ICmp;
-  setSelectedCmpIndex: (index: number) => void;
-  getSelectedCmpIndex: () => number;
-  updateSelectedCmpStyle: (newStyle: _Style) => void;
-  updateSelectedCmpValue: (newValue: string) => void;
-  updateSelectedCmpStyleAndValue: (newStyle: _Style, newValue: string) => void;
-  updateAssemblyCmps: (newStyle: _Style) => void;
-  addAndUpdateAssembly: (indexes: Array<string>) => void;
-
-  // ! 更新组件属性
-  updateSelectedCmpAttr: (name: string, value: string) => void;
-
-  // 判断下标为index的组件是否被批量选中
-  belongingToAssembly: (index: number) => boolean;
-
-  // 历史
-  recordCanvasChangeHistory: () => void;
-  goPrevCanvasHistory: () => void;
-  goNextCanvasHistory: () => void;
-
-  // 层级
-  addCmpZIndex: () => void;
-  subCmpZIndex: () => void;
-  topZIndex: () => void;
-  bottomZIndex: () => void;
-}
+export interface IEditStore extends EditStoreState, EditStoreAction {}
 
 const maxCanvasChangeHistory = 100;
 const useEditStore = create(
-  // immer<EditStoreState & EditStoreAction>((set, get) => ({
-  immer<IEditStore>((set, get) => ({
+  immer<EditStoreState & EditStoreAction>((set, get) => ({
     canvas: getDefaultCanvas(),
-    // 历史
+    // 历史，初始值为空数组
     canvasChangeHistory: [getDefaultCanvas()],
 
     canvasChangeHistoryIndex: 0,
@@ -131,33 +95,37 @@ const useEditStore = create(
 
     // 同步设置画布数据
     setCanvas: (
-      _canvas: ICanvas | null | Function,
+      _canvas: ICanvas | null | SetDraftFC,
       dontRecordHistory?: string
     ) => {
       const store = get() as IEditStore;
 
+      let newStore: any;
+
       if (isFunction(_canvas)) {
-        set(_canvas);
+        newStore = produce(store, _canvas);
+      } else if (_canvas !== null && typeof _canvas === "object") {
+        newStore = {canvas: _canvas};
       } else {
-        set({canvas: _canvas || getDefaultCanvas()});
+        newStore = {canvas: getDefaultCanvas()};
       }
 
       if (dontRecordHistory === undefined) {
-        store.recordCanvasChangeHistory();
+        store.recordCanvasChangeHistory(newStore.canvas, newStore);
+      } else {
+        set(newStore);
       }
     },
 
     // 获取服务端数据，并渲染画布
     fetchCanvas: async (id: number) => {
-      const store = get() as IEditStore;
-
       getCanvas(id, (res: any) => {
         if (res.content.length > 100) {
-          store.setCanvas(JSON.parse(res.content));
-
-          // set({
-          //   canvas: JSON.parse(res.content),
-          // });
+          set((draft) => {
+            draft.canvas = JSON.parse(res.content);
+            draft.canvasChangeHistory = [draft.canvas];
+            draft.canvasChangeHistoryIndex = 0;
+          });
         }
       });
     },
@@ -174,7 +142,7 @@ const useEditStore = create(
       const store = get() as IEditStore;
 
       const _canvas = (draft: Draft): any => {
-        draft.style = {
+        draft.canvas.style = {
           ...draft.style,
           ...newStyle,
         };
@@ -186,7 +154,7 @@ const useEditStore = create(
       const store = get() as IEditStore;
 
       const _canvas = (draft: Draft) => {
-        draft.title = title;
+        draft.canvas.title = title;
       };
       store.setCanvas(_canvas);
     },
@@ -196,14 +164,14 @@ const useEditStore = create(
       const store = get() as IEditStore;
 
       const _canvas = (draft: Draft) => {
-        draft.cmps.push({..._cmp, key: getOnlyKey()});
+        draft.canvas.cmps.push({..._cmp, key: getOnlyKey()});
       };
 
       store.setCanvas(_canvas);
     },
 
     // ! 选中的组件
-    getSelectedCmp: () => {
+    getSelectedCmp: (): ICmp | null => {
       const store = get() as IEditStore;
 
       const cmps = store.getCanvasCmps();
@@ -232,7 +200,7 @@ const useEditStore = create(
       const selectedCmp = store.getSelectedCmp();
 
       const _canvas = (draft: Draft) => {
-        draft.cmps[store.getSelectedCmpIndex()].style = {
+        draft.canvas.cmps[store.getSelectedCmpIndex()].style = {
           ...selectedCmp?.style,
           ...newStyle,
         };
@@ -243,7 +211,7 @@ const useEditStore = create(
     updateSelectedCmpValue: (newValue: string) => {
       const store = get() as IEditStore;
       const _canvas = (draft: Draft) => {
-        draft.cmps[store.getSelectedCmpIndex()].value = newValue;
+        draft.canvas.cmps[store.getSelectedCmpIndex()].value = newValue;
       };
 
       store.setCanvas(_canvas);
@@ -254,24 +222,24 @@ const useEditStore = create(
       const selectedCmp = store.getSelectedCmp();
 
       const _canvas = (draft: Draft) => {
-        draft.cmps[store.getSelectedCmpIndex()].style = {
+        draft.canvas.cmps[store.getSelectedCmpIndex()].style = {
           ...selectedCmp?.style,
           ...newStyle,
         };
 
-        draft.cmps[store.getSelectedCmpIndex()].value = newValue;
+        draft.canvas.cmps[store.getSelectedCmpIndex()].value = newValue;
       };
 
       store.setCanvas(_canvas);
     },
 
-    // todo
-    updateAssemblyCmps: (newStyle: _Style) => {
+    //dontRecordHistory标记频繁修改，此时不记录到历史记录里，只有up阶段才记录
+    updateAssemblyCmps: (newStyle: _Style, dontRecordHistory) => {
       const store = get() as IEditStore;
 
       const _canvas = (draft: Draft) => {
         store.assembly.forEach((index) => {
-          const cmp = draft.cmps[index];
+          const cmp = draft.canvas.cmps[index];
           for (const key in newStyle) {
             cmp.style[key] += newStyle[key] - 0;
 
@@ -285,12 +253,13 @@ const useEditStore = create(
         });
       };
 
-      store.setCanvas(_canvas, "dontRecordHistory");
+      store.setCanvas(_canvas, dontRecordHistory);
     },
 
     addAndUpdateAssembly: (indexes: Array<number>) => {
-      const store = get() as IEditStore;
-      set({assembly: new Set([...store.assembly, ...indexes])});
+      set((draft) => {
+        draft.assembly = new Set([...draft.assembly, ...indexes]);
+      });
     },
 
     updateSelectedCmpAttr: (name: string, value: string) => {
@@ -298,8 +267,8 @@ const useEditStore = create(
 
       const selectedIndex = store.getSelectedCmpIndex();
 
-      const _canvas = (draft) => {
-        draft.cmps[selectedIndex][name] = value;
+      const _canvas = (draft: Draft) => {
+        draft.canvas.cmps[selectedIndex][name] = value;
       };
 
       store.setCanvas(_canvas);
@@ -312,31 +281,25 @@ const useEditStore = create(
     },
 
     // ! 历史
-    recordCanvasChangeHistory: () => {
-      const store = get() as IEditStore;
 
-      let _canvasChangeHistoryIndex = store.canvasChangeHistoryIndex;
+    recordCanvasChangeHistory: (newHistoryItem: ICanvas, otherState = {}) => {
+      set((draft) => {
+        Object.assign(draft, otherState);
 
-      let _canvasChangeHistory = (draft: Draft) => {
-        draft.push(cloneDeep(store.canvas));
-        _canvasChangeHistoryIndex++;
-      };
+        draft.canvasChangeHistory.push(newHistoryItem);
+        draft.canvasChangeHistoryIndex++;
 
-      _canvasChangeHistory = _canvasChangeHistory.slice(
-        0,
-        _canvasChangeHistoryIndex + 1
-      );
-
-      // 最多记录100条
-      if (_canvasChangeHistory.length > maxCanvasChangeHistory) {
-        _canvasChangeHistory.shift();
-        _canvasChangeHistoryIndex--;
-      }
-
-      set({
-        canvasChangeHistory: _canvasChangeHistory,
-        canvasChangeHistoryIndex: _canvasChangeHistoryIndex,
+        if (draft.canvasChangeHistory.length > maxCanvasChangeHistory) {
+          // 溢出最大宽度，那么删除第0个元素
+          draft.canvasChangeHistory.shift();
+          draft.canvasChangeHistoryIndex--;
+        }
       });
+    },
+
+    recordCanvasChangeHistoryAfterBatch: () => {
+      const store = get() as IEditStore;
+      store.recordCanvasChangeHistory(store.canvas);
     },
 
     goPrevCanvasHistory: () => {
@@ -350,10 +313,10 @@ const useEditStore = create(
       if (store.canvasChangeHistoryIndex === newIndex) {
         return;
       }
-      const newCanvas = cloneDeep(store.canvasChangeHistory[newIndex]);
-      set({
-        canvasChangeHistoryIndex: newIndex,
-        canvas: newCanvas,
+
+      set((draft) => {
+        draft.canvas = draft.canvasChangeHistory[newIndex];
+        draft.canvasChangeHistoryIndex = newIndex;
       });
     },
 
@@ -365,39 +328,79 @@ const useEditStore = create(
         newIndex = store.canvasChangeHistory.length - 1;
       }
 
-      if (store.canvasChangeHistoryIndex === newIndex) {
+      // 如果越界
+      if (newIndex === store.canvasChangeHistory.length) {
         return;
       }
 
-      const newCanvas = cloneDeep(store.canvasChangeHistory[newIndex]);
-
-      set({
-        canvasChangeHistoryIndex: newIndex,
-        canvas: newCanvas,
+      set((draft) => {
+        draft.canvas = draft.canvasChangeHistory[newIndex];
+        draft.canvasChangeHistoryIndex = newIndex;
       });
     },
 
-    // ! 层级
-    // 0 1  3 2 4
+    // ! 右键
+    // 批量添加、删除组件
+    addAssemblyCms: () => {
+      const store = get() as IEditStore;
+
+      const newCmps: Array<ICmp> = [];
+      const newAssembly = new Set();
+      let i = store.canvas.cmps.length;
+
+      store.assembly.forEach((index) => {
+        const cmp = store.canvas.cmps[index];
+        const newCmp = cloneDeep(cmp);
+        newCmp.key = getOnlyKey();
+
+        newCmp.style.top += 40;
+        newCmp.style.left += 40;
+
+        newCmps.push(newCmp);
+
+        newAssembly.add(i++);
+      });
+
+      // 添加组件之后，更新选中的组件
+      store.setCanvas((draft) => {
+        draft.canvas.cmps = draft.canvas.cmps.concat(newCmps);
+        draft.assembly = newAssembly;
+      });
+    },
+    deleteCmps: () => {
+      const store = get() as IEditStore;
+
+      const sorted = Array.from(store.assembly).sort((a, b) => b - a);
+
+      store.setCanvas((draft) => {
+        sorted.forEach((index) => {
+          draft.canvas.cmps.splice(index, 1);
+        });
+        draft.assembly.clear();
+      });
+    },
+
+    // ! 单个元素的层级变化
     // 上移
     addCmpZIndex: () => {
       const store = get() as IEditStore;
 
-      const cmps = store.getCanvasCmps();
-
+      const cmps = store.canvas.cmps;
       const cmpIndex = store.getSelectedCmpIndex();
-      const targetIndex = cmpIndex + 1;
-      if (targetIndex >= cmps.length) {
+
+      if (cmpIndex === cmps.length - 1) {
+        // 已经是最高层级
         return;
       }
 
-      const tem = cmps[cmpIndex];
-      store.canvas.cmps[cmpIndex] = store.canvas.cmps[targetIndex];
-      store.canvas.cmps[targetIndex] = tem;
+      store.setCanvas((draft) => {
+        [draft.canvas.cmps[cmpIndex], draft.canvas.cmps[cmpIndex + 1]] = [
+          draft.canvas.cmps[cmpIndex + 1],
+          draft.canvas.cmps[cmpIndex],
+        ];
 
-      store.setSelectedCmpIndex(targetIndex);
-
-      store.recordCanvasChangeHistory();
+        draft.assembly = new Set([cmpIndex + 1]);
+      });
     },
 
     // 0 1  3 2 4
@@ -405,67 +408,63 @@ const useEditStore = create(
     subCmpZIndex: () => {
       const store = get() as IEditStore;
 
+      const cmps = store.canvas.cmps;
       const cmpIndex = store.getSelectedCmpIndex();
-      const cmps = store.getCanvasCmps();
-      const targetIndex = cmpIndex - 1;
-      if (targetIndex < 0) {
+
+      if (cmpIndex === 0) {
+        // 已经是最低层级
         return;
       }
 
-      const tem = cmps[cmpIndex];
-      store.canvas.cmps[cmpIndex] = store.canvas.cmps[targetIndex];
-      store.canvas.cmps[targetIndex] = tem;
+      store.setCanvas((draft) => {
+        [draft.canvas.cmps[cmpIndex], draft.canvas.cmps[cmpIndex - 1]] = [
+          draft.canvas.cmps[cmpIndex - 1],
+          draft.canvas.cmps[cmpIndex],
+        ];
 
-      store.setSelectedCmpIndex(targetIndex);
-
-      store.recordCanvasChangeHistory();
+        draft.assembly = new Set([cmpIndex - 1]);
+      });
     },
 
     // 0 1  3 4 2
-    // 置顶
+    // 单个元素置顶
     topZIndex: () => {
       const store = get() as IEditStore;
 
-      const cmps = store.getCanvasCmps();
-      const cmpIndex = store.getSelectedCmpIndex();
-      if (cmpIndex >= cmps.length - 1) {
-        return;
-      }
-      store.canvas.cmps = cmps
-        .slice(0, cmpIndex)
-        .concat(cmps.slice(cmpIndex + 1))
-        .concat(cmps[cmpIndex]);
+      store.setCanvas((draft) => {
+        const cmps = draft.canvas.cmps;
+        const cmpIndex = store.getSelectedCmpIndex();
 
-      store.setSelectedCmpIndex(cmps.length - 1);
+        draft.canvas.cmps = cmps
+          .slice(0, cmpIndex)
+          .concat(cmps.slice(cmpIndex + 1))
+          .concat(cmps[cmpIndex]);
 
-      store.recordCanvasChangeHistory();
+        draft.assembly = new Set([cmps.length - 1]);
+      });
     },
 
-    // 置底部
+    // 单个元素置底
     bottomZIndex: () => {
       const store = get() as IEditStore;
 
-      const cmps = store.getCanvasCmps();
-      const cmpIndex = store.getSelectedCmpIndex();
+      store.setCanvas((draft) => {
+        const cmps = draft.canvas.cmps;
+        const cmpIndex = store.getSelectedCmpIndex();
 
-      if (cmpIndex <= 0) {
-        return;
-      }
+        draft.canvas.cmps = [cmps[cmpIndex]]
+          .concat(cmps.slice(0, cmpIndex))
+          .concat(cmps.slice(cmpIndex + 1));
 
-      store.canvas.cmps = [cmps[cmpIndex]]
-        .concat(cmps.slice(0, cmpIndex))
-        .concat(cmps.slice(cmpIndex + 1));
-
-      store.setSelectedCmpIndex(0);
-
-      store.recordCanvasChangeHistory();
+        draft.assembly = new Set([0]);
+      });
     },
   }))
 );
 
 export default useEditStore;
 
-function getDefaultCanvas() {
+function getDefaultCanvas(): ICanvas {
   return {
     title: "未命名",
     // 页面样式

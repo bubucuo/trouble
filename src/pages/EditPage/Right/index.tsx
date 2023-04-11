@@ -8,7 +8,7 @@ export default function Right() {
   const editStore = useEditStore() as IEditStore;
   const selectedCmp = editStore.getSelectedCmp();
 
-  const [showEdit, setShowEdit] = useState(true);
+  const [showEdit, setShowEdit] = useState(false);
 
   return (
     <div className={styles.main}>

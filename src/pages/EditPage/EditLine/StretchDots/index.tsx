@@ -1,6 +1,6 @@
 import {Component} from "react";
 import styles from "./index.module.less";
-import {IEditStore} from "../../../../store/editStore";
+import {IEditStore, dontRecordHistory} from "../../../../store/editStore";
 
 interface IStretchProps {
   zoom: number;
@@ -56,7 +56,8 @@ export default class StretchDots extends Component<IStretchProps> {
         height: disY,
       });
 
-      this.props.editStore.updateAssemblyCmps(newStyle);
+      // 频繁修改，此时不记录到历史记录里，只有up阶段才记录
+      this.props.editStore.updateAssemblyCmps(newStyle, dontRecordHistory);
 
       startX = x;
       startY = y;
@@ -66,7 +67,7 @@ export default class StretchDots extends Component<IStretchProps> {
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
 
-      this.props.editStore.recordCanvasChangeHistory();
+      this.props.editStore.recordCanvasChangeHistoryAfterBatch();
     };
     document.addEventListener("mousemove", move);
     document.addEventListener("mouseup", up);

@@ -22,8 +22,12 @@ export function useCanvasFromEditStore() {
 
 export function useEditStoreCanvas() {
   const canvas = useEditStore((state) => state.canvas, isEqual);
-
   return canvas;
+}
+
+export function useAssemblyFromEditStore() {
+  const assembly = useEditStore((state) => state.assembly, isEqual);
+  return assembly;
 }
 
 export function useSelectedCmp() {}

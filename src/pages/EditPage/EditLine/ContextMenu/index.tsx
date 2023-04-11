@@ -1,10 +1,9 @@
 import classNames from "classnames";
-import useEditStore from "../../../../store/editStore";
+import useEditStore from "src/store/editStore";
 import styles from "./index.module.less";
+import {useAssemblyFromEditStore} from "src/store/editHooks";
 
 export default function ContextMenu({style}: any) {
-  // const editStore = useCanvasByContext();
-
   const editStore = useEditStore();
 
   const copy = (e) => {
@@ -36,7 +35,7 @@ export default function ContextMenu({style}: any) {
     e.stopPropagation();
     editStore.bottomZIndex();
   };
-  const hasAssembly = editStore.hasAssembly();
+  const assembly = useAssemblyFromEditStore();
   return (
     <ul className={classNames(styles.main)} style={style}>
       <li className={styles.item} onClick={copy}>
@@ -45,7 +44,7 @@ export default function ContextMenu({style}: any) {
       <li className={styles.item} onClick={del}>
         删除组件
       </li>
-      {!hasAssembly && (
+      {assembly.size === 1 && (
         <>
           <li className={styles.item} onClick={addCmpZIndex}>
             上移一层
