@@ -11,9 +11,6 @@ interface IStretchProps {
 }
 
 export default class StretchDots extends Component<IStretchProps> {
-  // static contextType = CanvasContext;
-  // context: any;
-
   // 伸缩组件 style top left width height
   onMouseDown = (e) => {
     const direction = e.target.dataset.direction;

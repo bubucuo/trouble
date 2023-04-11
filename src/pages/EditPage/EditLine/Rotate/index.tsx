@@ -12,9 +12,6 @@ interface IRotateProps {
 }
 
 export default class Rotate extends Component<IRotateProps> {
-  // static contextType = CanvasContext;
-  // context: any;
-
   // 旋转组件
   rotate = (e) => {
     e.stopPropagation();
