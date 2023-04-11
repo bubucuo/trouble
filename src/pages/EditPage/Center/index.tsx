@@ -1,8 +1,12 @@
-import {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import classNames from "classnames";
 import styles from "./index.module.less";
-import {useEditStoreCanvas} from "src/store/editHooks";
-import useEditStore from "src/store/editStore";
+import {useCanvasFromEditStore} from "src/store/editStoreHooks";
+import useEditStore, {
+  cmpsSelector,
+  selectedCmpIndexSelector,
+  selectedCmpSelector,
+} from "src/store/editStore";
 
 import Cmp from "../Cmp";
 import EditLine from "../EditLine";
@@ -11,7 +15,7 @@ import ContextMenu from "../ContextMenu";
 export default function Center() {
   const editStore = useEditStore();
 
-  const canvasData = useEditStoreCanvas();
+  const canvasData = useCanvasFromEditStore();
 
   const {style, cmps} = canvasData;
 
@@ -35,7 +39,9 @@ export default function Center() {
 
       const canvasDOMPos = {
         top: 110,
-        left: document.body.clientWidth / 2 - (style.width / 2) * (zoom / 100),
+        left:
+          document.body.clientWidth / 2 -
+          (parseInt(style.width) / 2) * (zoom / 100),
       };
 
       const startX = canvasDOMPos.left;
@@ -59,7 +65,7 @@ export default function Center() {
     e.preventDefault();
   }, []);
 
-  const selectedIndex = editStore.getSelectedCmpIndex();
+  const selectedIndex = selectedCmpIndexSelector(editStore);
 
   useEffect(() => {
     document.onkeydown = whichKeyEvent;
@@ -75,7 +81,7 @@ export default function Center() {
 
     if (e.metaKey && e.code === "KeyA") {
       // 选中所有组件
-      const allCmps = editStore.getCanvasCmps();
+      const allCmps = cmpsSelector(editStore);
       // 返回所有数组下标
       editStore.addAndUpdateAssembly(
         Object.keys(allCmps).map((item: string): number => parseInt(item))
@@ -84,7 +90,7 @@ export default function Center() {
       return;
     }
 
-    const selectedCmp = editStore.getSelectedCmp();
+    const selectedCmp = selectedCmpSelector(editStore);
     if (!selectedCmp) {
       return;
     }
@@ -150,11 +156,7 @@ export default function Center() {
         onDragOver={allowDrop}>
         {/* 组件选中的时候，画布显示该组件的编辑区域 */}
         {selectedIndex !== -1 && (
-          <EditLine
-            selectedIndex={selectedIndex}
-            zoom={zoom}
-            editStore={editStore}
-          />
+          <EditLine selectedIndex={selectedIndex} zoom={zoom} />
         )}
 
         <div

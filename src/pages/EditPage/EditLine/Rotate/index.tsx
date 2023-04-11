@@ -1,24 +1,30 @@
-import {Component} from "react";
 import classNames from "classnames";
 import styles from "./index.module.less";
-import type {IEditStore} from "src/store/editStoreTypes";
-import {dontRecordHistory} from "src/store/editStore";
+import useEditStore, {
+  dontRecordHistory,
+  selectedCmpSelector,
+} from "src/store/editStore";
 import {throttle} from "lodash";
 
 interface IRotateProps {
   zoom: number;
   style: any;
-  editStore: IEditStore;
 }
 
-export default class Rotate extends Component<IRotateProps> {
+export default function Rotate(props: IRotateProps) {
+  const editStore = useEditStore();
+
+  const {zoom, style} = props;
+  const {width, height, transform} = style;
+
   // 旋转组件
-  rotate = (e) => {
+  const rotate = (e) => {
     e.stopPropagation();
     e.preventDefault();
 
-    const cmp = this.props.editStore.getSelectedCmp();
-    const {zoom} = this.props;
+    const cmp = selectedCmpSelector(editStore);
+
+    const {zoom} = props;
     const {style} = cmp;
     const {height, transform} = style;
     const trans = parseFloat(transform);
@@ -46,7 +52,7 @@ export default class Rotate extends Component<IRotateProps> {
 
       deg = Math.ceil(deg); // parseInt(deg);
 
-      this.props.editStore.updateAssemblyCmps(
+      editStore.updateAssemblyCmps(
         {
           transform: deg - transform,
         },
@@ -57,26 +63,21 @@ export default class Rotate extends Component<IRotateProps> {
     const up = () => {
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
-      this.props.editStore.recordCanvasChangeHistoryAfterBatch();
+      editStore.recordCanvasChangeHistoryAfterBatch();
     };
 
     document.addEventListener("mousemove", move);
     document.addEventListener("mouseup", up);
   };
-
-  render() {
-    const {zoom, style} = this.props;
-    const {width, height, transform} = style;
-    return (
-      <div
-        className={classNames(styles.rotate, "iconfont icon-xuanzhuan")}
-        style={{
-          top: height + (30 * 100) / zoom,
-          left: width / 2 - 13,
-          transform,
-        }}
-        onMouseDown={this.rotate}
-      />
-    );
-  }
+  return (
+    <div
+      className={classNames(styles.rotate, "iconfont icon-xuanzhuan")}
+      style={{
+        top: height + (30 * 100) / zoom,
+        left: width / 2 - 13,
+        transform,
+      }}
+      onMouseDown={rotate}
+    />
+  );
 }

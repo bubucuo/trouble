@@ -1,18 +1,19 @@
-import {Component} from "react";
 import styles from "./index.module.less";
-import type {IEditStore} from "src/store/editStoreTypes";
-import {dontRecordHistory} from "src/store/editStore";
+import useEditStore, {dontRecordHistory} from "src/store/editStore";
 import {throttle} from "lodash";
 
 interface IStretchProps {
   zoom: number;
   style: any;
-  editStore: IEditStore;
 }
 
-export default class StretchDots extends Component<IStretchProps> {
+export default function StretchDots(props: IStretchProps) {
+  const editStore = useEditStore();
+  const {style} = props;
+  const {width, height, transform} = style;
+
   // 伸缩组件 style top left width height
-  onMouseDown = (e) => {
+  const onMouseDown = (e) => {
     const direction = e.target.dataset.direction;
     if (!direction) {
       return;
@@ -23,7 +24,7 @@ export default class StretchDots extends Component<IStretchProps> {
     let startX = e.pageX;
     let startY = e.pageY;
 
-    const {zoom} = this.props;
+    const {zoom} = props;
     let hasMoved = false;
     const move = throttle((e) => {
       hasMoved = true;
@@ -59,7 +60,7 @@ export default class StretchDots extends Component<IStretchProps> {
 
       // 频繁修改，此时不记录到历史记录里，只有up阶段才记录
       if (hasMoved) {
-        this.props.editStore.updateAssemblyCmps(newStyle, dontRecordHistory);
+        editStore.updateAssemblyCmps(newStyle, dontRecordHistory);
       }
       startX = x;
       startY = y;
@@ -69,112 +70,108 @@ export default class StretchDots extends Component<IStretchProps> {
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
 
-      this.props.editStore.recordCanvasChangeHistoryAfterBatch();
+      editStore.recordCanvasChangeHistoryAfterBatch();
     };
     document.addEventListener("mousemove", move);
     document.addEventListener("mouseup", up);
   };
 
-  render() {
-    const {style} = this.props;
-    const {width, height, transform} = style;
-    return (
-      <>
-        <div
-          className={styles.stretchDot}
-          style={{
-            top: -8,
-            left: -8,
-            transform,
-            cursor: "nwse-resize",
-          }}
-          data-direction="top, left"
-          onMouseDown={this.onMouseDown}
-        />
+  return (
+    <>
+      <div
+        className={styles.stretchDot}
+        style={{
+          top: -8,
+          left: -8,
+          transform,
+          cursor: "nwse-resize",
+        }}
+        data-direction="top, left"
+        onMouseDown={onMouseDown}
+      />
 
-        <div
-          className={styles.stretchDot}
-          style={{
-            top: -8,
-            left: width / 2 - 8,
-            transform,
-            cursor: "row-resize",
-          }}
-          data-direction="top"
-          onMouseDown={this.onMouseDown}
-        />
+      <div
+        className={styles.stretchDot}
+        style={{
+          top: -8,
+          left: width / 2 - 8,
+          transform,
+          cursor: "row-resize",
+        }}
+        data-direction="top"
+        onMouseDown={onMouseDown}
+      />
 
-        <div
-          className={styles.stretchDot}
-          style={{
-            top: -8,
-            left: width - 8,
-            transform,
-            cursor: "nesw-resize",
-          }}
-          data-direction="top right"
-          onMouseDown={this.onMouseDown}
-        />
+      <div
+        className={styles.stretchDot}
+        style={{
+          top: -8,
+          left: width - 8,
+          transform,
+          cursor: "nesw-resize",
+        }}
+        data-direction="top right"
+        onMouseDown={onMouseDown}
+      />
 
-        <div
-          className={styles.stretchDot}
-          style={{
-            top: height / 2 - 8,
-            left: width - 8,
-            transform,
-            cursor: "col-resize",
-          }}
-          data-direction="right"
-          onMouseDown={this.onMouseDown}
-        />
+      <div
+        className={styles.stretchDot}
+        style={{
+          top: height / 2 - 8,
+          left: width - 8,
+          transform,
+          cursor: "col-resize",
+        }}
+        data-direction="right"
+        onMouseDown={onMouseDown}
+      />
 
-        <div
-          className={styles.stretchDot}
-          style={{
-            top: height - 8,
-            left: width - 8,
-            transform,
-            cursor: "nwse-resize",
-          }}
-          data-direction="bottom right"
-          onMouseDown={this.onMouseDown}
-        />
+      <div
+        className={styles.stretchDot}
+        style={{
+          top: height - 8,
+          left: width - 8,
+          transform,
+          cursor: "nwse-resize",
+        }}
+        data-direction="bottom right"
+        onMouseDown={onMouseDown}
+      />
 
-        <div
-          className={styles.stretchDot}
-          style={{
-            top: height - 8,
-            left: width / 2 - 8,
-            transform,
-            cursor: "row-resize",
-          }}
-          data-direction="bottom"
-          onMouseDown={this.onMouseDown}
-        />
+      <div
+        className={styles.stretchDot}
+        style={{
+          top: height - 8,
+          left: width / 2 - 8,
+          transform,
+          cursor: "row-resize",
+        }}
+        data-direction="bottom"
+        onMouseDown={onMouseDown}
+      />
 
-        <div
-          className={styles.stretchDot}
-          style={{
-            top: height - 8,
-            left: -8,
-            transform,
-            cursor: "nesw-resize",
-          }}
-          data-direction="bottom left"
-          onMouseDown={this.onMouseDown}
-        />
-        <div
-          className={styles.stretchDot}
-          style={{
-            top: height / 2 - 8,
-            left: -8,
-            transform,
-            cursor: "col-resize",
-          }}
-          data-direction="left"
-          onMouseDown={this.onMouseDown}
-        />
-      </>
-    );
-  }
+      <div
+        className={styles.stretchDot}
+        style={{
+          top: height - 8,
+          left: -8,
+          transform,
+          cursor: "nesw-resize",
+        }}
+        data-direction="bottom left"
+        onMouseDown={onMouseDown}
+      />
+      <div
+        className={styles.stretchDot}
+        style={{
+          top: height / 2 - 8,
+          left: -8,
+          transform,
+          cursor: "col-resize",
+        }}
+        data-direction="left"
+        onMouseDown={onMouseDown}
+      />
+    </>
+  );
 }

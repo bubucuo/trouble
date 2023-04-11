@@ -10,9 +10,9 @@ import type {
   SetDraftFC,
   ICmpWithKey,
 } from "./editStoreTypes";
-import {getCanvas} from "../request/canvas";
+import {getCanvas} from "src/request/canvas";
 import {cloneDeep, isFunction} from "lodash";
-import {getOnlyKey} from "../utils";
+import {getOnlyKey} from "src/utils";
 import {immer} from "zustand/middleware/immer";
 import produce from "immer";
 
@@ -66,13 +66,6 @@ const useEditStore = create(
       });
     },
 
-    // ? 获取画布组件数据
-    getCanvasCmps: () => {
-      const store = get();
-
-      return store.canvas.cmps;
-    },
-
     // ! 更新画布属性
     updateCanvasStyle: (newStyle: any) => {
       const store = get();
@@ -107,16 +100,6 @@ const useEditStore = create(
       store.setCanvas(_canvas);
     },
 
-    // ! 选中的组件
-    getSelectedCmp: (): ICmpWithKey | null => {
-      const store = get();
-
-      const cmps = store.getCanvasCmps();
-
-      const selectedIndex = store.getSelectedCmpIndex();
-      return selectedIndex > -1 ? cmps[selectedIndex] : null;
-    },
-
     setSelectedCmpIndex: (index: number) => {
       const store = get();
 
@@ -126,7 +109,7 @@ const useEditStore = create(
       }
 
       // 和上次值相同
-      if (index > -1 && store.getSelectedCmpIndex() === index) {
+      if (index > -1 && selectedCmpIndexSelector(store) === index) {
         return;
       }
 
@@ -141,18 +124,12 @@ const useEditStore = create(
       }
     },
 
-    getSelectedCmpIndex: () => {
-      const store = get();
-      const selectedCmpIndex = Array.from(store.assembly)[0];
-      return selectedCmpIndex === undefined ? -1 : selectedCmpIndex;
-    },
-
     updateSelectedCmpStyle: (newStyle: _Style) => {
       const store = get();
-      const selectedCmp = store.getSelectedCmp();
+      const selectedCmp = selectedCmpSelector(store);
 
       const _canvas = (draft: Draft) => {
-        draft.canvas.cmps[store.getSelectedCmpIndex()].style = {
+        draft.canvas.cmps[selectedCmpIndexSelector(store)].style = {
           ...selectedCmp?.style,
           ...newStyle,
         };
@@ -163,7 +140,7 @@ const useEditStore = create(
     updateSelectedCmpValue: (newValue: string) => {
       const store = get();
       const _canvas = (draft: Draft) => {
-        draft.canvas.cmps[store.getSelectedCmpIndex()].value = newValue;
+        draft.canvas.cmps[selectedCmpIndexSelector(store)].value = newValue;
       };
 
       store.setCanvas(_canvas);
@@ -171,15 +148,16 @@ const useEditStore = create(
 
     updateSelectedCmpStyleAndValue: (newStyle: _Style, newValue: string) => {
       const store = get();
-      const selectedCmp = store.getSelectedCmp();
+      const selectedCmp = selectedCmpSelector(store);
 
+      const selectedIndex = selectedCmpIndexSelector(store);
       const _canvas = (draft: Draft) => {
-        draft.canvas.cmps[store.getSelectedCmpIndex()].style = {
+        draft.canvas.cmps[selectedIndex].style = {
           ...selectedCmp?.style,
           ...newStyle,
         };
 
-        draft.canvas.cmps[store.getSelectedCmpIndex()].value = newValue;
+        draft.canvas.cmps[selectedIndex].value = newValue;
       };
 
       store.setCanvas(_canvas);
@@ -193,14 +171,7 @@ const useEditStore = create(
         store.assembly.forEach((index) => {
           const cmp = draft.canvas.cmps[index];
           for (const key in newStyle) {
-            cmp.style[key] += newStyle[key] - 0;
-
-            if (cmp.style.width < 10) {
-              cmp.style.width = 10;
-            }
-            if (cmp.style.height < 10) {
-              cmp.style.height = 10;
-            }
+            cmp.style[key] += newStyle[key];
           }
         });
       };
@@ -217,7 +188,7 @@ const useEditStore = create(
     updateSelectedCmpAttr: (name: string, value: string) => {
       const store = get();
 
-      const selectedIndex = store.getSelectedCmpIndex();
+      const selectedIndex = selectedCmpIndexSelector(store);
 
       const _canvas = (draft: Draft) => {
         draft.canvas.cmps[selectedIndex][name] = value;
@@ -344,7 +315,7 @@ const useEditStore = create(
       const store = get();
 
       const cmps = store.canvas.cmps;
-      const cmpIndex = store.getSelectedCmpIndex();
+      const cmpIndex = selectedCmpIndexSelector(store);
 
       if (cmpIndex === cmps.length - 1) {
         // 已经是最高层级
@@ -366,8 +337,7 @@ const useEditStore = create(
     subCmpZIndex: () => {
       const store = get();
 
-      const cmps = store.canvas.cmps;
-      const cmpIndex = store.getSelectedCmpIndex();
+      const cmpIndex = selectedCmpIndexSelector(store);
 
       if (cmpIndex === 0) {
         // 已经是最低层级
@@ -391,7 +361,7 @@ const useEditStore = create(
 
       store.setCanvas((draft) => {
         const cmps = draft.canvas.cmps;
-        const cmpIndex = store.getSelectedCmpIndex();
+        const cmpIndex = selectedCmpIndexSelector(store);
 
         draft.canvas.cmps = cmps
           .slice(0, cmpIndex)
@@ -408,7 +378,7 @@ const useEditStore = create(
 
       store.setCanvas((draft) => {
         const cmps = draft.canvas.cmps;
-        const cmpIndex = store.getSelectedCmpIndex();
+        const cmpIndex = selectedCmpIndexSelector(store);
 
         draft.canvas.cmps = [cmps[cmpIndex]]
           .concat(cmps.slice(0, cmpIndex))
@@ -421,6 +391,21 @@ const useEditStore = create(
 );
 
 export default useEditStore;
+
+export const canvasSelector = (store: IEditStore): ICanvas => store.canvas;
+export const cmpsSelector = (store: IEditStore): Array<ICmpWithKey> =>
+  store.canvas.cmps;
+
+export const selectedCmpSelector = (store: IEditStore): ICmpWithKey | null => {
+  const cmps = cmpsSelector(store);
+  const selectedIndex = selectedCmpIndexSelector(store);
+  return selectedIndex > -1 ? cmps[selectedIndex] : null;
+};
+
+export const selectedCmpIndexSelector = (store: IEditStore): number => {
+  const selectedCmpIndex = Array.from(store.assembly)[0];
+  return selectedCmpIndex === undefined ? -1 : selectedCmpIndex;
+};
 
 function getDefaultCanvas(): ICanvas {
   return {

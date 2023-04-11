@@ -4,12 +4,12 @@ import {useNavigate} from "react-router-dom";
 import {Link} from "react-router-dom";
 import useEditStore from "src/store/editStore";
 import {useCanvasId} from "src/store/hooks";
-import {useEditStoreCanvas} from "src/store/editHooks";
+import {useCanvasFromEditStore} from "src/store/editStoreHooks";
 import {saveCanvas} from "src/request/canvas";
 
 export default function Header() {
   const editStore = useEditStore();
-  const canvas = useEditStoreCanvas();
+  const canvas = useCanvasFromEditStore();
   const navigate = useNavigate();
 
   const id = useCanvasId();

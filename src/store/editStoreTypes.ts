@@ -1,4 +1,6 @@
-export type _Style = any;
+import React from "react";
+
+export type _Style = React.CSSProperties;
 
 // 拖拽或者点击左边菜单，新增的组件，没有key，添加到画布中的时候生成唯一key
 export interface ICmp {
@@ -16,7 +18,7 @@ export interface ICmpWithKey extends ICmp {
 
 export interface ICanvas {
   title: string;
-  style: Object;
+  style: _Style;
   cmps: Array<ICmpWithKey>;
 }
 
@@ -44,9 +46,6 @@ export type EditStoreAction = {
   // 获取服务端数据，并渲染画布
   fetchCanvas: (id: number) => void;
 
-  // ? 获取画布组件数据
-  getCanvasCmps: () => Array<ICmpWithKey>;
-
   // ! 更新画布属性
   updateCanvasStyle: (newStyle: any) => void;
   updateCanvasTitle: (title: string) => void;
@@ -55,9 +54,7 @@ export type EditStoreAction = {
   addCmp: (_cmp: ICmp) => void;
 
   // 选中的组件
-  getSelectedCmp: () => ICmpWithKey | null;
   setSelectedCmpIndex: (index: number) => void;
-  getSelectedCmpIndex: () => number;
   updateSelectedCmpStyle: (newStyle: _Style) => void;
   updateSelectedCmpValue: (newValue: string) => void;
   updateSelectedCmpStyleAndValue: (newStyle: _Style, newValue: string) => void;
@@ -89,8 +86,6 @@ export type EditStoreAction = {
   subCmpZIndex: () => void;
   topZIndex: () => void;
   bottomZIndex: () => void;
-
-  //
 };
 
 export interface IEditStore extends EditStoreState, EditStoreAction {}

@@ -2,13 +2,14 @@ import InputColor from "src/lib/InputColor";
 import Item from "src/lib/Item";
 import {isImgComponent, isTextComponent} from "../Left";
 import styles from "./index.module.less";
-import useEditStore from "src/store/editStore";
-import {useEditStoreCanvas} from "src/store/editHooks";
+import useEditStore, {selectedCmpSelector} from "src/store/editStore";
+import {useCanvasFromEditStore} from "src/store/editStoreHooks";
+import {ICmpWithKey} from "src/store/editStoreTypes";
 
 export default function EditCmp() {
   const editStore = useEditStore();
 
-  const selectedCmp = editStore.getSelectedCmp();
+  const selectedCmp = selectedCmpSelector(editStore) as ICmpWithKey;
 
   const {value, style, onClick = ""} = selectedCmp;
 
@@ -36,7 +37,7 @@ export default function EditCmp() {
     editStore.recordCanvasChangeHistoryAfterBatch();
   };
 
-  const canvasData = useEditStoreCanvas();
+  const canvasData = useCanvasFromEditStore();
   const canvasWidth = canvasData.style.width;
   const selectCmpWidth = selectedCmp.style.width;
 

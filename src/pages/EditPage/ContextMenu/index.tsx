@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import useEditStore from "src/store/editStore";
 import styles from "./index.module.less";
-import {useAssemblyFromEditStore} from "src/store/editHooks";
+import {useAssemblyFromEditStore} from "src/store/editStoreHooks";
 
 export default function ContextMenu({style}: any) {
   const editStore = useEditStore();

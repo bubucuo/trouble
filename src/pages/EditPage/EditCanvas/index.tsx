@@ -3,11 +3,11 @@ import Item from "src/lib/Item";
 import {ChangeEvent} from "react";
 import styles from "./index.module.less";
 import useEditStore from "src/store/editStore";
-import {useEditStoreCanvas} from "src/store/editHooks";
+import {useCanvasFromEditStore} from "src/store/editStoreHooks";
 
 export default function EditCanvas() {
   const editStore = useEditStore();
-  const canvasData = useEditStoreCanvas();
+  const canvasData = useCanvasFromEditStore();
   const style = canvasData.style;
 
   const handleStyleChange = (
@@ -27,7 +27,6 @@ export default function EditCanvas() {
           value={canvasData.title}
           onChange={(e) => {
             let newValue = e.target.value;
-            // editStore.setCanvas({title: newValue});
             editStore.updateCanvasTitle(newValue);
           }}
         />

@@ -1,4 +1,4 @@
-import {useFetchCanvas} from "src/store/editHooks";
+import {useFetchCanvas} from "src/store/editStoreHooks";
 import Header from "./Header";
 import styles from "./index.module.less";
 import Left from "./Left";

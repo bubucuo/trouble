@@ -2,11 +2,11 @@ import React from "react";
 import Text from "../Text";
 import Img from "../Img";
 import Lines from "../EditLine/Lines";
-import type {ICmpWithKey, IEditStore} from "src/store/editStoreTypes";
+import type {ICmpWithKey} from "src/store/editStoreTypes";
 
 import styles from "./index.module.less";
 import {isImgComponent, isTextComponent} from "../Left";
-import useEditStore from "src/store/editStore";
+import useEditStore, {selectedCmpIndexSelector} from "src/store/editStore";
 
 // todo 拖拽、删除、改变层级关系等
 
@@ -30,7 +30,7 @@ export default function Cmp(props: ICmpProps) {
   const innerWidth = style.width - (style.borderWidth || 0) * 2;
   const innerHeight = style.height - (style.borderWidth || 0) * 2;
 
-  const selectedIndex = editStore.getSelectedCmpIndex();
+  const selectedIndex = selectedCmpIndexSelector(editStore);
 
   const setSelected = (e: React.MouseEvent<HTMLDivElement>) => {
     //
