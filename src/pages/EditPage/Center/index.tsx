@@ -1,16 +1,15 @@
 import React, {useCallback, useEffect, useState} from "react";
 import classNames from "classnames";
-import styles from "./index.module.less";
 import {useCanvasFromEditStore} from "src/store/editStoreHooks";
 import useEditStore, {
   cmpsSelector,
   selectedCmpIndexSelector,
   selectedCmpSelector,
 } from "src/store/editStore";
-
-import Cmp from "../Cmp";
-import EditLine from "../EditLine";
+import Cmp from "../EditCmp/Cmp";
+import EditLine from "../EditCmp/EditLine";
 import ContextMenu from "../ContextMenu";
+import styles from "./index.module.less";
 
 export default function Center() {
   const editStore = useEditStore();
@@ -21,7 +20,7 @@ export default function Center() {
 
   // 缩放比例
   const [zoom, setZoom] = useState(() =>
-    parseInt(canvasData.style.width) > 800 ? 50 : 100
+    parseInt(canvasData.style.width as string) > 800 ? 50 : 100
   );
 
   const onDrop = useCallback(
@@ -41,7 +40,7 @@ export default function Center() {
         top: 110,
         left:
           document.body.clientWidth / 2 -
-          (parseInt(style.width) / 2) * (zoom / 100),
+          (parseInt(style.width as string) / 2) * (zoom / 100),
       };
 
       const startX = canvasDOMPos.left;

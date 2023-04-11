@@ -205,6 +205,10 @@ const useEditStore = create(
 
     // ! 历史
     recordCanvasChangeHistory: (newHistoryItem: ICanvas, otherState = {}) => {
+      console.log(
+        "%c [ recordCanvasChangeHistory ]-208",
+        "font-size:13px; background:pink; color:#bf2c9f;"
+      );
       set((draft) => {
         Object.assign(draft, otherState);
         // 在撤销回退过程中，此时历史下标为currentIndex，如果此时用户又去修改画布或者组件属性，
@@ -405,6 +409,12 @@ export const selectedCmpSelector = (store: IEditStore): ICmpWithKey | null => {
 export const selectedCmpIndexSelector = (store: IEditStore): number => {
   const selectedCmpIndex = Array.from(store.assembly)[0];
   return selectedCmpIndex === undefined ? -1 : selectedCmpIndex;
+};
+
+export const nearByCmpsSelector = (store: IEditStore): Array<ICmpWithKey> => {
+  const cmps = cmpsSelector(store);
+
+  return cmps;
 };
 
 function getDefaultCanvas(): ICanvas {

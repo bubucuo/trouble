@@ -1,14 +1,12 @@
 import React from "react";
-import Text from "../Text";
 import Img from "../Img";
 import Lines from "../EditLine/Lines";
 import type {ICmpWithKey} from "src/store/editStoreTypes";
 
 import styles from "./index.module.less";
-import {isImgComponent, isTextComponent} from "../Left";
+import {isImgComponent, isTextComponent} from "../../Left";
 import useEditStore, {selectedCmpIndexSelector} from "src/store/editStore";
-
-// todo 拖拽、删除、改变层级关系等
+import Text from "../Text";
 
 interface ICmpProps {
   cmp: ICmpWithKey;
@@ -27,13 +25,14 @@ export default function Cmp(props: ICmpProps) {
 
   const belongingToAssembly = editStore.belongingToAssembly(index);
 
-  const innerWidth = style.width - (style.borderWidth || 0) * 2;
-  const innerHeight = style.height - (style.borderWidth || 0) * 2;
+  const innerWidth =
+    (style.width as number) - (style.borderWidth as number) * 2;
+  const innerHeight =
+    (style.height as number) - (style.borderWidth as number) * 2;
 
   const selectedIndex = selectedCmpIndexSelector(editStore);
 
   const setSelected = (e: React.MouseEvent<HTMLDivElement>) => {
-    //
     if (e.metaKey) {
       // 把选中的组件填入组件集合
       editStore.addAndUpdateAssembly([index]);
@@ -41,6 +40,12 @@ export default function Cmp(props: ICmpProps) {
       editStore.setSelectedCmpIndex(index);
     }
   };
+
+  console.log(
+    "%c [  ]-45",
+    "font-size:13px; background:pink; color:#bf2c9f;",
+    cmp
+  );
 
   return (
     <div
@@ -52,7 +57,10 @@ export default function Cmp(props: ICmpProps) {
       }}
       onClick={setSelected}>
       {selectedIndex !== index && belongingToAssembly && (
-        <Lines style={{width, height, transform}} basePos={style.borderWidth} />
+        <Lines
+          style={{width, height, transform}}
+          basePos={style.borderWidth as number}
+        />
       )}
 
       {/* 组件本身 , 注意如果是文本组件 ，如果处于选中状态，则目前处理是，textarea与这里的div Text重叠*/}

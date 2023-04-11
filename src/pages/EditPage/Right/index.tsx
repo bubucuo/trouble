@@ -1,12 +1,15 @@
 import {useState} from "react";
-import useEditStore, {selectedCmpIndexSelector} from "src/store/editStore";
+import useEditStore, {
+  selectedCmpIndexSelector,
+  selectedCmpSelector,
+} from "src/store/editStore";
 import EditCmp from "../EditCmp";
 import EditCanvas from "../EditCanvas";
 import styles from "./index.module.less";
 
 export default function Right() {
   const editStore = useEditStore();
-  const selectedCmp = selectedCmpIndexSelector(editStore);
+  const selectedCmp = selectedCmpSelector(editStore);
 
   const [showEdit, setShowEdit] = useState(false);
 

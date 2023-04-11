@@ -2,11 +2,11 @@ import React, {useRef, useState} from "react";
 import StretchDots from "./StretchDots";
 import Rotate from "./Rotate";
 import Lines from "./Lines";
-import {isTextComponent} from "../Left";
+import {isTextComponent} from "../../Left";
 import styles from "./index.module.less";
 import useEditStore, {dontRecordHistory} from "src/store/editStore";
 import {throttle} from "lodash";
-import {selectedCmpSelector} from "../../../store/editStore";
+import {selectedCmpSelector} from "../../../../store/editStore";
 
 interface IEditLineProps {
   zoom: number;
