@@ -2,13 +2,13 @@ import InputColor from "src/lib/InputColor";
 import Item from "src/lib/Item";
 import {ChangeEvent} from "react";
 import styles from "./index.module.less";
-import useEditStore, {IEditStore} from "src/store/editStore";
+import useEditStore from "src/store/editStore";
 import {useEditStoreCanvas} from "src/store/editHooks";
 
 export default function EditCanvas() {
-  const editStore = useEditStore() as IEditStore;
-  const canvasData = useEditStoreCanvas(); // editStore.canvas; // canvas.getCanvas();
-  const style = canvasData.style; // editStore.getCanvas().style;
+  const editStore = useEditStore();
+  const canvasData = useEditStoreCanvas();
+  const style = canvasData.style;
 
   const handleStyleChange = (
     e: ChangeEvent,

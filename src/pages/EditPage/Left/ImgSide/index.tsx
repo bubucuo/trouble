@@ -1,10 +1,10 @@
-import {defaultCommonStyle} from "src/utils/const";
+import {defaultComponentStyle} from "src/utils/const";
 import {isImgComponent} from "../index";
 import useEditStore from "src/store/editStore";
 import leftSideStyles from "../leftSide.module.less";
 
 const defaultStyle = {
-  ...defaultCommonStyle,
+  ...defaultComponentStyle,
 };
 
 const url = "https://www.bubucuo.cn/";

@@ -1,4 +1,4 @@
-export const defaultCommonStyle = {
+export const defaultComponentStyle = {
   position: "absolute",
   top: 0,
   left: 0,

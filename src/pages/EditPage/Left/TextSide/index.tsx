@@ -1,11 +1,11 @@
-import {defaultCommonStyle} from "src/utils/const";
+import {defaultComponentStyle} from "src/utils/const";
 import {isTextComponent} from "../index";
 
 import leftSideStyles from "../leftSide.module.less";
 import useEditStore from "src/store/editStore";
 
 const defaultStyle = {
-  ...defaultCommonStyle,
+  ...defaultComponentStyle,
   width: 170,
   height: 30,
   lineHeight: "30px",

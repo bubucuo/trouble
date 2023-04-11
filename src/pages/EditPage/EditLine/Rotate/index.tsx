@@ -1,8 +1,9 @@
 import {Component} from "react";
 import classNames from "classnames";
-import {CanvasContext} from "src/Context";
-import {IEditStore, dontRecordHistory} from "src/store/editStore";
 import styles from "./index.module.less";
+import type {IEditStore} from "src/store/editStoreTypes";
+import {dontRecordHistory} from "src/store/editStore";
+import {throttle} from "lodash";
 
 interface IRotateProps {
   zoom: number;
@@ -34,7 +35,7 @@ export default class Rotate extends Component<IRotateProps> {
     let startX = e.pageX + offsetX;
     let startY = e.pageY + offsetY;
 
-    const move = (e) => {
+    const move = throttle((e) => {
       let x = e.pageX;
       let y = e.pageY;
 
@@ -54,7 +55,7 @@ export default class Rotate extends Component<IRotateProps> {
         },
         dontRecordHistory
       );
-    };
+    }, 180);
 
     const up = () => {
       document.removeEventListener("mousemove", move);

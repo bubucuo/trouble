@@ -1,7 +1,7 @@
 import leftSideStyles from "../leftSide.module.less";
 import classNames from "classnames";
 import {cloneDeep} from "lodash";
-import useEditStore, {IEditStore} from "src/store/editStore";
+import useEditStore from "src/store/editStore";
 
 const settings = [
   {
@@ -3988,7 +3988,7 @@ const settings = [
 ];
 
 export default function TplSide() {
-  const editStore = useEditStore() as IEditStore;
+  const editStore = useEditStore();
 
   const setCanvas = (_canvas: any, options?: {title: string}) => {
     editStore.setCanvas(cloneDeep(_canvas), options);

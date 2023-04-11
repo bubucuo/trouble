@@ -8,7 +8,7 @@ export default function ContextMenu({style}: any) {
 
   const copy = (e) => {
     e.stopPropagation();
-    editStore.addAssemblyCms();
+    editStore.addAssemblyCmp();
   };
 
   const del = (e) => {

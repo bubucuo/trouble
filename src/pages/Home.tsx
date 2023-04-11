@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {deleteCanvas, getCanvasList} from "../request/canvas";
 import {Card, Space, Table, Button} from "antd";
 import {Link} from "react-router-dom";
-import {ICmp} from "../store/canvas";
+import {ICmp} from "../store/editStoreTypes";
 
 type ListItem = {
   id: number;

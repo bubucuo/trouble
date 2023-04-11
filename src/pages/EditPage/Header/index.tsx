@@ -2,13 +2,13 @@ import classNames from "classnames";
 import styles from "./index.module.less";
 import {useNavigate} from "react-router-dom";
 import {Link} from "react-router-dom";
-import useEditStore, {IEditStore} from "src/store/editStore";
+import useEditStore from "src/store/editStore";
 import {useCanvasId} from "src/store/hooks";
 import {useEditStoreCanvas} from "src/store/editHooks";
 import {saveCanvas} from "src/request/canvas";
 
 export default function Header() {
-  const editStore = useEditStore() as IEditStore;
+  const editStore = useEditStore();
   const canvas = useEditStoreCanvas();
   const navigate = useNavigate();
 

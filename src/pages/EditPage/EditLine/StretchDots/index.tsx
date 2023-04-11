@@ -1,6 +1,8 @@
 import {Component} from "react";
 import styles from "./index.module.less";
-import {IEditStore, dontRecordHistory} from "../../../../store/editStore";
+import type {IEditStore} from "src/store/editStoreTypes";
+import {dontRecordHistory} from "src/store/editStore";
+import {throttle} from "lodash";
 
 interface IStretchProps {
   zoom: number;
@@ -25,7 +27,9 @@ export default class StretchDots extends Component<IStretchProps> {
     let startY = e.pageY;
 
     const {zoom} = this.props;
-    const move = (e) => {
+    let hasMoved = false;
+    const move = throttle((e) => {
+      hasMoved = true;
       const x = e.pageX;
       const y = e.pageY;
 
@@ -57,11 +61,12 @@ export default class StretchDots extends Component<IStretchProps> {
       });
 
       // 频繁修改，此时不记录到历史记录里，只有up阶段才记录
-      this.props.editStore.updateAssemblyCmps(newStyle, dontRecordHistory);
-
+      if (hasMoved) {
+        this.props.editStore.updateAssemblyCmps(newStyle, dontRecordHistory);
+      }
       startX = x;
       startY = y;
-    };
+    }, 80);
 
     const up = () => {
       document.removeEventListener("mousemove", move);

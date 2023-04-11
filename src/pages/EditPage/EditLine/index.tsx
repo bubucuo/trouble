@@ -1,11 +1,12 @@
 import React, {Component} from "react";
-import ContextMenu from "./ContextMenu";
 import StretchDots from "./StretchDots";
 import Rotate from "./Rotate";
 import Lines from "./Lines";
 import {isTextComponent} from "../Left";
 import styles from "./index.module.less";
-import {IEditStore, dontRecordHistory} from "src/store/editStore";
+import type {IEditStore} from "src/store/editStoreTypes";
+import {dontRecordHistory} from "src/store/editStore";
+import {throttle} from "lodash";
 
 interface IEditLineProps {
   zoom: number;
@@ -46,7 +47,9 @@ export default class EditLine extends Component<
     let startY = e.pageY;
 
     const {zoom} = this.props;
-    const move = (e) => {
+    let hasMoved = false;
+    const move = throttle((e) => {
+      hasMoved = true;
       const x = e.pageX;
       const y = e.pageY;
 
@@ -63,12 +66,14 @@ export default class EditLine extends Component<
 
       startX = x;
       startY = y;
-    };
+    }, 80);
 
     const up = () => {
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
-      this.props.editStore.recordCanvasChangeHistoryAfterBatch();
+      if (hasMoved) {
+        this.props.editStore.recordCanvasChangeHistoryAfterBatch();
+      }
     };
     document.addEventListener("mousemove", move);
     document.addEventListener("mouseup", up);

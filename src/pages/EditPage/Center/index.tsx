@@ -1,14 +1,15 @@
 import {useCallback, useEffect, useState} from "react";
 import classNames from "classnames";
 import styles from "./index.module.less";
-import {useCanvasFromEditStore, useEditStoreCanvas} from "src/store/editHooks";
-import useEditStore, {IEditStore} from "src/store/editStore";
+import {useEditStoreCanvas} from "src/store/editHooks";
+import useEditStore from "src/store/editStore";
+
 import Cmp from "../Cmp";
 import EditLine from "../EditLine";
 import ContextMenu from "../ContextMenu";
 
 export default function Center() {
-  const editStore = useEditStore() as IEditStore;
+  const editStore = useEditStore();
 
   const canvasData = useEditStoreCanvas();
 
@@ -164,7 +165,7 @@ export default function Center() {
           }}>
           {/* 组件区域 */}
           {cmps.map((cmp: any, index: number) => (
-            <Cmp key={cmp.key} cmp={cmp} index={index} editStore={editStore} />
+            <Cmp key={cmp.key} cmp={cmp} index={index} />
           ))}
         </div>
       </div>

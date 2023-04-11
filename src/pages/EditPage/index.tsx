@@ -8,6 +8,7 @@ import Right from "./Right";
 export default function Edit() {
   useFetchCanvas();
 
+  console.log("Edit render"); //sy-log
   return (
     <div className={styles.main}>
       <Header />

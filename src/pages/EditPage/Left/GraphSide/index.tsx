@@ -1,11 +1,11 @@
-import {defaultCommonStyle} from "src/utils/const";
+import {defaultComponentStyle} from "src/utils/const";
 import leftSideStyles from "../leftSide.module.less";
 import {isGraphComponent} from "../index";
 import useEditStore from "src/store/editStore";
-import {ICmp} from "src/store/canvas";
+import {ICmp} from "src/store/editStoreTypes";
 
 const defaultStyle = {
-  ...defaultCommonStyle,
+  ...defaultComponentStyle,
   width: 120,
   height: 120,
   borderColor: "blue",

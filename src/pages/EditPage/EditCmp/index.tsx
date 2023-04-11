@@ -2,11 +2,11 @@ import InputColor from "src/lib/InputColor";
 import Item from "src/lib/Item";
 import {isImgComponent, isTextComponent} from "../Left";
 import styles from "./index.module.less";
-import useEditStore, {IEditStore} from "src/store/editStore";
+import useEditStore from "src/store/editStore";
 import {useEditStoreCanvas} from "src/store/editHooks";
 
 export default function EditCmp() {
-  const editStore = useEditStore() as IEditStore;
+  const editStore = useEditStore();
 
   const selectedCmp = editStore.getSelectedCmp();
 
@@ -23,11 +23,6 @@ export default function EditCmp() {
     {name, value}: {name: string; value: string | number}
   ) => {
     const newStyle = {[name]: value};
-    console.log(
-      "%c [ newStyle ]-26",
-      "font-size:13px; background:pink; color:#bf2c9f;",
-      newStyle
-    );
 
     editStore.updateSelectedCmpStyle(newStyle);
     editStore.recordCanvasChangeHistoryAfterBatch();
