@@ -5,7 +5,7 @@ import Rotate from "./Rotate";
 import Lines from "./Lines";
 import {isTextComponent} from "../Left";
 import styles from "./index.module.less";
-import {IEditStore, dontRecordHistory} from "../../../store/editStore";
+import {IEditStore, dontRecordHistory} from "src/store/editStore";
 
 interface IEditLineProps {
   zoom: number;
@@ -25,10 +25,7 @@ export default class EditLine extends Component<
   IEditLineProps,
   IEditLineState
 > {
-  // static contextType = CanvasContext;
   private textareaRef = React.createRef<any>();
-
-  // context: any;
 
   constructor(props: IEditLineProps) {
     super(props);
@@ -148,14 +145,15 @@ export default class EditLine extends Component<
             }}
             onMouseDown={this.onMouseDownOfCmp}></div>
         )}
-        <ContextMenu
+        {/* <ContextMenu
           style={{
-            top: 2,
-            left: width / 2,
+            // top: 2,
+            bottom: 0,
+            right: 0, // width / 2,
             transform: `scale(${100 / zoom}) rotate(${0 - style.transform}deg)`,
           }}
           editStore={this.props.editStore}
-        />
+        /> */}
 
         {/* 选中组件的边界线 */}
         <Lines style={{width, height}} editStore={this.props.editStore} />

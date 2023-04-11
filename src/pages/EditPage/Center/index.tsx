@@ -5,6 +5,7 @@ import {useCanvasFromEditStore, useEditStoreCanvas} from "src/store/editHooks";
 import useEditStore, {IEditStore} from "src/store/editStore";
 import Cmp from "../Cmp";
 import EditLine from "../EditLine";
+import ContextMenu from "../ContextMenu";
 
 export default function Center() {
   const editStore = useEditStore() as IEditStore;
@@ -167,6 +168,8 @@ export default function Center() {
           ))}
         </div>
       </div>
+
+      <ContextMenu />
       <ul className={styles.zoom}>
         <li
           className={classNames(styles.icon)}

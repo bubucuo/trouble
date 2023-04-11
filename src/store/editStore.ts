@@ -182,11 +182,26 @@ const useEditStore = create(
 
     setSelectedCmpIndex: (index: number) => {
       const store = get() as IEditStore;
-      if (store.getSelectedCmpIndex() === index) {
+
+      // 空的，再重新设置，不要引起渲染
+      if (store.assembly.size === 0 && index === -1) {
         return;
       }
 
-      set({assembly: new Set([index])});
+      // 和上次值相同
+      if (index > -1 && store.getSelectedCmpIndex() === index) {
+        return;
+      }
+
+      if (index === -1) {
+        set((draft) => {
+          draft.assembly.clear();
+        });
+      } else {
+        set((draft) => {
+          draft.assembly = new Set([index]);
+        });
+      }
     },
 
     getSelectedCmpIndex: () => {

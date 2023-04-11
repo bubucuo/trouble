@@ -36,6 +36,11 @@ export default function ContextMenu({style}: any) {
     editStore.bottomZIndex();
   };
   const assembly = useAssemblyFromEditStore();
+
+  const assemblySize = assembly.size;
+  if (assemblySize === 0) {
+    return null;
+  }
   return (
     <ul className={classNames(styles.main)} style={style}>
       <li className={styles.item} onClick={copy}>
@@ -44,7 +49,7 @@ export default function ContextMenu({style}: any) {
       <li className={styles.item} onClick={del}>
         删除组件
       </li>
-      {assembly.size === 1 && (
+      {assemblySize === 1 && (
         <>
           <li className={styles.item} onClick={addCmpZIndex}>
             上移一层

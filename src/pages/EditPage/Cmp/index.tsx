@@ -8,7 +8,7 @@ import {ICmp} from "src/store/canvas";
 
 import styles from "./index.module.less";
 import {isImgComponent, isTextComponent} from "../Left";
-import {IEditStore} from "../../../store/editStore";
+import {IEditStore} from "src/store/editStore";
 
 // todo 拖拽、删除、改变层级关系等
 
@@ -20,15 +20,7 @@ interface ICmpProps {
 
 // 按键小幅度移动的事件写在了Center中
 export default class Cmp extends Component<ICmpProps> {
-  // static contextType = CanvasContext;
-
-  // context: any;
-
   setSelected = (e: React.MouseEvent<HTMLDivElement>) => {
-    console.log(
-      "%c [  ]-29",
-      "font-size:13px; background:pink; color:#bf2c9f;"
-    );
     //
     if (e.metaKey) {
       // 把选中的组件填入组件集合
