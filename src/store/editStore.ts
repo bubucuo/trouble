@@ -33,6 +33,12 @@ const useEditStore = create(
       _canvas: ICanvas | null | SetDraftFC,
       dontRecordHistory?: string
     ) => {
+      console.log(
+        "%c [  ]-38",
+        "font-size:13px; background:pink; color:#bf2c9f;",
+        _canvas
+      );
+
       const store = get();
 
       let newStore: any;
@@ -61,7 +67,7 @@ const useEditStore = create(
             draft.canvas = JSON.parse(res.content);
             draft.canvasChangeHistory = [draft.canvas];
             draft.canvasChangeHistoryIndex = 0;
-            draft.canvas.title = res.content.title;
+            draft.canvas.title = res.title;
           });
         }
       });

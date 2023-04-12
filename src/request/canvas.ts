@@ -18,11 +18,9 @@ export function saveCanvas(
   successCallback: Function,
   failedCallback?: Function
 ) {
-  myAxios
-    .post(end + "/api/web/content/save", {...values, title: "未命名"})
-    .then((res) => {
-      common(res, successCallback);
-    });
+  myAxios.post(end + "/api/web/content/save", values).then((res) => {
+    common(res, successCallback);
+  });
 }
 
 // 查询页面列表

@@ -3994,16 +3994,13 @@ export default function TplSide() {
 
   const editStore = useEditStore();
 
-  const setCanvas = (_canvas: any, options?: {title: string}) => {
-    editStore.setCanvas(cloneDeep(_canvas), options);
+  const setCanvas = (_canvas: any, options: {title: string}) => {
+    editStore.setCanvas({..._canvas, title: options.title});
   };
 
   useEffect(() => {
     getTemplateList("", (res: any) => {
       let data = res.content || [];
-      // data = data.filter(
-      //   (item: ICmp) => item.id !== 23 && item.id !== 15 && item.id !== 17
-      // );
       setList(data);
     });
   }, []);
@@ -4011,13 +4008,15 @@ export default function TplSide() {
   return (
     <div className={classNames(leftSideStyles.main)}>
       <ul className={classNames(leftSideStyles.box)}>
-        {settings.map((item) => (
+        {list.map((item: any) => (
           <li
             className={leftSideStyles.item}
-            key={item.key}
-            onClick={() => setCanvas(item.data, {title: item.title})}>
+            key={item.id}
+            onClick={() =>
+              setCanvas(JSON.parse(item.content), {title: item.title})
+            }>
             <div className={leftSideStyles.desc}>{item.title}</div>
-            <img src={item.img} alt={item.title} />
+            <img src="https://www.bubucuo.cn/react-head.png" alt={item.title} />
           </li>
         ))}
       </ul>
