@@ -1,13 +1,7 @@
 import {Button, Card, Form, Input, Checkbox} from "antd";
-import {login} from "../request/login";
+import {login} from "src/request/login";
+import {register} from "src/request/register";
 import {useNavigate, useLocation} from "react-router-dom";
-import {register} from "../request/register";
-
-// type submitInfo = {
-//   name: string,
-//     password: string,
-//     register_login: boolean,
-// }
 
 export default function Login() {
   let navigate = useNavigate();
@@ -31,7 +25,7 @@ export default function Login() {
       registerAndLogin({name, password});
     } else {
       login({name, password}, () => {
-        navigate(from);
+        window.location.href = from;
       });
     }
   };
@@ -50,6 +44,7 @@ export default function Login() {
 
   return (
     <Card title="注册与登录">
+      <p className="red">登录之后才可使用~</p>
       <Form
         name="basic"
         labelCol={{
@@ -92,7 +87,7 @@ export default function Login() {
           name="register_login"
           valuePropName="checked"
           wrapperCol={{offset: 7}}>
-          <Checkbox>注册并登录</Checkbox>
+          <Checkbox className="red">注册并登录</Checkbox>
         </Form.Item>
 
         <Form.Item

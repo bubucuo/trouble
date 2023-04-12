@@ -70,14 +70,16 @@ const Cmp = React.memo(
         </div>
       </div>
     );
-  },
-  (prev: ICmpProps, next: ICmpProps): boolean => {
-    let noChange =
-      isEqual(prev.cmp, next.cmp) &&
-      isEqual(prev.index, next.index) &&
-      isEqual(prev.isSelected, next.isSelected);
-    return noChange;
   }
+
+  // ,
+  // (prev: ICmpProps, next: ICmpProps): boolean => {
+  //   let noChange =
+  //     isEqual(prev.cmp, next.cmp) &&
+  //     isEqual(prev.index, next.index) &&
+  //     isEqual(prev.isSelected, next.isSelected);
+  //   return noChange;
+  // }
 );
 
 export default Cmp;

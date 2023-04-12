@@ -7,17 +7,20 @@ import docCookies from "src/utils/cookies";
 
 type ListItem = {
   id: number;
+  type: string;
   title: string;
   content: string;
 };
-export default function Home() {
+
+export default function List() {
   const username = docCookies.getItem("name");
 
   const navigate = useNavigate();
   const logout = () => {
     docCookies.removeItem("sessionId");
     docCookies.removeItem("name");
-    navigate("/login");
+    // navigate("/");
+    window.location.href = "/";
   };
 
   const [list, setList] = useState([]);
@@ -43,12 +46,13 @@ export default function Home() {
     });
   };
 
+  const editUrl = (item: ListItem) => `/?id=${item.id}&type=${item.type}`;
   const columns = [
     {
       title: "id",
       key: "id",
       render: (item: ListItem) => {
-        return <Link to={"/edit?id=" + item.id}>{item.id}</Link>;
+        return <Link to={editUrl(item)}>{item.id}</Link>;
       },
     },
     {
@@ -56,7 +60,16 @@ export default function Home() {
       key: "title",
       render: (item: ListItem) => {
         const title = item.title || "未命名";
-        return <Link to={"/edit?id=" + item.id}>{title}</Link>;
+        return <Link to={editUrl(item)}>{title}</Link>;
+      },
+    },
+
+    {
+      title: "类型",
+      key: "type",
+      render: (item: ListItem) => {
+        const typeDesc = item.type === "content" ? "页面" : "模板页";
+        return <div className="red">{typeDesc}</div>;
       },
     },
 
@@ -70,7 +83,7 @@ export default function Home() {
             href={"https://builder-lemon.vercel.app/?id=" + item.id}>
             线上查看（切移动端）
           </a>
-          <Link to={"/edit?id=" + item.id}>编辑</Link>
+          <Link to={editUrl(item)}>编辑</Link>
           <Button onClick={() => del({id: item.id})}>删除</Button>
         </Space>
       ),
@@ -84,7 +97,7 @@ export default function Home() {
       </Space>
 
       <Space size="middle">
-        <Link to={"/edit"}>新增</Link>
+        <Link to={"/"}>新增</Link>
       </Space>
       <Table
         columns={columns}

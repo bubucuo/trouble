@@ -12,3 +12,11 @@ export function useCanvasId(): number | null {
 
   return id;
 }
+
+// 获取页面类型，普通页面还是模板
+export function useCanvasType(): string {
+  const [params] = useSearchParams();
+  let type: string | null = params.get("type");
+
+  return type || "content";
+}

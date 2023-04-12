@@ -3,7 +3,7 @@ import styles from "./index.module.less";
 import {useNavigate} from "react-router-dom";
 import {Link} from "react-router-dom";
 import useEditStore from "src/store/editStore";
-import {useCanvasId} from "src/store/hooks";
+import {useCanvasId, useCanvasType} from "src/store/hooks";
 import {useCanvasFromEditStore} from "src/store/editStoreHooks";
 import {saveCanvas} from "src/request/canvas";
 
@@ -13,14 +13,17 @@ export default function Header() {
   const navigate = useNavigate();
 
   const id = useCanvasId();
+  const type = useCanvasType();
 
+  //页面的新增与编辑更新
+  // 模板的更新
   const save = () => {
     saveCanvas(
       {
         id,
         content: JSON.stringify(canvas),
         title: canvas.title,
-        type: "content",
+        type,
       },
       (res: any) => {
         alert("保存成功");
@@ -31,6 +34,7 @@ export default function Header() {
     );
   };
 
+  // 页面存成模板，此时是新增模板
   const saveTemplate = () => {
     saveCanvas(
       {
@@ -60,10 +64,13 @@ export default function Header() {
     editStore.goNextCanvasHistory();
   };
 
+  console.log("tpl render"); //sy-log
   return (
     <div className={styles.main}>
       <div className={classNames(styles.item)}>
-        <Link to="/">首页</Link>
+        <Link to="/list" className="red">
+          查看列表
+        </Link>
       </div>
 
       <div className={classNames(styles.item)} onClick={save}>
@@ -72,11 +79,13 @@ export default function Header() {
         <span className={styles.txt}>保存</span>
       </div>
 
-      <div className={classNames(styles.item)} onClick={saveTemplate}>
-        <span
-          className={classNames("iconfont icon-baocun", styles.icon)}></span>
-        <span className={styles.txt}>保存成模板</span>
-      </div>
+      {type === "content" && (
+        <div className={classNames(styles.item)} onClick={saveTemplate}>
+          <span
+            className={classNames("iconfont icon-baocun", styles.icon)}></span>
+          <span className={styles.txt}>保存成模板</span>
+        </div>
+      )}
 
       <div className={classNames(styles.item)} onClick={goPrevCanvasHistory}>
         <span
