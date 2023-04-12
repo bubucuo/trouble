@@ -106,7 +106,7 @@ export default function StretchDots(props: IStretchProps) {
         className={styles.stretchDot}
         style={{
           top: -8,
-          left: width - 8,
+          left: width - 12,
           transform,
           cursor: "nesw-resize",
         }}
@@ -118,7 +118,7 @@ export default function StretchDots(props: IStretchProps) {
         className={styles.stretchDot}
         style={{
           top: height / 2 - 8,
-          left: width - 8,
+          left: width - 12,
           transform,
           cursor: "col-resize",
         }}
@@ -129,8 +129,8 @@ export default function StretchDots(props: IStretchProps) {
       <div
         className={styles.stretchDot}
         style={{
-          top: height - 8,
-          left: width - 8,
+          top: height - 10,
+          left: width - 12,
           transform,
           cursor: "nwse-resize",
         }}
@@ -141,7 +141,7 @@ export default function StretchDots(props: IStretchProps) {
       <div
         className={styles.stretchDot}
         style={{
-          top: height - 8,
+          top: height - 10,
           left: width / 2 - 8,
           transform,
           cursor: "row-resize",
@@ -153,7 +153,7 @@ export default function StretchDots(props: IStretchProps) {
       <div
         className={styles.stretchDot}
         style={{
-          top: height - 8,
+          top: height - 10,
           left: -8,
           transform,
           cursor: "nesw-resize",

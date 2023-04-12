@@ -24,7 +24,6 @@ export default function Edit() {
         <Left />
         <Center />
         <Right />
-        {/* <Right /> */}
       </div>
     </div>
   );

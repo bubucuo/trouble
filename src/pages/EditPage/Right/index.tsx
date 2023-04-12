@@ -1,12 +1,14 @@
 import {useState} from "react";
 import useEditStore, {selectedCmpSelector} from "src/store/editStore";
-import EditCmp from "../EditCmp";
-import EditCanvas from "../EditCanvas";
+import EditCmp from "./EditCmp";
+import EditCanvas from "./EditCanvas";
 import styles from "./index.module.less";
+import {assemblySelector} from "../../../store/editStore";
+import EditMultiCmps from "./EditCmp/EditMultiCmps";
 
 export default function Right() {
   const editStore = useEditStore();
-  const selectedCmp = selectedCmpSelector(editStore);
+  const assemblySize = assemblySelector(editStore).size;
 
   const [showEdit, setShowEdit] = useState(false);
 
@@ -19,7 +21,14 @@ export default function Right() {
         }}>
         {showEdit ? "隐藏编辑区域" : "显示编辑区域"}
       </div>
-      {showEdit && (selectedCmp ? <EditCmp /> : <EditCanvas />)}
+      {showEdit &&
+        (assemblySize === 0 ? (
+          <EditCanvas />
+        ) : assemblySize === 1 ? (
+          <EditCmp />
+        ) : (
+          <EditMultiCmps />
+        ))}
     </div>
   );
 }

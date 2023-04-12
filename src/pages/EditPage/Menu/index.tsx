@@ -6,7 +6,7 @@ import {isGraphComponent, isImgComponent, isTextComponent} from "../Left";
 import {useState} from "react";
 import {ICmpWithKey} from "src/store/editStoreTypes";
 
-export default function ContextMenu({style}: any) {
+export default function Menu({style}: any) {
   const [toggle, setToggle] = useState(false);
   const editStore = useEditStore();
 

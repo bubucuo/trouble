@@ -33,12 +33,6 @@ const useEditStore = create(
       _canvas: ICanvas | null | SetDraftFC,
       dontRecordHistory?: string
     ) => {
-      console.log(
-        "%c [  ]-38",
-        "font-size:13px; background:pink; color:#bf2c9f;",
-        _canvas
-      );
-
       const store = get();
 
       let newStore: any;
@@ -115,7 +109,7 @@ const useEditStore = create(
             draft.assembly.clear();
           }
         });
-      } else if (indexes > 1) {
+      } else if (indexes > -1) {
         set((draft) => {
           draft.assembly = new Set([indexes]);
         });
@@ -363,6 +357,26 @@ const useEditStore = create(
         draft.assembly = new Set([0]);
       });
     },
+
+    editAssemblyStyle: (_style: _Style) => {
+      get().setCanvas((draft) => {
+        draft.assembly.forEach((index: number) => {
+          const _s = {...draft.canvas.cmps[index].style};
+          const canvasStyle = draft.canvas.style;
+          if (_style.right === 0) {
+            // 计算left
+            _s.left = canvasStyle.width - _s.width;
+          } else if (_style.bottom === 0) {
+            // top
+            _s.top = canvasStyle.height - _s.height;
+          } else {
+            Object.assign(_s, _style);
+          }
+
+          draft.canvas.cmps[index].style = _s;
+        });
+      });
+    },
   }))
 );
 
@@ -410,7 +424,7 @@ function getDefaultCanvas(): ICanvas {
       backgroundPosition: "center",
       backgroundSize: "cover",
       backgroundRepeat: "no-repeat",
-      // boxSizing: "content-box",
+      boxSizing: "border-box",
     },
     // 组件
     cmps: [],

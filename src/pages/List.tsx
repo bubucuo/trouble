@@ -28,8 +28,9 @@ export default function List() {
   const fresh = () => {
     getCanvasList("", (res: any) => {
       let data = res.content || [];
+      // 不让用户编辑这三个模板页
       data = data.filter(
-        (item: ICmp) => item.id !== 23 && item.id !== 15 && item.id !== 17
+        (item: ICmp) => item.id !== 2 && item.id !== 30 && item.id !== 31
       );
       setList(data);
     });
@@ -76,17 +77,21 @@ export default function List() {
     {
       title: "动作",
       key: "action",
-      render: (item: ListItem) => (
-        <Space size="middle">
-          <a
-            target="_blank"
-            href={"https://builder-lemon.vercel.app/?id=" + item.id}>
-            线上查看（切移动端）
-          </a>
-          <Link to={editUrl(item)}>编辑</Link>
-          <Button onClick={() => del({id: item.id})}>删除</Button>
-        </Space>
-      ),
+      render: (item: ListItem) => {
+        const {id} = item;
+        return (
+          <Space size="middle">
+            <a
+              target="_blank"
+              href={"https://builder-lemon.vercel.app/?id=" + id}>
+              线上查看（切移动端）
+            </a>
+
+            <Link to={editUrl(item)}>编辑</Link>
+            <Button onClick={() => del({id})}>删除</Button>
+          </Space>
+        );
+      },
     },
   ];
 

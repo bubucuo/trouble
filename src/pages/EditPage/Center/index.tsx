@@ -1,58 +1,14 @@
-import React, {useState} from "react";
-import classNames from "classnames";
+import React from "react";
 import useEditStore, {selectedCmpIndexSelector} from "src/store/editStore";
-import Cmp from "../EditCmp/Cmp";
-import EditLine from "../EditCmp/EditLine";
-import ContextMenu from "../ContextMenu";
+import Menu from "../Menu";
 import styles from "./index.module.less";
+import Canvas from "./Canvas";
+import Zoom from "./Zoom";
 
 export default function Center() {
   const editStore = useEditStore();
-  const {canvas, assembly, setCmpsSelected} = editStore;
-  const {cmps, style} = canvas;
-
-  // 缩放比例
-  const [zoom, setZoom] = useState(() =>
-    parseInt(style.width as string) > 800 ? 50 : 100
-  );
-
-  const onDrop = (e: any) => {
-    const endX = e.pageX;
-    const endY = e.pageY;
-
-    let dragCmp = e.dataTransfer.getData("drag-cmp");
-
-    if (!dragCmp) {
-      return;
-    }
-
-    dragCmp = JSON.parse(dragCmp);
-
-    const canvasDOMPos = {
-      top: 110,
-      left:
-        document.body.clientWidth / 2 -
-        (parseInt(style.width as string) / 2) * (zoom / 100),
-    };
-
-    const startX = canvasDOMPos.left;
-    const startY = canvasDOMPos.top;
-
-    let disX = endX - startX;
-    let disY = endY - startY;
-
-    disX = disX * (100 / zoom);
-    disY = disY * (100 / zoom);
-
-    dragCmp.style.left = disX - dragCmp.style.width / 2;
-    dragCmp.style.top = disY - dragCmp.style.height / 2;
-
-    editStore.addCmp(dragCmp);
-  };
-
-  const allowDrop = (e: any) => {
-    e.preventDefault();
-  };
+  const {canvas, setCmpsSelected} = editStore;
+  const {cmps} = canvas;
 
   const selectedIndex = selectedCmpIndexSelector(editStore);
 
@@ -130,72 +86,10 @@ export default function Center() {
           setCmpsSelected(-1);
         }
       }}>
-      <div
-        id="canvas"
-        className={styles.canvas}
-        style={{
-          ...style,
-          backgroundImage: `url(${style.backgroundImage})`,
-          transform: `scale(${zoom / 100})`,
-        }}
-        onDrop={onDrop}
-        onDragOver={allowDrop}>
-        {/* 组件选中的时候，画布显示该组件的编辑区域 */}
-        {selectedIndex !== -1 && (
-          <EditLine selectedIndex={selectedIndex} zoom={zoom} />
-        )}
+      <Canvas selectedIndex={selectedIndex} />
 
-        <div
-          className={styles.cmps}
-          style={{
-            width: style.width,
-            height: style.height,
-          }}>
-          {/* 组件区域 */}
-          {cmps.map((cmp: any, index: number) => (
-            <Cmp
-              key={cmp.key}
-              cmp={cmp}
-              index={index}
-              selectedIndex={selectedIndex}
-              isSelected={assembly.has(index)}
-              setCmpsSelected={setCmpsSelected}
-            />
-          ))}
-        </div>
-      </div>
-      <ContextMenu />
-      <ul className={styles.zoom}>
-        <li
-          className={classNames(styles.icon)}
-          style={{cursor: "zoom-in"}}
-          onClick={() => {
-            setZoom(zoom + 25);
-          }}>
-          +
-        </li>
-        <li className={classNames(styles.num)}>
-          <input
-            type="num"
-            value={zoom}
-            onChange={(e: any) => {
-              let newValue = e.target.value;
-              newValue = newValue >= 1 ? newValue : 1;
-              setZoom(newValue - 0);
-            }}
-          />
-          %
-        </li>
-        <li
-          className={classNames(styles.icon)}
-          style={{cursor: "zoom-out"}}
-          onClick={() => {
-            const newZoom = zoom - 25 >= 1 ? zoom - 25 : 1;
-            setZoom(newZoom);
-          }}>
-          -
-        </li>
-      </ul>
+      <Menu />
+      <Zoom />
     </div>
   );
 }

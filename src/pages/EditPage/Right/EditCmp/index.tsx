@@ -1,6 +1,6 @@
 import InputColor from "src/lib/InputColor";
 import Item from "src/lib/Item";
-import {isImgComponent, isTextComponent} from "../Left";
+import {isImgComponent, isTextComponent} from "../../Left";
 import styles from "./index.module.less";
 import useEditStore, {selectedCmpSelector} from "src/store/editStore";
 import {useCanvasFromEditStore} from "src/store/editStoreHooks";
@@ -16,7 +16,6 @@ export default function EditCmp() {
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     editStore.updateSelectedCmpValue(newValue);
-    editStore.recordCanvasChangeHistoryAfterBatch();
   };
 
   const handleStyleChange = (
@@ -26,7 +25,6 @@ export default function EditCmp() {
     const newStyle = {[name]: value};
 
     editStore.updateSelectedCmpStyle(newStyle);
-    editStore.recordCanvasChangeHistoryAfterBatch();
   };
 
   const handleAttrChange = (
@@ -34,7 +32,6 @@ export default function EditCmp() {
     {name, value}: {name: string; value: string}
   ) => {
     editStore.updateSelectedCmpAttr(name, value);
-    editStore.recordCanvasChangeHistoryAfterBatch();
   };
 
   const canvasData = useCanvasFromEditStore();

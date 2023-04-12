@@ -1,11 +1,11 @@
 import React from "react";
-import Img from "../Img";
-import Lines from "../EditLine/Lines";
+import Img from "./Img";
+import Lines from "../EditBox/Lines";
 import type {ICmpWithKey} from "src/store/editStoreTypes";
 import styles from "./index.module.less";
 import {isImgComponent, isTextComponent} from "../../Left";
 
-import Text from "../Text";
+import Text from "./Text";
 import {isEqual} from "lodash";
 
 interface ICmpProps {
@@ -51,7 +51,8 @@ const Cmp = React.memo(
           zIndex,
         }}
         onClick={setSelected}>
-        {selectedIndex !== index && isSelected && (
+        {/* {selectedIndex !== index && isSelected && ( */}
+        {isSelected && (
           <Lines
             style={{width, height, transform}}
             basePos={style.borderWidth as number}
@@ -70,16 +71,15 @@ const Cmp = React.memo(
         </div>
       </div>
     );
-  }
+  },
 
-  // ,
-  // (prev: ICmpProps, next: ICmpProps): boolean => {
-  //   let noChange =
-  //     isEqual(prev.cmp, next.cmp) &&
-  //     isEqual(prev.index, next.index) &&
-  //     isEqual(prev.isSelected, next.isSelected);
-  //   return noChange;
-  // }
+  (prev: ICmpProps, next: ICmpProps): boolean => {
+    let noChange =
+      isEqual(prev.cmp, next.cmp) &&
+      isEqual(prev.index, next.index) &&
+      isEqual(prev.isSelected, next.isSelected);
+    return noChange;
+  }
 );
 
 export default Cmp;

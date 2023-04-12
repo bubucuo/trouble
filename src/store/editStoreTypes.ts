@@ -82,6 +82,9 @@ export type EditStoreAction = {
   subCmpZIndex: () => void;
   topZIndex: () => void;
   bottomZIndex: () => void;
+
+  // 批量操作属性
+  editAssemblyStyle: (_style: _Style) => void;
 };
 
 export interface IEditStore extends EditStoreState, EditStoreAction {}

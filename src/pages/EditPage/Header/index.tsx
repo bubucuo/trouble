@@ -6,6 +6,7 @@ import useEditStore from "src/store/editStore";
 import {useCanvasId, useCanvasType} from "src/store/hooks";
 import {useCanvasFromEditStore} from "src/store/editStoreHooks";
 import {saveCanvas} from "src/request/canvas";
+import {isFunction} from "lodash";
 
 export default function Header() {
   const editStore = useEditStore();
@@ -17,7 +18,7 @@ export default function Header() {
 
   //页面的新增与编辑更新
   // 模板的更新
-  const save = () => {
+  const save = (callback?: () => void) => {
     saveCanvas(
       {
         id,
@@ -26,9 +27,13 @@ export default function Header() {
         type,
       },
       (res: any) => {
-        alert("保存成功");
-        if (id == null) {
-          navigate("?id=" + res.id);
+        if (isFunction(callback)) {
+          callback();
+        } else {
+          alert("保存成功");
+          if (id == null) {
+            navigate("?id=" + res.id);
+          }
         }
       }
     );
@@ -50,6 +55,12 @@ export default function Header() {
         }
       }
     );
+  };
+
+  const saveAndPreview = () => {
+    save(() => {
+      window.open("https://builder-lemon.vercel.app/?id=" + id);
+    });
   };
 
   const emptyCanvas = () => {
@@ -86,6 +97,12 @@ export default function Header() {
           <span className={styles.txt}>保存成模板</span>
         </div>
       )}
+
+      <div className={classNames(styles.item)} onClick={saveAndPreview}>
+        <span
+          className={classNames("iconfont icon-baocun", styles.icon)}></span>
+        <span className={styles.txt}>保存并预览</span>
+      </div>
 
       <div className={classNames(styles.item)} onClick={goPrevCanvasHistory}>
         <span

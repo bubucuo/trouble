@@ -1,19 +1,18 @@
 import React, {useRef, useState} from "react";
-import StretchDots from "./StretchDots";
-import Rotate from "./Rotate";
-import Lines from "./Lines";
-import {isTextComponent} from "../../Left";
+import StretchDots from "../StretchDots";
+import Rotate from "../Rotate";
+import Lines from "../Lines";
+import {isTextComponent} from "../../../Left";
 import styles from "./index.module.less";
 import useEditStore, {dontRecordHistory} from "src/store/editStore";
 import {throttle} from "lodash";
-import {selectedCmpSelector} from "../../../../store/editStore";
+import {selectedCmpSelector} from "src/store/editStore";
 
 interface IEditLineProps {
   zoom: number;
-  selectedIndex: number;
 }
 
-export default function EditLine(props: IEditLineProps) {
+export default function EditSingle(props: IEditLineProps) {
   const editStore = useEditStore();
   const textareaRef = useRef<any>();
 
