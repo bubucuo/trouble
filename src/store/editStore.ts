@@ -68,12 +68,9 @@ const useEditStore = create(
     },
 
     // ! 更新画布属性
-    updateCanvasStyle: (newStyle: any) => {
+    updateCanvasStyle: (_style: any) => {
       const _canvas = (draft: Draft): any => {
-        draft.canvas.style = {
-          ...draft.style,
-          ...newStyle,
-        };
+        Object.assign(draft.canvas.style, _style);
       };
       get().setCanvas(_canvas);
     },

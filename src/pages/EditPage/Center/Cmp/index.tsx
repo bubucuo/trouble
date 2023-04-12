@@ -11,14 +11,13 @@ import {isEqual} from "lodash";
 interface ICmpProps {
   cmp: ICmpWithKey;
   index: number;
-  selectedIndex: number;
   isSelected: boolean;
   setCmpsSelected: (indexes: number | Array<number>) => void;
 }
 
 const Cmp = React.memo(
   (props: ICmpProps) => {
-    const {cmp, index, selectedIndex, isSelected, setCmpsSelected} = props;
+    const {cmp, index, isSelected, setCmpsSelected} = props;
 
     const {style} = cmp;
 
@@ -51,7 +50,6 @@ const Cmp = React.memo(
           zIndex,
         }}
         onClick={setSelected}>
-        {/* {selectedIndex !== index && isSelected && ( */}
         {isSelected && (
           <Lines
             style={{width, height, transform}}

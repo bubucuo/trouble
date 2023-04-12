@@ -80,7 +80,6 @@ export default function Canvas({selectedIndex}: CanvasProps) {
             key={cmp.key}
             cmp={cmp}
             index={index}
-            selectedIndex={selectedIndex}
             isSelected={assembly.has(index)}
             setCmpsSelected={setCmpsSelected}
           />
