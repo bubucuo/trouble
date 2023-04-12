@@ -1,6 +1,8 @@
 import leftSideStyles from "../leftSide.module.less";
 import classNames from "classnames";
 import {cloneDeep} from "lodash";
+import {useEffect, useState} from "react";
+import {getTemplateList} from "src/request/canvas";
 import useEditStore from "src/store/editStore";
 
 const settings = [
@@ -3988,11 +3990,23 @@ const settings = [
 ];
 
 export default function TplSide() {
+  const [list, setList] = useState([]);
+
   const editStore = useEditStore();
 
   const setCanvas = (_canvas: any, options?: {title: string}) => {
     editStore.setCanvas(cloneDeep(_canvas), options);
   };
+
+  useEffect(() => {
+    getTemplateList("", (res: any) => {
+      let data = res.content || [];
+      // data = data.filter(
+      //   (item: ICmp) => item.id !== 23 && item.id !== 15 && item.id !== 17
+      // );
+      setList(data);
+    });
+  }, []);
 
   return (
     <div className={classNames(leftSideStyles.main)}>

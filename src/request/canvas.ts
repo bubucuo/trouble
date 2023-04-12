@@ -14,16 +14,18 @@ export function getCanvas(
 
 // 保存
 export function saveCanvas(
-  values: {id: number | null; content: string; type: string; title?: string},
+  values: {id?: number | null; content: string; type: string; title?: string},
   successCallback: Function,
   failedCallback?: Function
 ) {
-  myAxios.post(end + "/api/web/content/save", values).then((res) => {
-    common(res, successCallback);
-  });
+  myAxios
+    .post(end + "/api/web/content/save", {...values, title: "未命名"})
+    .then((res) => {
+      common(res, successCallback);
+    });
 }
 
-// 查询列表
+// 查询页面列表
 export function getCanvasList(
   values: any,
   successCallback: Function,
@@ -31,6 +33,19 @@ export function getCanvasList(
 ) {
   myAxios
     .get(end + "/api/web/content/list?pageSize=1000" + values)
+    .then((res) => {
+      common(res, successCallback, failedCallback);
+    });
+}
+
+// 查询模板列表
+export function getTemplateList(
+  values: any,
+  successCallback: Function,
+  failedCallback?: Function
+) {
+  myAxios
+    .get(end + "/api/web/template/list?pageSize=1000" + values)
     .then((res) => {
       common(res, successCallback, failedCallback);
     });

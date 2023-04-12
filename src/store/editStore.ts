@@ -11,11 +11,10 @@ import type {
   ICmpWithKey,
 } from "./editStoreTypes";
 import {getCanvas} from "src/request/canvas";
-import {cloneDeep, isFunction, isString} from "lodash";
+import {cloneDeep, isFunction} from "lodash";
 import {getOnlyKey} from "src/utils";
 import {immer} from "zustand/middleware/immer";
 import produce from "immer";
-import {StoreApi, UseBoundStore} from "zustand";
 
 const maxCanvasChangeHistory = 100;
 export const dontRecordHistory = "dontRecordHistory";
@@ -62,6 +61,7 @@ const useEditStore = create(
             draft.canvas = JSON.parse(res.content);
             draft.canvasChangeHistory = [draft.canvas];
             draft.canvasChangeHistoryIndex = 0;
+            draft.canvas.title = res.content.title;
           });
         }
       });

@@ -20,6 +20,23 @@ export default function Header() {
         id,
         content: JSON.stringify(canvas),
         title: canvas.title,
+        type: "content",
+      },
+      (res: any) => {
+        alert("保存成功");
+        if (id == null) {
+          navigate("?id=" + res.id);
+        }
+      }
+    );
+  };
+
+  const saveTemplate = () => {
+    saveCanvas(
+      {
+        // id,
+        content: JSON.stringify(canvas),
+        title: canvas.title,
         type: "template",
       },
       (res: any) => {
@@ -53,6 +70,12 @@ export default function Header() {
         <span
           className={classNames("iconfont icon-baocun", styles.icon)}></span>
         <span className={styles.txt}>保存</span>
+      </div>
+
+      <div className={classNames(styles.item)} onClick={saveTemplate}>
+        <span
+          className={classNames("iconfont icon-baocun", styles.icon)}></span>
+        <span className={styles.txt}>保存成模板</span>
       </div>
 
       <div className={classNames(styles.item)} onClick={goPrevCanvasHistory}>

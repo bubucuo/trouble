@@ -1,8 +1,9 @@
 import {useEffect, useState} from "react";
 import {deleteCanvas, getCanvasList} from "../request/canvas";
 import {Card, Space, Table, Button} from "antd";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {ICmp} from "../store/editStoreTypes";
+import docCookies from "src/utils/cookies";
 
 type ListItem = {
   id: number;
@@ -10,6 +11,15 @@ type ListItem = {
   content: string;
 };
 export default function Home() {
+  const username = docCookies.getItem("name");
+
+  const navigate = useNavigate();
+  const logout = () => {
+    docCookies.removeItem("sessionId");
+    docCookies.removeItem("name");
+    navigate("/login");
+  };
+
   const [list, setList] = useState([]);
 
   const fresh = () => {
@@ -69,6 +79,10 @@ export default function Home() {
 
   return (
     <Card>
+      <Space size="large">
+        <Button onClick={logout}> {username} 退出登录 </Button>
+      </Space>
+
       <Space size="middle">
         <Link to={"/edit"}>新增</Link>
       </Space>

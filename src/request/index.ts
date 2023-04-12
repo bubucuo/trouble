@@ -1,6 +1,7 @@
 import axios from "axios";
 import docCookies from "../utils/cookies";
-export const end = "//www.bubucuo.cn";
+// export const end = "//www.bubucuo.cn";
+export const end = "//template.josephxia.com";
 
 export function common(
   res: any,
@@ -15,7 +16,8 @@ export function common(
       typeof failedCallback === "function"
         ? failedCallback()
         : alert("请先登录！");
-    } else if (code === 500) {
+    } //if (code === 500)
+    else {
       typeof failedCallback === "function"
         ? failedCallback()
         : alert(res.data.msg || "信息有误，失败！");
