@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import classNames from "classnames";
 import {useCanvasFromEditStore} from "src/store/editStoreHooks";
 import useEditStore, {
+  assemblySelector,
   cmpsSelector,
   selectedCmpIndexSelector,
   selectedCmpSelector,
@@ -13,10 +14,11 @@ import styles from "./index.module.less";
 
 export default function Center() {
   const editStore = useEditStore();
-
+  const setCmpsSelected = useCallback(editStore.setCmpsSelected, []);
+  const {cmps, style} = editStore.canvas;
   const canvasData = useCanvasFromEditStore();
 
-  const {style, cmps} = canvasData;
+  // const {style, cmps} = canvasData;
 
   // 缩放比例
   const [zoom, setZoom] = useState(() =>
@@ -66,11 +68,16 @@ export default function Center() {
 
   const selectedIndex = selectedCmpIndexSelector(editStore);
 
-  useEffect(() => {
-    document.onkeydown = whichKeyEvent;
-  }, []);
+  // useEffect(() => {
+  //   document.addEventListener("onkeydown", whichKeyEvent);
+  //   return () => {
+  //   document.addEventListener("onkeydown", whichKeyEvent);
 
-  const whichKeyEvent = (e: KeyboardEvent) => {
+  //   };
+  // }, [editStore.assembly]);
+
+  // const whichKeyEvent = (e: KeyboardEvent) => {
+  const whichKeyEvent = (e) => {
     if (
       (e.target as Element).nodeName === "INPUT" ||
       (e.target as Element).nodeName === "TEXTAREA"
@@ -80,10 +87,10 @@ export default function Center() {
 
     if (e.metaKey && e.code === "KeyA") {
       // 选中所有组件
-      const allCmps = cmpsSelector(editStore);
       // 返回所有数组下标
-      editStore.addAndUpdateAssembly(
-        Object.keys(allCmps).map((item: string): number => parseInt(item))
+
+      setCmpsSelected(
+        Object.keys(cmps).map((item: string): number => parseInt(item))
       );
       e.preventDefault();
       return;
@@ -133,14 +140,17 @@ export default function Center() {
     editStore.updateAssemblyCmps(newStyle);
   };
 
+  const assembly = assemblySelector(editStore);
+
   return (
     <div
       id="center"
       className={styles.main}
       tabIndex={0}
+      onKeyDown={whichKeyEvent}
       onClick={(e: any) => {
         if ((e.target as Element).id === "center") {
-          editStore.setSelectedCmpIndex(-1);
+          setCmpsSelected(-1);
         }
       }}>
       <div
@@ -166,11 +176,17 @@ export default function Center() {
           }}>
           {/* 组件区域 */}
           {cmps.map((cmp: any, index: number) => (
-            <Cmp key={cmp.key} cmp={cmp} index={index} />
+            <Cmp
+              key={cmp.key}
+              cmp={cmp}
+              index={index}
+              selectedIndex={selectedIndex}
+              isSelected={assembly.has(index)}
+              setCmpsSelected={setCmpsSelected}
+            />
           ))}
         </div>
       </div>
-
       <ContextMenu />
       <ul className={styles.zoom}>
         <li

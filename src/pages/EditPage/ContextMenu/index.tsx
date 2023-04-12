@@ -47,6 +47,7 @@ export default function ContextMenu({style}: any) {
   }
 
   const cmps = nearByCmpsSelector(editStore);
+
   return (
     <div className={classNames(styles.main)}>
       <ul className={classNames(styles.menu)} style={style}>
@@ -58,7 +59,10 @@ export default function ContextMenu({style}: any) {
             <li onClick={subCmpZIndex}>下移一层</li>
             <li onClick={topZIndex}>置顶</li>
             <li onClick={bottomZIndex}>置底</li>
-            <li onClick={() => setToggle(!toggle)}>
+            <li
+              onClick={(e) => {
+                setToggle(!toggle);
+              }}>
               {toggle ? "隐藏" : "显示"}图层
             </li>
           </>
@@ -68,13 +72,7 @@ export default function ContextMenu({style}: any) {
       {toggle && (
         <ul className={styles.nearByCmps}>
           {cmps.map((item, index) => (
-            <Item
-              key={item.key}
-              cmp={item}
-              // type={item.type}
-              // value={item?.value}
-              index={index}
-            />
+            <Item key={item.key} cmp={item} index={index} />
           ))}
         </ul>
       )}
@@ -86,7 +84,6 @@ interface ItemProps {
   cmp: ICmpWithKey;
   index: number;
 }
-// function Item(props: ItemProps) {
 function Item(props: ItemProps) {
   const {cmp, index} = props;
   const {type, value} = cmp;
@@ -125,7 +122,7 @@ function Item(props: ItemProps) {
   }
 
   return (
-    <li onClick={() => editStore.setSelectedCmpIndex(index)}>
+    <li onClick={() => editStore.setCmpsSelected(index)}>
       {left}
       <span className={styles.txt}>{right}</span>
     </li>

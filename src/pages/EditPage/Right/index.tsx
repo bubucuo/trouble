@@ -1,8 +1,5 @@
 import {useState} from "react";
-import useEditStore, {
-  selectedCmpIndexSelector,
-  selectedCmpSelector,
-} from "src/store/editStore";
+import useEditStore, {selectedCmpSelector} from "src/store/editStore";
 import EditCmp from "../EditCmp";
 import EditCanvas from "../EditCanvas";
 import styles from "./index.module.less";

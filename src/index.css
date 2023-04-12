@@ -28,6 +28,7 @@ code {
   border: none;
   box-sizing: border-box;
   outline: none;
+  user-select: none;
 }
 
 select,

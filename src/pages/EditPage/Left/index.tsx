@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import {useState, useEffect} from "react";
+import {memo, useState, useEffect} from "react";
 
 import styles from "./index.module.less";
 import TextSide from "./TextSide";
@@ -12,7 +12,7 @@ export const isTextComponent = 1;
 export const isImgComponent = 2;
 export const isGraphComponent = 3;
 
-export default function Left() {
+const Left = memo(() => {
   const [showSide, setShowSide] = useState(0);
 
   const _setShowSide = (which: number) => {
@@ -28,6 +28,8 @@ export default function Left() {
       setShowSide(0);
     });
   }, []);
+
+  console.log("left render"); //sy-log
 
   return (
     <div className={styles.main}>
@@ -83,4 +85,6 @@ export default function Left() {
       {showSide === isGraphComponent && <GraphSide />}
     </div>
   );
-}
+});
+
+export default Left;

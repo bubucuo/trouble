@@ -11,10 +11,11 @@ import type {
   ICmpWithKey,
 } from "./editStoreTypes";
 import {getCanvas} from "src/request/canvas";
-import {cloneDeep, isFunction} from "lodash";
+import {cloneDeep, isFunction, isString} from "lodash";
 import {getOnlyKey} from "src/utils";
 import {immer} from "zustand/middleware/immer";
 import produce from "immer";
+import {StoreApi, UseBoundStore} from "zustand";
 
 const maxCanvasChangeHistory = 100;
 export const dontRecordHistory = "dontRecordHistory";
@@ -68,99 +69,80 @@ const useEditStore = create(
 
     // ! 更新画布属性
     updateCanvasStyle: (newStyle: any) => {
-      const store = get();
-
       const _canvas = (draft: Draft): any => {
         draft.canvas.style = {
           ...draft.style,
           ...newStyle,
         };
       };
-      store.setCanvas(_canvas);
+      get().setCanvas(_canvas);
     },
 
     updateCanvasTitle: (title: string) => {
-      const store = get();
-
       const _canvas = (draft: Draft) => {
         draft.canvas.title = title;
       };
-      store.setCanvas(_canvas);
+      get().setCanvas(_canvas);
     },
 
     // 新增组件
     addCmp: (_cmp: ICmp) => {
-      const store = get();
-
       const _canvas = (draft: Draft) => {
         draft.canvas.cmps.push({..._cmp, key: getOnlyKey()});
         draft.assembly = new Set([draft.canvas.cmps.length - 1]);
       };
 
-      store.setCanvas(_canvas);
+      get().setCanvas(_canvas);
     },
 
-    setSelectedCmpIndex: (index: number) => {
-      const store = get();
-
-      // 空的，再重新设置，不要引起渲染
-      if (store.assembly.size === 0 && index === -1) {
-        return;
-      }
-
-      // 和上次值相同
-      if (index > -1 && selectedCmpIndexSelector(store) === index) {
-        return;
-      }
-
-      if (index === -1) {
+    // 数组，则添加到 assembly 中
+    // -1 取消选中
+    // 大于-1的下标，重置 assembly，只选中一个组件
+    setCmpsSelected: (indexes: number | Array<number>) => {
+      if (Array.isArray(indexes)) {
         set((draft) => {
-          draft.assembly.clear();
+          indexes.forEach((index) => draft.assembly.add(index));
         });
-      } else {
+      } else if (indexes === -1) {
         set((draft) => {
-          draft.assembly = new Set([index]);
+          if (draft.assembly.size > 0) {
+            draft.assembly.clear();
+          }
+        });
+      } else if (indexes > 1) {
+        set((draft) => {
+          draft.assembly = new Set([indexes]);
         });
       }
     },
 
+    // 修改选中的单个组件的属性
     updateSelectedCmpStyle: (newStyle: _Style) => {
-      const store = get();
-      const selectedCmp = selectedCmpSelector(store);
-
       const _canvas = (draft: Draft) => {
-        draft.canvas.cmps[selectedCmpIndexSelector(store)].style = {
-          ...selectedCmp?.style,
-          ...newStyle,
-        };
+        Object.assign(
+          draft.canvas.cmps[selectedCmpIndexSelector(draft)].style,
+          newStyle
+        );
       };
-
-      store.setCanvas(_canvas);
+      get().setCanvas(_canvas);
     },
+    // 修改文本或者图片地址
     updateSelectedCmpValue: (newValue: string) => {
-      const store = get();
       const _canvas = (draft: Draft) => {
-        draft.canvas.cmps[selectedCmpIndexSelector(store)].value = newValue;
+        draft.canvas.cmps[selectedCmpIndexSelector(draft)].value = newValue;
       };
 
-      store.setCanvas(_canvas);
+      get().setCanvas(_canvas);
     },
 
     updateSelectedCmpStyleAndValue: (newStyle: _Style, newValue: string) => {
-      const store = get();
-      const selectedCmp = selectedCmpSelector(store);
-
-      const selectedIndex = selectedCmpIndexSelector(store);
       const _canvas = (draft: Draft) => {
-        draft.canvas.cmps[selectedIndex].style = {
-          ...selectedCmp?.style,
-          ...newStyle,
-        };
-
+        const selectedIndex = selectedCmpIndexSelector(draft);
+        Object.assign(draft.canvas.cmps[selectedIndex].style, newStyle);
         draft.canvas.cmps[selectedIndex].value = newValue;
       };
 
-      store.setCanvas(_canvas);
+      get().setCanvas(_canvas);
     },
 
     //dontRecordHistory标记频繁修改，此时不记录到历史记录里，只有up阶段才记录
@@ -179,36 +161,20 @@ const useEditStore = create(
       store.setCanvas(_canvas, dontRecordHistory);
     },
 
-    addAndUpdateAssembly: (indexes: Array<number>) => {
-      set((draft) => {
-        draft.assembly = new Set([...draft.assembly, ...indexes]);
-      });
-    },
-
     updateSelectedCmpAttr: (name: string, value: string) => {
       const store = get();
 
-      const selectedIndex = selectedCmpIndexSelector(store);
-
       const _canvas = (draft: Draft) => {
+        const selectedIndex = selectedCmpIndexSelector(draft);
+
         draft.canvas.cmps[selectedIndex][name] = value;
       };
 
       store.setCanvas(_canvas);
     },
 
-    // ! 判断下标为index的组件是否被批量选中
-    belongingToAssembly: (index: number) => {
-      const store = get();
-      return isFunction(store.assembly.has) && store.assembly.has(index);
-    },
-
     // ! 历史
     recordCanvasChangeHistory: (newHistoryItem: ICanvas, otherState = {}) => {
-      console.log(
-        "%c [ recordCanvasChangeHistory ]-208",
-        "font-size:13px; background:pink; color:#bf2c9f;"
-      );
       set((draft) => {
         Object.assign(draft, otherState);
         // 在撤销回退过程中，此时历史下标为currentIndex，如果此时用户又去修改画布或者组件属性，
@@ -411,10 +377,19 @@ export const selectedCmpIndexSelector = (store: IEditStore): number => {
   return selectedCmpIndex === undefined ? -1 : selectedCmpIndex;
 };
 
-export const nearByCmpsSelector = (store: IEditStore): Array<ICmpWithKey> => {
+export const nearByCmpsSelector = (
+  store: IEditStore
+  // targetPos
+): Array<ICmpWithKey> => {
   const cmps = cmpsSelector(store);
 
+  const newCmps = cmps.forEach((cmp) => {});
+
   return cmps;
+};
+
+export const assemblySelector = (store: IEditStore): Set<number> => {
+  return store.assembly;
 };
 
 function getDefaultCanvas(): ICanvas {

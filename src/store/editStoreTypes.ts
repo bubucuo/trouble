@@ -54,18 +54,14 @@ export type EditStoreAction = {
   addCmp: (_cmp: ICmp) => void;
 
   // 选中的组件
-  setSelectedCmpIndex: (index: number) => void;
+  setCmpsSelected: (indexes: number | Array<number>) => void;
   updateSelectedCmpStyle: (newStyle: _Style) => void;
   updateSelectedCmpValue: (newValue: string) => void;
   updateSelectedCmpStyleAndValue: (newStyle: _Style, newValue: string) => void;
   updateAssemblyCmps: (newStyle: _Style, dontRecordHistory?: string) => void;
-  addAndUpdateAssembly: (indexes: Array<number>) => void;
 
   // ! 更新组件属性
   updateSelectedCmpAttr: (name: string, value: string) => void;
-
-  // 判断下标为index的组件是否被批量选中
-  belongingToAssembly: (index: number) => boolean;
 
   // 历史
   recordCanvasChangeHistory: (
