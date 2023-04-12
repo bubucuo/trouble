@@ -1,12 +1,6 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useState} from "react";
 import classNames from "classnames";
-import {useCanvasFromEditStore} from "src/store/editStoreHooks";
-import useEditStore, {
-  assemblySelector,
-  cmpsSelector,
-  selectedCmpIndexSelector,
-  selectedCmpSelector,
-} from "src/store/editStore";
+import useEditStore, {selectedCmpIndexSelector} from "src/store/editStore";
 import Cmp from "../EditCmp/Cmp";
 import EditLine from "../EditCmp/EditLine";
 import ContextMenu from "../ContextMenu";
@@ -14,69 +8,54 @@ import styles from "./index.module.less";
 
 export default function Center() {
   const editStore = useEditStore();
-  const setCmpsSelected = useCallback(editStore.setCmpsSelected, []);
-  const {cmps, style} = editStore.canvas;
-  const canvasData = useCanvasFromEditStore();
-
-  // const {style, cmps} = canvasData;
+  const {canvas, assembly, setCmpsSelected} = editStore;
+  const {cmps, style} = canvas;
 
   // 缩放比例
   const [zoom, setZoom] = useState(() =>
-    parseInt(canvasData.style.width as string) > 800 ? 50 : 100
+    parseInt(style.width as string) > 800 ? 50 : 100
   );
 
-  const onDrop = useCallback(
-    (e: any) => {
-      const endX = e.pageX;
-      const endY = e.pageY;
+  const onDrop = (e: any) => {
+    const endX = e.pageX;
+    const endY = e.pageY;
 
-      let dragCmp = e.dataTransfer.getData("drag-cmp");
+    let dragCmp = e.dataTransfer.getData("drag-cmp");
 
-      if (!dragCmp) {
-        return;
-      }
+    if (!dragCmp) {
+      return;
+    }
 
-      dragCmp = JSON.parse(dragCmp);
+    dragCmp = JSON.parse(dragCmp);
 
-      const canvasDOMPos = {
-        top: 110,
-        left:
-          document.body.clientWidth / 2 -
-          (parseInt(style.width as string) / 2) * (zoom / 100),
-      };
+    const canvasDOMPos = {
+      top: 110,
+      left:
+        document.body.clientWidth / 2 -
+        (parseInt(style.width as string) / 2) * (zoom / 100),
+    };
 
-      const startX = canvasDOMPos.left;
-      const startY = canvasDOMPos.top;
+    const startX = canvasDOMPos.left;
+    const startY = canvasDOMPos.top;
 
-      let disX = endX - startX;
-      let disY = endY - startY;
+    let disX = endX - startX;
+    let disY = endY - startY;
 
-      disX = disX * (100 / zoom);
-      disY = disY * (100 / zoom);
+    disX = disX * (100 / zoom);
+    disY = disY * (100 / zoom);
 
-      dragCmp.style.left = disX - dragCmp.style.width / 2;
-      dragCmp.style.top = disY - dragCmp.style.height / 2;
+    dragCmp.style.left = disX - dragCmp.style.width / 2;
+    dragCmp.style.top = disY - dragCmp.style.height / 2;
 
-      editStore.addCmp(dragCmp);
-    },
-    [editStore, zoom, style.width]
-  );
+    editStore.addCmp(dragCmp);
+  };
 
-  const allowDrop = useCallback((e: any) => {
+  const allowDrop = (e: any) => {
     e.preventDefault();
-  }, []);
+  };
 
   const selectedIndex = selectedCmpIndexSelector(editStore);
 
-  // useEffect(() => {
-  //   document.addEventListener("onkeydown", whichKeyEvent);
-  //   return () => {
-  //   document.addEventListener("onkeydown", whichKeyEvent);
-
-  //   };
-  // }, [editStore.assembly]);
-
-  // const whichKeyEvent = (e: KeyboardEvent) => {
   const whichKeyEvent = (e) => {
     if (
       (e.target as Element).nodeName === "INPUT" ||
@@ -96,7 +75,7 @@ export default function Center() {
       return;
     }
 
-    const selectedCmp = selectedCmpSelector(editStore);
+    const selectedCmp = cmps[selectedIndex];
     if (!selectedCmp) {
       return;
     }
@@ -140,8 +119,6 @@ export default function Center() {
     editStore.updateAssemblyCmps(newStyle);
   };
 
-  const assembly = assemblySelector(editStore);
-
   return (
     <div
       id="center"
@@ -157,8 +134,8 @@ export default function Center() {
         id="canvas"
         className={styles.canvas}
         style={{
-          ...canvasData.style,
-          backgroundImage: `url(${canvasData.style.backgroundImage})`,
+          ...style,
+          backgroundImage: `url(${style.backgroundImage})`,
           transform: `scale(${zoom / 100})`,
         }}
         onDrop={onDrop}
@@ -171,8 +148,8 @@ export default function Center() {
         <div
           className={styles.cmps}
           style={{
-            width: canvasData.style.width,
-            height: canvasData.style.height,
+            width: style.width,
+            height: style.height,
           }}>
           {/* 组件区域 */}
           {cmps.map((cmp: any, index: number) => (
