@@ -369,6 +369,10 @@ const useEditStore = create(
           } else if (_style.bottom === 0) {
             // top
             _s.top = canvasStyle.height - _s.height;
+          } else if (_style.left === "center") {
+            _s.left = (canvasStyle.width - _s.width) / 2;
+          } else if (_style.top === "center") {
+            _s.top = (canvasStyle.height - _s.height) / 2;
           } else {
             Object.assign(_s, _style);
           }
