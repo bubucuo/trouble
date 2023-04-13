@@ -5,6 +5,7 @@ import {useAssemblyFromEditStore} from "src/store/editStoreHooks";
 import {isGraphComponent, isImgComponent, isTextComponent} from "../Left";
 import {useState} from "react";
 import {ICmpWithKey} from "src/store/editStoreTypes";
+import {pick} from "lodash";
 
 export default function Menu({style}: any) {
   const [toggle, setToggle] = useState(false);
@@ -102,11 +103,13 @@ function Item(props: ItemProps) {
       left = (
         <span
           className={styles.left}
-          style={{
-            borderWidth: cmp.style.backgroundColor,
-            borderStyle: cmp.style.borderStyle,
-            backgroundColor: cmp.style.backgroundColor,
-          }}></span>
+          style={pick(cmp.style, [
+            "backgroundColor",
+            "borderWidth",
+            "borderStyle",
+            "borderColor",
+            "borderRadius",
+          ])}></span>
       );
       right = "图形";
       break;

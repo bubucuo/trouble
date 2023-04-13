@@ -4,10 +4,12 @@ import Menu from "../Menu";
 import styles from "./index.module.less";
 import Canvas from "./Canvas";
 import Zoom from "./Zoom";
+import useZoomStore from "./Zoom/zoomStore";
 
 export default function Center() {
   const editStore = useEditStore();
   const {canvas, setCmpsSelected} = editStore;
+  const {zoomIn, zoomOut} = useZoomStore();
   const {cmps} = canvas;
 
   const selectedIndex = selectedCmpIndexSelector(editStore);
@@ -20,13 +22,32 @@ export default function Center() {
       return;
     }
 
-    if (e.metaKey && e.code === "KeyA") {
-      // 选中所有组件
-      // 返回所有数组下标
+    if (e.metaKey) {
+      switch (e.code) {
+        case "KeyA":
+          // 选中所有组件
+          // 返回所有数组下标
+          setCmpsSelected(
+            Object.keys(cmps).map((item: string): number => parseInt(item))
+          );
+          break;
+        case "KeyZ":
+          if (e.shiftKey) {
+            editStore.goNextCanvasHistory();
+          } else {
+            editStore.goPrevCanvasHistory();
+          }
+          break;
 
-      setCmpsSelected(
-        Object.keys(cmps).map((item: string): number => parseInt(item))
-      );
+        case "Equal":
+          zoomOut();
+          break;
+        case "Minus":
+          zoomIn();
+          break;
+      }
+
+      // 阻止默认事件，比如网页的缩放
       e.preventDefault();
       return;
     }

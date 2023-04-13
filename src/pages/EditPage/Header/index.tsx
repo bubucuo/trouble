@@ -10,6 +10,7 @@ import {isFunction} from "lodash";
 
 export default function Header() {
   const editStore = useEditStore();
+  const {goPrevCanvasHistory, goNextCanvasHistory} = editStore;
   const canvas = useCanvasFromEditStore();
   const navigate = useNavigate();
 
@@ -18,7 +19,7 @@ export default function Header() {
 
   //页面的新增与编辑更新
   // 模板的更新
-  const save = (callback?: () => void) => {
+  const save = (e, callback?: (_id: number) => void) => {
     saveCanvas(
       {
         id,
@@ -28,7 +29,7 @@ export default function Header() {
       },
       (res: any) => {
         if (isFunction(callback)) {
-          callback();
+          callback(res.id);
         } else {
           alert("保存成功");
           if (id == null) {
@@ -57,9 +58,10 @@ export default function Header() {
     );
   };
 
-  const saveAndPreview = () => {
-    save(() => {
-      window.open("https://builder-lemon.vercel.app/?id=" + id);
+  const saveAndPreview = (e) => {
+    save(e, (_id: number) => {
+      navigate("?id=" + _id);
+      window.open("https://builder-lemon.vercel.app/?id=" + _id);
     });
   };
 
@@ -67,15 +69,7 @@ export default function Header() {
     editStore.setCanvas(null);
   };
 
-  const goPrevCanvasHistory = () => {
-    editStore.goPrevCanvasHistory();
-  };
-
-  const goNextCanvasHistory = () => {
-    editStore.goNextCanvasHistory();
-  };
-
-  console.log("tpl render"); //sy-log
+  console.log("header render"); //sy-log
   return (
     <div className={styles.main}>
       <div className={classNames(styles.item)}>
@@ -88,6 +82,7 @@ export default function Header() {
         <span
           className={classNames("iconfont icon-baocun", styles.icon)}></span>
         <span className={styles.txt}>保存</span>
+        {/* <span className={styles.shortKey}>Ctr+S</span> */}
       </div>
 
       {type === "content" && (
@@ -95,6 +90,7 @@ export default function Header() {
           <span
             className={classNames("iconfont icon-baocun", styles.icon)}></span>
           <span className={styles.txt}>保存成模板</span>
+          {/* <span className={styles.shortKey}>Ctr+T</span> */}
         </div>
       )}
 
@@ -102,6 +98,7 @@ export default function Header() {
         <span
           className={classNames("iconfont icon-baocun", styles.icon)}></span>
         <span className={styles.txt}>保存并预览</span>
+        {/* <span className={styles.shortKey}>Ctr+P</span> */}
       </div>
 
       <div className={classNames(styles.item)} onClick={goPrevCanvasHistory}>
@@ -111,6 +108,7 @@ export default function Header() {
             styles.icon
           )}></span>
         <span className={styles.txt}>上一步</span>
+        <span className={styles.shortKey}>CMD+Z</span>
       </div>
 
       <div className={classNames(styles.item)} onClick={goNextCanvasHistory}>
@@ -120,7 +118,8 @@ export default function Header() {
             styles.icon
           )}
           style={{transform: `rotateY{180}deg`}}></span>
-        <span className={styles.txt}>下一步</span>
+        <span className={styles.txt}>下一步 </span>
+        <span className={styles.shortKey}>CMD+Shift+Z</span>
       </div>
 
       <div className={classNames(styles.item)} onClick={emptyCanvas}>
@@ -128,11 +127,6 @@ export default function Header() {
           className={classNames("iconfont icon-qingkong", styles.icon)}></span>
         <span className={styles.txt}>清空</span>
       </div>
-
-      {/* <div className={classNames(styles.item)} onClick={save}>
-        <span className={classNames("iconfont icon-fabu", styles.icon)}></span>
-        <span className={styles.txt}>发布</span>
-      </div> */}
     </div>
   );
 }
