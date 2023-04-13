@@ -2,30 +2,26 @@ import {Button, Form, Input, Checkbox, Modal} from "antd";
 import {login, logout} from "src/request/user";
 import {register} from "src/request/register";
 import docCookies from "src/utils/cookies";
-import {useState} from "react";
 
 export default function Login() {
-  const [show, setShow] = useState(true);
-  // 校验是否登录
+  // 校验登录
   const auth = docCookies.getItem("sessionId");
   const name = docCookies.getItem("name");
 
-  // 已经登录，那就显示用户信息，退出登录
+  const handleOk = () => {
+    window.location.reload();
+  };
+  // 用户已经登录，显示用户信息
   if (auth) {
     return (
       <Button
         style={{float: "right", marginTop: 16}}
-        onClick={() => {
-          logout(() => {
-            setShow(true);
-          });
-        }}>
-        {name} 退出登录
+        onClick={() => logout(() => handleOk())}>
+        {name}退出登录
       </Button>
     );
   }
-
-  // 没有登录，显示登录框
+  // 用户没有登录，显示登录框
   const onFinish = ({
     name,
     password,
@@ -58,12 +54,8 @@ export default function Login() {
     });
   };
 
-  const handleOk = () => {
-    setShow(false);
-  };
-
   return (
-    <Modal title="注册与登录" open={show} closable={false} footer={[]}>
+    <Modal title="注册与登录" open={true} closable={false} footer={[]}>
       <p className="red">登录之后才可使用~</p>
       <Form
         name="basic"
