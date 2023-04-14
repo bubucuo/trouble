@@ -48,9 +48,16 @@ const TextSide = memo(() => {
       <ul className={leftSideStyles.box}>
         {settings.map((item) => (
           <li
+            draggable={true}
             key={item.value}
             className={leftSideStyles.item}
-            onClick={() => addCmp({...item, type: isTextComponent})}>
+            onClick={() => addCmp({...item, type: isTextComponent})}
+            onDragStart={(e) => {
+              e.dataTransfer.setData(
+                "drag-cmp",
+                JSON.stringify({...item, type: isTextComponent})
+              );
+            }}>
             {item.value.indexOf("双击编辑") > -1
               ? item.value.slice(4)
               : item.value}
