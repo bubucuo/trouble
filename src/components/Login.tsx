@@ -1,7 +1,8 @@
 import {Button, Form, Input, Checkbox, Modal} from "antd";
-import {login, logout} from "src/request/user";
+import {getUserInfo, login, logout} from "src/request/user";
 import {register} from "src/request/register";
 import docCookies from "src/utils/cookies";
+import {useEffect} from "react";
 
 export default function Login() {
   // 校验登录
@@ -11,6 +12,19 @@ export default function Login() {
   const handleOk = () => {
     window.location.reload();
   };
+
+  useEffect(() => {
+    getUserInfo(() => {
+      (res) => {
+        console.log(
+          "%c [  ]-24",
+          "font-size:13px; background:pink; color:#bf2c9f;",
+          res
+        );
+      };
+    });
+  });
+
   // 用户已经登录，显示用户信息
   if (auth) {
     return (

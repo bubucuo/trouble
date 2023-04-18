@@ -1,5 +1,5 @@
 import axios from "axios";
-import {common, end} from "./index";
+import {common, end, myAxios} from "./index";
 import docCookies from "../utils/cookies";
 
 export function login(
@@ -26,3 +26,12 @@ export const logout = (callback: () => void) => {
   docCookies.removeItem("name");
   callback();
 };
+
+export function getUserInfo(
+  successCallback: Function,
+  failedCallback?: Function
+) {
+  myAxios.get("/api/info").then((res) => {
+    common(res, successCallback, failedCallback);
+  });
+}
