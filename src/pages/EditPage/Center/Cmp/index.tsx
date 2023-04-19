@@ -1,7 +1,7 @@
 import {ICmpWithKey} from "src/store/editStoreTypes";
 import styles from "./index.module.less";
 import {isImgComponent, isTextComponent} from "../../LeftSider";
-import {Text} from "./CmpDetail";
+import {Img, Text} from "./CmpDetail";
 
 interface ICmpProps {
   cmp: ICmpWithKey;
