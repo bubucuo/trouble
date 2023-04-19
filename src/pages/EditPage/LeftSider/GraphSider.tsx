@@ -29,15 +29,15 @@ const settings = [
   },
 ];
 
-const GraphSider = () => {
-  console.log("GraphSider render"); //sy-log
+const ImgSider = () => {
+  console.log("ImgSider render"); //sy-log
   return (
     <div className={leftSideStyles.main}>
       <ul className={leftSideStyles.box}>
         {settings.map((item) => (
           <li
             draggable={true}
-            key={item.key}
+            key={item.value}
             className={leftSideStyles.item}
             onClick={() => addCmp({...item, type: isGraphComponent})}
             onDragStart={(e) => {
@@ -59,4 +59,4 @@ const GraphSider = () => {
   );
 };
 
-export default GraphSider;
+export default ImgSider;

@@ -309,7 +309,7 @@ const ImgSider = () => {
                 JSON.stringify({...item, type: isImgComponent})
               );
             }}>
-            <img src={item.value} alit="" />
+            <img src={item.value} draggable={false} alt="" />
           </li>
         ))}
       </ul>

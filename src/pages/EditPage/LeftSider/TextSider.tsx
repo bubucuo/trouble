@@ -13,7 +13,7 @@ const defaultStyle = {
   textDecoration: "none",
   color: "#000",
   backgroundColor: "#ffffff00",
-  textAlign: "left",
+  textAlign: "center",
   wordSpacing: "10px",
 };
 
