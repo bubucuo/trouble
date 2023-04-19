@@ -1,9 +1,9 @@
-import useEditStore from "src/store/editStore";
+import useEditStore, {addCmp} from "src/store/editStore";
 import styles from "./index.module.less";
 import Cmp from "../Cmp";
 
 export default function Canvas() {
-  const {canvas, addCmp} = useEditStore();
+  const canvas = useEditStore((state) => state.canvas);
   const {cmps, style} = canvas;
 
   const onDrop = (e) => {
