@@ -2,6 +2,8 @@ import classNames from "classnames";
 import {memo, useState, useEffect} from "react";
 import styles from "./index.module.less";
 import TextSider from "./TextSider";
+import ImgSider from "./ImgSider";
+import GraphSider from "./GraphSider";
 
 export const isTextComponent = 1;
 export const isImgComponent = 2;
@@ -65,6 +67,8 @@ const LeftSider = memo(() => {
       </ul>
 
       {showSide === isTextComponent && <TextSider />}
+      {showSide === isImgComponent && <ImgSider />}
+      {showSide === isGraphComponent && <GraphSider />}
     </div>
   );
 });
