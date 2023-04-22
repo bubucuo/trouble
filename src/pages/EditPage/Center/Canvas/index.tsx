@@ -1,10 +1,24 @@
-import useEditStore, {addCmp} from "src/store/editStore";
+import useEditStore, {addCmp, fetchCanvas} from "src/store/editStore";
 import styles from "./index.module.less";
 import Cmp from "../Cmp";
+import {useEffect} from "react";
+import {useCanvasId} from "src/store/hooks";
 
 export default function Canvas() {
   const canvas = useEditStore((state) => state.canvas);
   const {cmps, style} = canvas;
+
+  const id = useCanvasId();
+  console.log(
+    "%c [ id ]-12",
+    "font-size:13px; background:pink; color:#bf2c9f;",
+    id
+  );
+  useEffect(() => {
+    if (id) {
+      fetchCanvas(id);
+    }
+  }, []);
 
   const onDrop = (e) => {
     // 1. 读取被拖拽的组件信息
