@@ -9,11 +9,6 @@ export default function Canvas() {
   const {cmps, style} = canvas;
 
   const id = useCanvasId();
-  console.log(
-    "%c [ id ]-12",
-    "font-size:13px; background:pink; color:#bf2c9f;",
-    id
-  );
   useEffect(() => {
     if (id) {
       fetchCanvas(id);
