@@ -42,7 +42,7 @@ export default function Canvas() {
     addCmp(dragCmp);
   };
 
-  const allowDraop = (e) => {
+  const allowDrop = (e) => {
     e.preventDefault();
   };
   console.log("canvas render", cmps); //sy-log
@@ -52,7 +52,7 @@ export default function Canvas() {
       className={styles.main}
       style={canvas.style}
       onDrop={onDrop}
-      onDragOver={allowDraop}>
+      onDragOver={allowDrop}>
       {cmps.map((item, index) => (
         <Cmp key={item.key} cmp={item} index={index}></Cmp>
       ))}
