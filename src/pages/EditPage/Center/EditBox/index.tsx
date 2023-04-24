@@ -2,6 +2,7 @@ import useEditStore, {updateAssemblyCmpsByDistance} from "src/store/editStore";
 import styles from "./index.module.less";
 import {throttle} from "lodash";
 import useZoomStore from "src/store/zoomStore";
+import StretchDots from "./StretchDots";
 
 export default function EditBox() {
   const zoom = useZoomStore((state) => state.zoom);
@@ -74,6 +75,8 @@ export default function EditBox() {
         width,
         height,
       }}
-      onMouseDown={onMouseDownOfCmp}></div>
+      onMouseDown={onMouseDownOfCmp}>
+      <StretchDots zoom={zoom} style={{width, height}} />
+    </div>
   );
 }
