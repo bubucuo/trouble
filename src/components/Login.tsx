@@ -15,7 +15,7 @@ export default function Login() {
   }, []);
 
   if (loading) {
-    return;
+    return null;
   }
 
   // 用户已经登录，显示用户信息

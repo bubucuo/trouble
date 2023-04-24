@@ -10,6 +10,7 @@ import {
 import {getOnlyKey} from "src/utils";
 import Axios from "src/request/axios";
 import {getCanvasByIdEnd, saveCanvasEnd} from "src/request/end";
+import {resetZoom} from "./zoomStore";
 
 const useEditStore = create(
   immer<EditStoreState & EditStoreAction>(() => ({
@@ -24,6 +25,8 @@ export const clearCanvas = () => {
     draft.canvas = getDefaultCanvas();
     draft.assembly.clear();
   });
+
+  resetZoom();
 };
 
 export const addCmp = (_cmp: ICmp) => {
@@ -56,7 +59,10 @@ export const fetchCanvas = async (id: number) => {
     useEditStore.setState((draft) => {
       draft.canvas = JSON.parse(res.content);
       draft.canvas.title = res.title;
+      draft.assembly.clear();
     });
+
+    resetZoom();
   }
 };
 
