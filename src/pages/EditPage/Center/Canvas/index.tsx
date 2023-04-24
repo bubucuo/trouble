@@ -7,9 +7,13 @@ import styles from "./index.module.less";
 import Cmp from "../Cmp";
 import {useEffect} from "react";
 import {useCanvasId} from "src/store/hooks";
+import EditBox from "../EditBox";
 
 export default function Canvas() {
-  const canvas = useEditStore((state) => state.canvas);
+  const [canvas, assembly] = useEditStore((state) => [
+    state.canvas,
+    state.assembly,
+  ]);
   const {cmps, style} = canvas;
 
   const id = useCanvasId();
@@ -59,8 +63,13 @@ export default function Canvas() {
       style={canvas.style}
       onDrop={onDrop}
       onDragOver={allowDrop}>
+      <EditBox />
       {cmps.map((item, index) => (
-        <Cmp key={item.key} cmp={item} index={index}></Cmp>
+        <Cmp
+          key={item.key}
+          cmp={item}
+          index={index}
+          isSelected={assembly.has(index)}></Cmp>
       ))}
     </div>
   );

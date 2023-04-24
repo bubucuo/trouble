@@ -90,3 +90,10 @@ ul {
   z-index: 9999;
   font-size: 20px;
 }
+
+.selectedBorder {
+  margin-top: -2px;
+  margin-left: -2px;
+
+  border: solid 2px #02dcf7;
+}

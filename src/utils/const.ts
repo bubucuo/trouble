@@ -9,4 +9,7 @@ export const defaultComponentStyle = {
   borderWidth: "0",
   borderColor: "#ffffff00",
   transform: 0, //"rotate(0deg)"
+
+  // ! 不让用户修改
+  boxSizing: "border-box",
 };
