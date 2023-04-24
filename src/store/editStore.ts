@@ -102,6 +102,19 @@ export const setCmpSelected = (index: number) => {
   }
 };
 
+// ! 修改组件属性
+// 根据改变的量来修改
+export const updateAssemblyCmpsByDistance = (newStyle: Style) => {
+  useEditStore.setState((draft) => {
+    draft.assembly.forEach((index) => {
+      const cmp = draft.canvas.cmps[index];
+      for (const key in newStyle) {
+        cmp.style[key] += newStyle[key];
+      }
+    });
+  });
+};
+
 export default useEditStore;
 
 function getDefaultCanvas(): ICanvas {
