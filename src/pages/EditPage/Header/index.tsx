@@ -61,7 +61,7 @@ export default function Header() {
   const saveAndPreview = (e) => {
     save(e, (_id: number) => {
       navigate("?id=" + _id);
-      window.open("https://builder-lemon.vercel.app/?id=" + _id);
+      window.open("http://builder.codebus.tech/?id=" + _id);
     });
   };
 

@@ -81,9 +81,7 @@ export default function List() {
         const {id} = item;
         return (
           <Space size="middle">
-            <a
-              target="_blank"
-              href={"https://builder-lemon.vercel.app/?id=" + id}>
+            <a target="_blank" href={"http://builder.codebus.tech/?id=" + id}>
               线上查看（切移动端）
             </a>
 
