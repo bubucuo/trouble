@@ -10,7 +10,11 @@ import useZoomStore from "src/store/zoomStore";
 export default function Center() {
   const canvas = useEditStore((state) => state.canvas);
   const {zoom, zoomIn, zoomOut} = useZoomStore();
-  const keyDown = (e) => {
+  const keyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if ((e.target as Element).nodeName === "TEXTAREA") {
+      return;
+    }
+
     if (e.metaKey) {
       switch (e.code) {
         case "KeyA":
