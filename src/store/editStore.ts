@@ -6,6 +6,7 @@ import {
   ICanvas,
   ICmp,
   Style,
+  IEditStore,
 } from "./editStoreTypes";
 import {getOnlyKey} from "src/utils";
 import Axios from "src/request/axios";
@@ -134,7 +135,70 @@ export const updateAssemblyCmpsByDistance = (newStyle: Style) => {
   });
 };
 
+// 修改画布 title
+export const updateCanvasTitle = (title: string) => {
+  useEditStore.setState((draft) => {
+    draft.canvas.title = title;
+  });
+};
+
+// ! 更新画布属性
+export const updateCanvasStyle = (_style: any) => {
+  useEditStore.setState((draft) => {
+    Object.assign(draft.canvas.style, _style);
+  });
+};
+
+// 修改单个组件的style
+export const updateSelectedCmpStyle = (newStyle: Style) => {
+  useEditStore.setState((draft) => {
+    Object.assign(
+      draft.canvas.cmps[selectedCmpIndexSelector(draft)].style,
+      newStyle
+    );
+  });
+};
+
+// 修改单个组件的属性
+export const updateSelectedCmpAttr = (name: string, value: string) => {
+  useEditStore.setState((draft: any) => {
+    const selectedIndex = selectedCmpIndexSelector(draft);
+    draft.canvas.cmps[selectedIndex][name] = value;
+  });
+};
+
+// 修改选中组件的style
+export const editAssemblyStyle = (_style: Style) => {
+  useEditStore.setState((draft) => {
+    draft.assembly.forEach((index: number) => {
+      const _s = {...draft.canvas.cmps[index].style};
+      const canvasStyle = draft.canvas.style;
+      if (_style.right === 0) {
+        // 计算left
+        _s.left = canvasStyle.width - _s.width;
+      } else if (_style.bottom === 0) {
+        // top
+        _s.top = canvasStyle.height - _s.height;
+      } else if (_style.left === "center") {
+        _s.left = (canvasStyle.width - _s.width) / 2;
+      } else if (_style.top === "center") {
+        _s.top = (canvasStyle.height - _s.height) / 2;
+      } else {
+        Object.assign(_s, _style);
+      }
+
+      draft.canvas.cmps[index].style = _s;
+    });
+  });
+};
+
 export default useEditStore;
+
+// 选中的单个组件的index
+export const selectedCmpIndexSelector = (store: IEditStore): number => {
+  const selectedCmpIndex = Array.from(store.assembly)[0];
+  return selectedCmpIndex === undefined ? -1 : selectedCmpIndex;
+};
 
 function getDefaultCanvas(): ICanvas {
   return {

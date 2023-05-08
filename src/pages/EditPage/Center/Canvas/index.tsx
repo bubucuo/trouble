@@ -67,6 +67,7 @@ export default function Canvas() {
       className={styles.main}
       style={{
         ...canvas.style,
+        backgroundImage: `url(${style.backgroundImage})`,
         transform: `scale(${zoom / 100})`,
       }}
       onDrop={onDrop}

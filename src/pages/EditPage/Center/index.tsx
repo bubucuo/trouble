@@ -1,4 +1,3 @@
-import React from "react";
 import styles from "./index.module.less";
 import Canvas from "./Canvas";
 import useEditStore, {
@@ -38,8 +37,8 @@ export default function Center() {
         minHeight: (zoom / 100) * canvas.style.height + 100,
       }}
       tabIndex={0}
-      onClick={(e) => {
-        if (e.target?.id === "center") {
+      onClick={(e: React.MouseEvent) => {
+        if ((e.target as HTMLElement).id.indexOf("cmp") === -1) {
           setCmpSelected(-1);
         }
       }}
