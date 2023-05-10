@@ -30,6 +30,7 @@ export const clearCanvas = () => {
   useEditStore.setState((draft) => {
     draft.canvas = getDefaultCanvas();
     draft.assembly.clear();
+    recordCanvasChangeHistory(draft);
   });
 
   resetZoom();
