@@ -43,10 +43,15 @@ const Cmp = memo((props: ICmpProps) => {
   return (
     <div
       className={classNames(styles.main, isSelected && "selectedBorder")}
-      style={{...outerStyle, transform}}
+      style={{
+        ...outerStyle,
+        transform,
+        zIndex: isSelected ? 9999 : index,
+      }}
       onClick={setSelected}
       id={"cmp" + cmp.key}>
       <div className={styles.inner} style={{...innerStyle, zIndex: index}}>
+      <div className={styles.inner} style={{...innerStyle}}>
         {cmp.type === isTextComponent && <Text {...cmp} />}
         {cmp.type === isImgComponent && <Img {...cmp} />}
       </div>
