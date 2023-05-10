@@ -1,4 +1,5 @@
 import useEditStore, {
+  recordCanvasChangeHistory_2,
   updateAssemblyCmpsByDistance,
   updateSelectedCmpAttr,
   updateSelectedCmpStyle,
@@ -43,6 +44,7 @@ export default function EditBox() {
     }, 50);
 
     const up = () => {
+      recordCanvasChangeHistory_2();
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
     };

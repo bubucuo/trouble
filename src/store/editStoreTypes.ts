@@ -22,6 +22,9 @@ export interface ICmpWithKey extends ICmp {
 export type EditStoreState = {
   canvas: ICanvas;
   assembly: Set<number>;
+  // 记录历史
+  canvasChangeHistory: Array<{canvas: ICanvas; assembly: Set<number>}>;
+  canvasChangeHistoryIndex: number;
 };
 
 export type AddCmpFC = (_cmp: ICmp) => void;
