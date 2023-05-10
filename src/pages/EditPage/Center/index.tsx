@@ -56,7 +56,10 @@ export default function Center() {
           setCmpSelected(-1);
         }
       }}
-      onKeyDown={keyDown}>
+      onKeyDown={keyDown}
+      onContextMenu={(e) => {
+        e.preventDefault();
+      }}>
       <Canvas />
 
       <Zoom />

@@ -148,6 +148,14 @@ export const updateAssemblyCmpsByDistance = (newStyle: Style) => {
 };
 
 export const recordCanvasChangeHistory_2 = () => {
+  const store = useEditStore.getState();
+  if (
+    store.canvas ===
+    store.canvasChangeHistory[store.canvasChangeHistoryIndex].canvas
+  ) {
+    return;
+  }
+
   useEditStore.setState((draft) => {
     recordCanvasChangeHistory(draft);
   });
