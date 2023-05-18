@@ -267,7 +267,6 @@ export const editAssemblyStyle = (_style: Style) => {
 // ! 单个组件修改层级
 // 置顶，把组件放到数组最后
 // 0 1  3 4 2
-//
 export const topZIndex = () => {
   useEditStore.setState((draft) => {
     const cmps = draft.canvas.cmps;
