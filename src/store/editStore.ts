@@ -264,6 +264,86 @@ export const editAssemblyStyle = (_style: Style) => {
   });
 };
 
+// ! 单个组件修改层级
+// 置顶，把组件放到数组最后
+// 0 1  3 4 2
+//
+export const topZIndex = () => {
+  useEditStore.setState((draft) => {
+    const cmps = draft.canvas.cmps;
+    const selectedIndex = selectedCmpIndexSelector(draft);
+    if (selectedIndex === cmps.length - 1) {
+      return;
+    }
+    draft.canvas.cmps = cmps
+      .slice(0, selectedIndex)
+      .concat(cmps.slice(selectedIndex + 1))
+      .concat(cmps[selectedIndex]);
+
+    draft.assembly = new Set([cmps.length - 1]);
+
+    recordCanvasChangeHistory(draft);
+  });
+};
+
+// 置底，把组件放到数组最后
+// 0 1 2 3 4
+export const bottomZIndex = () => {
+  useEditStore.setState((draft) => {
+    const cmps = draft.canvas.cmps;
+    const selectedIndex = selectedCmpIndexSelector(draft);
+    if (selectedIndex === 0) {
+      return;
+    }
+    draft.canvas.cmps = [cmps[selectedIndex]]
+      .concat(cmps.slice(0, selectedIndex))
+      .concat(cmps.slice(selectedIndex + 1));
+
+    draft.assembly = new Set([0]);
+
+    recordCanvasChangeHistory(draft);
+  });
+};
+
+// 上移一个层级，和后一个元素交换
+// 0 1 3 2 4
+export const addZIndex = () => {
+  useEditStore.setState((draft) => {
+    const cmps = draft.canvas.cmps;
+    const selectedIndex = selectedCmpIndexSelector(draft);
+    if (selectedIndex === cmps.length - 1) {
+      return;
+    }
+    [draft.canvas.cmps[selectedIndex], draft.canvas.cmps[selectedIndex + 1]] = [
+      draft.canvas.cmps[selectedIndex + 1],
+      draft.canvas.cmps[selectedIndex],
+    ];
+
+    draft.assembly = new Set([selectedIndex + 1]);
+
+    recordCanvasChangeHistory(draft);
+  });
+};
+
+// 下移一个层级，和前一个元素交换
+export const subZIndex = () => {
+  useEditStore.setState((draft) => {
+    const cmps = draft.canvas.cmps;
+    const selectedIndex = selectedCmpIndexSelector(draft);
+    if (selectedIndex === 0) {
+      return;
+    }
+    [draft.canvas.cmps[selectedIndex], draft.canvas.cmps[selectedIndex - 1]] = [
+      draft.canvas.cmps[selectedIndex - 1],
+      draft.canvas.cmps[selectedIndex],
+    ];
+
+    draft.assembly = new Set([selectedIndex - 1]);
+
+    recordCanvasChangeHistory(draft);
+  });
+};
+
 export default useEditStore;
 
 // 选中的单个组件的index

@@ -46,7 +46,7 @@ const Cmp = memo((props: ICmpProps) => {
       style={{
         ...outerStyle,
         transform,
-        zIndex: isSelected ? 9999 : index,
+        zIndex: index,
       }}
       onClick={setSelected}
       id={"cmp" + cmp.key}>

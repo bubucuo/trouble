@@ -1,8 +1,11 @@
 import styles from "./index.module.less";
 import Canvas from "./Canvas";
 import useEditStore, {
+  addZIndex,
+  delSelectedCmps,
   setAllCmpsSelected,
   setCmpSelected,
+  subZIndex,
 } from "src/store/editStore";
 import Zoom from "./Zoom";
 import useZoomStore from "src/store/zoomStore";
@@ -14,6 +17,12 @@ export default function Center() {
   const keyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if ((e.target as Element).nodeName === "TEXTAREA") {
       return;
+    }
+
+    switch (e.code) {
+      case "Backspace":
+        delSelectedCmps();
+        return;
     }
 
     if (e.metaKey) {
@@ -39,6 +48,18 @@ export default function Center() {
           } else {
             goPrevCanvasHistory();
           }
+          return;
+
+        // 上移一层
+        case "ArrowUp":
+          e.preventDefault();
+          addZIndex();
+          return;
+
+        // 下移一层
+        case "ArrowDown":
+          e.preventDefault();
+          subZIndex();
           return;
       }
     }
