@@ -20,7 +20,10 @@ code {
     monospace;
 }
 
-* {
+*,
+ol,
+ul,
+dl {
   margin: 0;
   padding: 0;
   border: none;
