@@ -32,7 +32,7 @@ export default function RightSider() {
         (assemblySize === 0 ? (
           <EditCanvas canvas={canvas} />
         ) : assemblySize === 1 ? (
-          <EditCmp selectedCmp={canvas.cmps[Array.from(assembly)[0]]} />
+          <EditCmp selectedCmp={canvas.content.cmps[Array.from(assembly)[0]]} />
         ) : (
           <EditMultiCmps />
         ))}

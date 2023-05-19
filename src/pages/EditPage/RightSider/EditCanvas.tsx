@@ -5,7 +5,7 @@ import type {ICanvas} from "src/store/editStoreTypes";
 import styles from "./edit.module.less";
 
 export default function EditCanvas({canvas}: {canvas: ICanvas}) {
-  const style = canvas.style;
+  const style = canvas.content.style;
 
   const handleStyleChange = (
     e: React.ChangeEvent<HTMLInputElement>,

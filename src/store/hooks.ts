@@ -12,11 +12,3 @@ export function useCanvasId(): number | null {
 
   return id;
 }
-
-// 页面 或者 模板，如果为空，则认为是模板
-export function useCanvasType() {
-  const [params] = useSearchParams();
-  let type = params.get("type");
-
-  return type || "content";
-}

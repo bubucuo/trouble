@@ -37,7 +37,7 @@ const ImgSider = () => {
         {settings.map((item) => (
           <li
             draggable={true}
-            key={item.value}
+            key={item.key}
             className={leftSideStyles.item}
             onClick={() => addCmp({...item, type: isGraphComponent})}
             onDragStart={(e) => {

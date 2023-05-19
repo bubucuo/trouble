@@ -16,7 +16,7 @@ export default function Canvas() {
     state.canvas,
     state.assembly,
   ]);
-  const {cmps, style} = canvas;
+  const {cmps, style} = canvas.content;
 
   const id = useCanvasId();
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function Canvas() {
     }
   }, []);
 
-  const onDrop = (e) => {
+  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     // 1. 读取被拖拽的组件信息
     let dragCmp = e.dataTransfer.getData("drag-cmp");
     if (!dragCmp) {
@@ -66,7 +66,7 @@ export default function Canvas() {
       id="canvas"
       className={styles.main}
       style={{
-        ...canvas.style,
+        ...style,
         backgroundImage: `url(${style.backgroundImage})`,
         transform: `scale(${zoom / 100})`,
       }}
