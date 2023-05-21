@@ -42,20 +42,20 @@ export default function AlignLines({canvasStyle}: AlignLinesProps) {
         }}
       />
       <Line
-        id="canvasLineRight"
-        style={{
-          top: 0,
-          right: 0,
-          height: canvasStyle.height,
-          backgroundColor: "red",
-        }}
-      />
-      <Line
         id="canvasLineBottom"
         style={{
           bottom: 0,
           left: 0,
           width: canvasStyle.width,
+          backgroundColor: "red",
+        }}
+      />
+      <Line
+        id="canvasLineRight"
+        style={{
+          top: 0,
+          right: 0,
+          height: canvasStyle.height,
           backgroundColor: "red",
         }}
       />
