@@ -213,7 +213,7 @@ export const updateAssemblyCmpsByDistance = (
       }
 
       // 检查自动调整
-      if (autoAdjustment) {
+      if ((draft.assembly.size === 1 )&& autoAdjustment) {
         // 对齐画布或者组件
         // 画布
         autoAlignToCanvas(canvasStyleSelector(draft), selectedCmp);
