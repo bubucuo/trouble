@@ -12,6 +12,7 @@ import {isTextComponent} from "../../LeftSider";
 import {useEffect, useState} from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import Menu from "../Menu";
+import AlignLines from "./AlignLines";
 
 export default function EditBox() {
   const zoom = useZoomStore((state) => state.zoom);
@@ -20,7 +21,7 @@ export default function EditBox() {
     state.assembly,
   ]);
 
-  const {cmps} = canvas.content;
+  const {cmps, style: canvasStyle} = canvas.content;
   const selectedIndex = Array.from(assembly)[0];
 
   useEffect(() => {
@@ -47,13 +48,17 @@ export default function EditBox() {
       disY = disY * (100 / zoom);
 
       // 拖拽，允许自动调整
-      updateAssemblyCmpsByDistance({top: disY, left: disX});
+      updateAssemblyCmpsByDistance({top: disY, left: disX}, true);
 
       startX = x;
       startY = y;
     }, 50);
 
     const up = () => {
+      // 隐藏吸附线
+      document.querySelectorAll(".alignLine").forEach((element) => {
+        (element as HTMLElement).style.display = "none";
+      });
       recordCanvasChangeHistory_2();
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
@@ -89,59 +94,62 @@ export default function EditBox() {
   left -= 2;
 
   return (
-    <div
-      className={styles.main}
-      style={{
-        zIndex: 99999,
-        top,
-        left,
-        width,
-        height,
-      }}
-      onMouseDown={onMouseDownOfCmp}
-      onClick={(e) => {
-        e.stopPropagation();
-      }}
-      onDoubleClick={() => {
-        setTextareaFocused(true);
-      }}
-      onContextMenu={() => {
-        setShowMenu(true);
-      }}
-      onMouseLeave={() => {
-        setTextareaFocused(false);
-        setShowMenu(false);
-      }}>
-      {size === 1 &&
-        selectedCmp.type === isTextComponent &&
-        textareaFocused && (
-          <TextareaAutosize
-            value={selectedCmp.value}
-            style={{
-              ...selectedCmp.style,
-              top: 0,
-              left: 0,
-            }}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              updateSelectedCmpAttr("value", newValue);
-            }}
-            onHeightChange={(height) => {
-              updateSelectedCmpStyle({height});
-            }}
+    <>
+      {size === 1 && <AlignLines canvasStyle={canvasStyle} />}
+      <div
+        className={styles.main}
+        style={{
+          zIndex: 99999,
+          top,
+          left,
+          width,
+          height,
+        }}
+        onMouseDown={onMouseDownOfCmp}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        onDoubleClick={() => {
+          setTextareaFocused(true);
+        }}
+        onContextMenu={() => {
+          setShowMenu(true);
+        }}
+        onMouseLeave={() => {
+          setTextareaFocused(false);
+          setShowMenu(false);
+        }}>
+        {size === 1 &&
+          selectedCmp.type === isTextComponent &&
+          textareaFocused && (
+            <TextareaAutosize
+              value={selectedCmp.value}
+              style={{
+                ...selectedCmp.style,
+                top: 0,
+                left: 0,
+              }}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                updateSelectedCmpAttr("value", newValue);
+              }}
+              onHeightChange={(height) => {
+                updateSelectedCmpStyle({height});
+              }}
+            />
+          )}
+
+        {showMenu && (
+          <Menu
+            style={{left: width}}
+            assemblySize={size}
+            cmps={cmps}
+            selectedIndex={Array.from(assembly)[0]}
           />
         )}
 
-      {showMenu && (
-        <Menu
-          style={{left: width}}
-          assemblySize={size}
-          cmps={cmps}
-          selectedIndex={Array.from(assembly)[0]}
-        />
-      )}
-
-      <StretchDots zoom={zoom} style={{width, height}} />
-    </div>
+        <StretchDots zoom={zoom} style={{width, height}} />
+      </div>
+    </>
   );
 }

@@ -16,6 +16,9 @@ import {resetZoom} from "./zoomStore";
 import {recordCanvasChangeHistory} from "./historySlice";
 import {cloneDeep} from "lodash";
 
+const showDiff = 12;
+const adjustDiff = 3;
+
 const useEditStore = create(
   immer<EditStoreState & EditStoreAction>(() => ({
     canvas: {
@@ -189,7 +192,10 @@ export const setCmpSelected = (index: number) => {
 
 // ! 修改组件属性
 // 根据改变的量来修改
-export const updateAssemblyCmpsByDistance = (newStyle: Style) => {
+export const updateAssemblyCmpsByDistance = (
+  newStyle: Style,
+  autoAdjustment?: boolean
+) => {
   useEditStore.setState((draft) => {
     draft.assembly.forEach((index) => {
       const selectedCmp = {...draft.canvas.content.cmps[index]};
@@ -206,12 +212,84 @@ export const updateAssemblyCmpsByDistance = (newStyle: Style) => {
         selectedCmp.style[key] += newStyle[key];
       }
 
+      // 检查自动调整
+      if (autoAdjustment) {
+        // 对齐画布或者组件
+        // 画布
+        autoAlignToCanvas(canvasStyleSelector(draft), selectedCmp);
+      }
+
       if (!invalid) {
         draft.canvas.content.cmps[index] = selectedCmp;
       }
     });
   });
 };
+
+// 对齐画布
+function autoAlignToCanvas(targetStyle: Style, selectedCmp: ICmpWithKey) {
+  const selectedCmpStyle = selectedCmp.style;
+
+  // ! 中心 X 轴
+  autoAlign(
+    selectedCmpStyle.top + selectedCmpStyle.height / 2 - targetStyle.height / 2,
+    "centerXLine",
+    () => {
+      selectedCmp.style.top =
+        (targetStyle.height - selectedCmpStyle.height) / 2;
+    }
+  );
+
+  // ! 中心 Y 轴
+  autoAlign(
+    selectedCmpStyle.left + selectedCmpStyle.width / 2 - targetStyle.width / 2,
+    "centerYLine",
+    () => {
+      selectedCmp.style.left = (targetStyle.width - selectedCmpStyle.width) / 2;
+    }
+  );
+
+  // ! 对齐画布 top
+  autoAlign(selectedCmpStyle.top, "canvasLineTop", () => {
+    selectedCmp.style.top = 0;
+  });
+
+  // ! 对齐画布 bottom
+  autoAlign(
+    selectedCmpStyle.top + selectedCmpStyle.height - targetStyle.height,
+    "canvasLineBottom",
+    () => {
+      selectedCmp.style.top = targetStyle.height - selectedCmpStyle.height;
+    }
+  );
+
+  // ! 对齐画布 left
+  autoAlign(selectedCmpStyle.left, "canvasLineLeft", () => {
+    selectedCmp.style.left = 0;
+  });
+
+  // ! 对齐画布 right
+  autoAlign(
+    selectedCmpStyle.left + selectedCmpStyle.width - targetStyle.width,
+    "canvasLineRight",
+    () => {
+      selectedCmp.style.left = targetStyle.width - selectedCmpStyle.width;
+    }
+  );
+}
+
+function autoAlign(_distance: number, domLineId: string, align: () => void) {
+  const distance = Math.abs(_distance);
+  const domLine = document.getElementById(domLineId) as HTMLElement;
+  if (distance < showDiff) {
+    // 显示参考线
+    domLine.style.display = "block";
+  }
+  if (distance < adjustDiff) {
+    // 自动吸附
+    align();
+  }
+}
 
 export const recordCanvasChangeHistory_2 = () => {
   const store = useEditStore.getState();
