@@ -9,7 +9,7 @@ import type {
   ICmpWithKey,
   IContent,
 } from "./editStoreTypes";
-import {getOnlyKey} from "src/utils";
+import {getOnlyKey, isCmpInView} from "src/utils";
 import Axios from "src/request/axios";
 import {getCanvasByIdEnd, saveCanvasEnd} from "src/request/end";
 import {resetZoom} from "./zoomStore";
@@ -213,10 +213,21 @@ export const updateAssemblyCmpsByDistance = (
       }
 
       // 检查自动调整
-      if ((draft.assembly.size === 1 )&& autoAdjustment) {
+      if (draft.assembly.size === 1 && autoAdjustment) {
         // 对齐画布或者组件
         // 画布
         autoAlignToCanvas(canvasStyleSelector(draft), selectedCmp);
+
+        // 对齐单个组件
+        // 这个时候画布和组件会相互影响。一般产品会做一个取舍，对齐画布还是组件
+        const cmps = cmpsSelector(draft);
+        cmps.forEach((cmp, cmpIndex) => {
+          // 如果组件不在可视区，这个时候用户看不到，也就不用对齐
+          const inView = isCmpInView(cmp);
+          if (cmpIndex !== index && inView) {
+            autoAlignToCmp(cmp.style, selectedCmp);
+          }
+        });
       }
 
       if (!invalid) {
@@ -278,17 +289,248 @@ function autoAlignToCanvas(targetStyle: Style, selectedCmp: ICmpWithKey) {
   );
 }
 
-function autoAlign(_distance: number, domLineId: string, align: () => void) {
+function autoAlign(
+  _distance: number,
+  domLineId: string,
+  align: () => void,
+  adjustDomLine?: (domLine: HTMLElement) => void
+) {
   const distance = Math.abs(_distance);
   const domLine = document.getElementById(domLineId) as HTMLElement;
   if (distance < showDiff) {
     // 显示参考线
     domLine.style.display = "block";
+    if (adjustDomLine) {
+      adjustDomLine(domLine);
+    }
   }
   if (distance < adjustDiff) {
     // 自动吸附
     align();
   }
+}
+
+// 对齐其它组件
+// 对齐组件的时候，对齐线从两个组件的中心出发，这样可以看出来对齐的是哪两个组件
+function autoAlignToCmp(targetStyle: Style, selectedCmp: ICmpWithKey) {
+  const selectedCmpStyle = selectedCmp.style;
+
+  let leftStyle: Style, rightStyle: Style;
+  if (targetStyle.left < selectedCmpStyle.left) {
+    leftStyle = targetStyle;
+    rightStyle = selectedCmpStyle;
+  } else {
+    leftStyle = selectedCmpStyle;
+    rightStyle = targetStyle;
+  }
+
+  let topStyle: Style, bottomStyle: Style;
+  if (targetStyle.top < selectedCmpStyle.top) {
+    topStyle = targetStyle;
+    bottomStyle = selectedCmpStyle;
+  } else {
+    topStyle = selectedCmpStyle;
+    bottomStyle = targetStyle;
+  }
+
+  // ! top top 对齐
+  autoAlign(
+    targetStyle.top - selectedCmpStyle.top,
+    "lineTop",
+    () => {
+      selectedCmp.style.top = targetStyle.top;
+    },
+    (domLine) => {
+      domLine.style.top = targetStyle.top + "px";
+      domLine.style.left = leftStyle.left + leftStyle.width / 2 + "px";
+      domLine.style.width =
+        rightStyle.left +
+        rightStyle.width / 2 -
+        leftStyle.left -
+        leftStyle.width / 2 +
+        "px";
+    }
+  );
+
+  // ! bottom top 对齐
+  autoAlign(
+    targetStyle.top + targetStyle.height - selectedCmpStyle.top,
+    "lineTop",
+    () => {
+      selectedCmp.style.top = targetStyle.top + targetStyle.height;
+    },
+    (domLine) => {
+      domLine.style.top = targetStyle.top + targetStyle.height + "px";
+      domLine.style.left = leftStyle.left + leftStyle.width / 2 + "px";
+      domLine.style.width =
+        rightStyle.left +
+        rightStyle.width / 2 -
+        leftStyle.left -
+        leftStyle.width / 2 +
+        "px";
+    }
+  );
+
+  // ! bottom bottom 对齐
+  autoAlign(
+    targetStyle.top +
+      targetStyle.height -
+      selectedCmpStyle.top -
+      selectedCmpStyle.height,
+    "lineBottom",
+    () => {
+      selectedCmp.style.top =
+        targetStyle.top + targetStyle.height - selectedCmpStyle.height;
+    },
+    (domLine) => {
+      domLine.style.top = targetStyle.top + targetStyle.height + "px";
+      domLine.style.left = leftStyle.left + leftStyle.width / 2 + "px";
+      domLine.style.width =
+        rightStyle.left +
+        rightStyle.width / 2 -
+        leftStyle.left -
+        leftStyle.width / 2 +
+        "px";
+    }
+  );
+
+  // ! top bottom  对齐
+  autoAlign(
+    targetStyle.top - selectedCmpStyle.top - selectedCmpStyle.height,
+    "lineBottom",
+    () => {
+      selectedCmp.style.top = targetStyle.top - selectedCmpStyle.height;
+    },
+    (domLine) => {
+      domLine.style.top = targetStyle.top + "px";
+      domLine.style.left = leftStyle.left + leftStyle.width / 2 + "px";
+      domLine.style.width =
+        rightStyle.left +
+        rightStyle.width / 2 -
+        leftStyle.left -
+        leftStyle.width / 2 +
+        "px";
+    }
+  );
+
+  // ! left left 对齐
+  autoAlign(
+    targetStyle.left - selectedCmpStyle.left,
+    "lineLeft",
+    () => {
+      selectedCmp.style.left = targetStyle.left;
+    },
+    (domLine) => {
+      domLine.style.top = topStyle.top + +topStyle.height / 2 + "px";
+      domLine.style.left = targetStyle.left + "px";
+      domLine.style.height =
+        bottomStyle.top +
+        bottomStyle.height / 2 -
+        topStyle.top -
+        topStyle.height / 2 +
+        "px";
+    }
+  );
+
+  // ! right left 对齐
+  autoAlign(
+    targetStyle.left - selectedCmpStyle.left - selectedCmpStyle.width,
+    "lineLeft",
+    () => {
+      selectedCmp.style.left = targetStyle.left - selectedCmpStyle.width;
+    },
+    (domLine) => {
+      domLine.style.left = targetStyle.left + "px";
+      domLine.style.top = topStyle.top + topStyle.height / 2 + "px";
+      domLine.style.height =
+        bottomStyle.top +
+        bottomStyle.height / 2 -
+        topStyle.top -
+        topStyle.height / 2 +
+        "px";
+    }
+  );
+
+  // ! right right 对齐
+  autoAlign(
+    targetStyle.left +
+      targetStyle.width -
+      selectedCmpStyle.left -
+      selectedCmpStyle.width,
+    "lineRight",
+    () => {
+      selectedCmp.style.left =
+        targetStyle.left + targetStyle.width - selectedCmpStyle.width;
+    },
+    (domLine) => {
+      domLine.style.left = targetStyle.left + targetStyle.width + "px";
+      domLine.style.top = topStyle.top + topStyle.height / 2 + "px";
+      domLine.style.height =
+        bottomStyle.top +
+        bottomStyle.height / 2 -
+        topStyle.top -
+        topStyle.height / 2 +
+        "px";
+    }
+  );
+
+  // ! left right  对齐
+  autoAlign(
+    targetStyle.left + targetStyle.width - selectedCmpStyle.left,
+    "lineRight",
+    () => {
+      selectedCmp.style.left = targetStyle.left + targetStyle.width;
+    },
+    (domLine) => {
+      domLine.style.left = targetStyle.left + targetStyle.width + "px";
+      domLine.style.top = topStyle.top + topStyle.height / 2 + "px";
+      domLine.style.height =
+        bottomStyle.top +
+        bottomStyle.height / 2 -
+        topStyle.top -
+        topStyle.height / 2 +
+        "px";
+    }
+  );
+
+  // ! 组件的中心 X 轴
+  autoAlign(
+    selectedCmpStyle.top +
+      selectedCmpStyle.height / 2 -
+      targetStyle.top -
+      targetStyle.height / 2,
+    "lineX",
+    () => {
+      selectedCmp.style.top =
+        targetStyle.top + targetStyle.height / 2 - selectedCmpStyle.height / 2;
+    },
+    (domLine) => {
+      domLine.style.top = targetStyle.top + targetStyle.height / 2 + "px";
+      domLine.style.left = leftStyle.left + "px";
+      domLine.style.width =
+        rightStyle.left + rightStyle.width - leftStyle.left + "px";
+    }
+  );
+
+  // ! 组件的中心 Y 轴
+  autoAlign(
+    selectedCmpStyle.left +
+      selectedCmpStyle.width / 2 -
+      targetStyle.left -
+      targetStyle.width / 2,
+    "lineY",
+    () => {
+      selectedCmp.style.left =
+        targetStyle.left + targetStyle.width / 2 - selectedCmpStyle.width / 2;
+    },
+    (domLine) => {
+      domLine.style.left = targetStyle.left + targetStyle.width / 2 + "px";
+
+      domLine.style.top = topStyle.top + "px";
+      domLine.style.height =
+        bottomStyle.top + bottomStyle.height - topStyle.top + "px";
+    }
+  );
 }
 
 export const recordCanvasChangeHistory_2 = () => {

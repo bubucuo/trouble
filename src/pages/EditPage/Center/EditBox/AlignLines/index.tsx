@@ -68,6 +68,18 @@ export default function AlignLines({canvasStyle}: AlignLinesProps) {
           backgroundColor: "red",
         }}
       />
+
+      {/* 对齐组件 */}
+      <Line id="lineTop" />
+      <Line id="lineBottom" />
+      <Line id="lineLeft" />
+      <Line id="lineRight" />
+
+      {/* 组件的中心 X 轴 */}
+      <Line id="lineX" />
+
+      {/* 组件的中心 Y 轴 */}
+      <Line id="lineY" />
     </>
   );
 }
