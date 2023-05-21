@@ -13,6 +13,7 @@ export default function Line({style, ...rest}: LineProps) {
       className="alignLine"
       {...rest}
       style={{
+        display: "none",
         zIndex: 9999,
         width: 1,
         height: 1,
