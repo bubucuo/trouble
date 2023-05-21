@@ -3,5 +3,7 @@
   border: solid 1px #dddddd;
   box-shadow: #ccc 1px 1px 20px;
   transform-origin: 50% 0%;
-  box-sizing: "border-box";
+  // 在编辑器，画布是有一个border的，但是这个只是为了编辑器的展示效果，与用户设置的宽高无关，
+  // 因此这里注意不要设置成 border-box，要不然在编辑器中计算画宽高的时候会多 2px。
+  box-sizing: content-box;
 }

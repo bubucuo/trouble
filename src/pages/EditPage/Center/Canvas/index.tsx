@@ -9,6 +9,7 @@ import {useEffect} from "react";
 import {useCanvasId} from "src/store/hooks";
 import EditBox from "../EditBox";
 import useZoomStore from "src/store/zoomStore";
+import {ICmpWithKey} from "src/store/editStoreTypes";
 
 export default function Canvas() {
   const zoom = useZoomStore((state) => state.zoom);
@@ -29,11 +30,11 @@ export default function Canvas() {
 
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     // 1. 读取被拖拽的组件信息
-    let dragCmp = e.dataTransfer.getData("drag-cmp");
+    let dragCmp: any = e.dataTransfer.getData("drag-cmp");
     if (!dragCmp) {
       return;
     }
-    dragCmp = JSON.parse(dragCmp);
+    dragCmp = JSON.parse(dragCmp) as ICmpWithKey;
 
     // 2. 读取用户松手的位置，相对网页
     const endX = e.pageX;
@@ -57,10 +58,11 @@ export default function Canvas() {
     addCmp(dragCmp);
   };
 
-  const allowDrop = (e) => {
+  const allowDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
   console.log("canvas render", cmps); //sy-log
+
   return (
     <div
       id="canvas"

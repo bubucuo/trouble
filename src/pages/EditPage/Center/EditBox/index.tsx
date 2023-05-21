@@ -15,11 +15,12 @@ import Menu from "../Menu";
 
 export default function EditBox() {
   const zoom = useZoomStore((state) => state.zoom);
-  const [cmps, assembly] = useEditStore((state) => [
-    state.canvas.content.cmps,
+  const [canvas, assembly] = useEditStore((state) => [
+    state.canvas,
     state.assembly,
   ]);
 
+  const {cmps} = canvas.content;
   const selectedIndex = Array.from(assembly)[0];
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function EditBox() {
   const [textareaFocused, setTextareaFocused] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
-  const onMouseDownOfCmp = (e) => {
+  const onMouseDownOfCmp = (e: React.MouseEvent<HTMLDivElement>) => {
     let startX = e.pageX;
     let startY = e.pageY;
 
@@ -45,6 +46,7 @@ export default function EditBox() {
       disX = disX * (100 / zoom);
       disY = disY * (100 / zoom);
 
+      // 拖拽，允许自动调整
       updateAssemblyCmpsByDistance({top: disY, left: disX});
 
       startX = x;
@@ -80,11 +82,11 @@ export default function EditBox() {
     right = Math.max(right, cmp.style.left + cmp.style.width);
   });
 
-  let width = right - left + 8;
-  let height = bottom - top + 8;
+  let width = right - left + 4;
+  let height = bottom - top + 4;
 
-  top -= 4;
-  left -= 4;
+  top -= 2;
+  left -= 2;
 
   return (
     <div
@@ -117,8 +119,8 @@ export default function EditBox() {
             value={selectedCmp.value}
             style={{
               ...selectedCmp.style,
-              top: 2,
-              left: 2,
+              top: 0,
+              left: 0,
             }}
             onChange={(e) => {
               const newValue = e.target.value;
