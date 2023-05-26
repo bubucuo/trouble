@@ -13,6 +13,7 @@ import {useEffect, useState} from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import Menu from "../Menu";
 import AlignLines from "./AlignLines";
+import Rotate from "./Rotate";
 
 export default function EditBox() {
   const zoom = useZoomStore((state) => state.zoom);
@@ -34,6 +35,9 @@ export default function EditBox() {
   const [showMenu, setShowMenu] = useState(false);
 
   const onMouseDownOfCmp = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (textareaFocused) {
+      return;
+    }
     let startX = e.pageX;
     let startY = e.pageY;
 
@@ -93,6 +97,10 @@ export default function EditBox() {
   top -= 2;
   left -= 2;
 
+  const transform = `rotate(${
+    size === 1 ? selectedCmp.style.transform : 0
+  }deg)`;
+
   return (
     <>
       {size === 1 && <AlignLines canvasStyle={canvasStyle} />}
@@ -104,6 +112,7 @@ export default function EditBox() {
           left,
           width,
           height,
+          transform,
         }}
         onMouseDown={onMouseDownOfCmp}
         onClick={(e) => {
@@ -149,6 +158,8 @@ export default function EditBox() {
         )}
 
         <StretchDots zoom={zoom} style={{width, height}} />
+
+        {size === 1 && <Rotate zoom={zoom} selectedCmp={selectedCmp} />}
       </div>
     </>
   );

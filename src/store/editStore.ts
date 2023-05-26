@@ -564,13 +564,19 @@ export const updateCanvasStyle = (_style: any) => {
 };
 
 // 修改单个组件的style
-export const updateSelectedCmpStyle = (newStyle: Style) => {
+export const updateSelectedCmpStyle = (
+  newStyle: Style,
+  recordHistory: boolean | undefined = true
+) => {
   useEditStore.setState((draft) => {
-    Object.assign(
-      draft.canvas.content.cmps[selectedCmpIndexSelector(draft)].style,
-      newStyle
-    );
-    recordCanvasChangeHistory(draft);
+    const selectedIndex = selectedCmpIndexSelector(draft);
+    if (!(typeof selectedIndex === "number" && selectedIndex > -1)) {
+      return;
+    }
+    Object.assign(draft.canvas.content.cmps[selectedIndex].style, newStyle);
+    if (recordHistory) {
+      recordCanvasChangeHistory(draft);
+    }
   });
 };
 
