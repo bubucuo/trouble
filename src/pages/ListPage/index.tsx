@@ -2,24 +2,34 @@ import {Card, Divider, Table, Space, Button, Modal, message} from "antd";
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import Axios from "src/request/axios";
-import {deleteCanvasByIdEnd, getCanvasListEnd} from "src/request/end";
+import {
+  deleteCanvasByIdEnd,
+  getCanvasListEnd,
+  saveCanvasEnd,
+} from "src/request/end";
 import useUserStore from "src/store/userStore";
 
 interface ListItem {
   id: number;
-  type: string; // 页面、模板页面
+  type: "content" | "template"; // 页面、模板页面
   title: string;
   content: string;
 }
+
+const pagination = {pageSize: 9999, current: 1};
 export default function ListPage() {
   const [list, setList] = useState([]);
+
   const isLogin = useUserStore((state) => state.isLogin);
 
   const fresh = async () => {
     if (!isLogin) {
       return;
     }
-    const res: any = await Axios.get(getCanvasListEnd);
+    const res: any = await Axios.get(
+      getCanvasListEnd +
+        `pageSize=${pagination.pageSize}&pageNo=${pagination.current}`
+    );
     let data = res?.content || [];
     setList(data);
   };
@@ -34,6 +44,32 @@ export default function ListPage() {
         fresh();
       },
     });
+  };
+
+  const saveItem = async (item: ListItem) => {
+    const res = await Axios.post(saveCanvasEnd, {
+      id: null,
+      type: item.type,
+      title: item.title + " 副本",
+      content: item.content,
+    });
+    if (res) {
+      message.success("复制成功");
+      fresh();
+    }
+  };
+  const saveAsTpl = async (item: ListItem) => {
+    const res = await Axios.post(saveCanvasEnd, {
+      id: null,
+      type: "template",
+      title: item.title + " 模板",
+      content: item.content,
+    });
+
+    if (res) {
+      message.success("保存模板成功");
+      fresh();
+    }
   };
 
   useEffect(() => {
@@ -81,6 +117,12 @@ export default function ListPage() {
             </a>
 
             <Link to={editUrl(item)}>编辑</Link>
+            {/* 复制 */}
+            <Button onClick={() => saveItem(item)}>复制</Button>
+            {/* 页面可转为模板 */}
+            {item.type == "content" && (
+              <Button onClick={() => saveAsTpl(item)}>保存为模板</Button>
+            )}
             <Button onClick={() => delConfirm(id)}>删除</Button>
           </Space>
         );
@@ -92,11 +134,11 @@ export default function ListPage() {
     <Card>
       <Link to="/">新增</Link>
       <Divider />
-
       <Table
         columns={columns}
         dataSource={list}
         rowKey={(record: ListItem) => record.id}
+        pagination={pagination}
       />
     </Card>
   );

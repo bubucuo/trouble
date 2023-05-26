@@ -124,6 +124,19 @@ export const saveCanvas = async (
   }
 };
 
+// 选择模板，生成页面
+export const addCanvasByTpl = (res: any) => {
+  useEditStore.setState((draft) => {
+    draft.canvas.content = JSON.parse(res.content);
+    draft.canvas.id = null;
+    draft.canvas.title = res.title + " 副本";
+    draft.canvas.type = "content";
+
+    draft.assembly.clear();
+    recordCanvasChangeHistory(draft);
+  });
+};
+
 // 根据 id 获取数据，填充页面
 // 这里与保存不同，保存需要提供 id 与 type
 export const fetchCanvas = async (id: number) => {
