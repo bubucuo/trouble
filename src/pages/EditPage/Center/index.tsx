@@ -68,6 +68,7 @@ export default function Center() {
       case "ArrowRight":
         e.preventDefault();
         updateAssemblyCmpsByDistance({left: 1});
+        return;
 
       // 上移
       case "ArrowUp":
