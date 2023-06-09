@@ -1,12 +1,19 @@
 import classNames from "classnames";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, unstable_usePrompt, useNavigate} from "react-router-dom";
 import styles from "./index.module.less";
-import {clearCanvas, saveCanvas} from "src/store/editStore";
+import useEditStore, {clearCanvas, saveCanvas} from "src/store/editStore";
 import {message} from "antd";
 import {goNextCanvasHistory, goPrevCanvasHistory} from "src/store/historySlice";
 import {useEffect} from "react";
 
 export default function Header() {
+  const hasSavedCanvas = useEditStore(({hasSavedCanvas}) => hasSavedCanvas);
+
+  unstable_usePrompt({
+    when: !hasSavedCanvas,
+    message: "离开后数据将不会被保存，确认要离开吗?",
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
