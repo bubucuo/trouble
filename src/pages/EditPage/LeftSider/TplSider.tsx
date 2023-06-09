@@ -4,6 +4,7 @@ import Axios from "src/request/axios";
 import {getTemplateListEnd} from "src/request/end";
 import leftSideStyles from "./leftSide.module.less";
 import {settings} from "./tpl";
+import {Image} from "antd";
 
 const TplSider = () => {
   const [list, setList] = useState([]);
@@ -40,11 +41,11 @@ const TplSider = () => {
               addCanvasByTpl(item);
             }}>
             <div className={leftSideStyles.desc}>{item.title}</div>
-            <img
-              src={
-                // item.thumbnail?.header ||
-                "https://www.bubucuo.cn/react-head.png"
-              }
+            <Image
+              preview={false}
+              src={item.thumbnail?.full}
+              fallback="https://www.bubucuo.cn/react-head.png"
+              height={120}
               alt={item.title}
             />
           </li>

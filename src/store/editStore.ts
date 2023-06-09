@@ -104,7 +104,7 @@ export const delSelectedCmps = () => {
 
 // isNew 标记是否为新增页面，如果是新增，则在保存后需要跳转一次路由
 export const saveCanvas = async (
-  successCallback: (id: number, isNew: boolean) => void
+  successCallback: (id: number, isNew: boolean, res: any) => void
 ) => {
   const canvas = useEditStore.getState().canvas;
   let isNew = canvas.id == null;
@@ -115,7 +115,7 @@ export const saveCanvas = async (
     content: JSON.stringify(canvas.content),
   });
 
-  successCallback(res?.id, isNew);
+  successCallback(res?.id, isNew, res);
 
   if (isNew) {
     useEditStore.setState((draft) => {

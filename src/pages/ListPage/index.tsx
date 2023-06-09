@@ -1,4 +1,4 @@
-import {Card, Divider, Table, Space, Button, Modal, message} from "antd";
+import {Card, Divider, Table, Space, Button, Modal, message, Image} from "antd";
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import Axios from "src/request/axios";
@@ -8,12 +8,12 @@ import {
   saveCanvasEnd,
 } from "src/request/end";
 import useUserStore from "src/store/userStore";
-
 interface ListItem {
   id: number;
   type: "content" | "template"; // 页面、模板页面
   title: string;
   content: string;
+  thumbnail: {full: string};
 }
 
 const pagination = {pageSize: 9999, current: 1};
@@ -100,6 +100,16 @@ export default function ListPage() {
       render: (item: ListItem) => {
         const typeDesc = item.type === "content" ? "页面" : "模板页";
         return <div className="red">{typeDesc}</div>;
+      },
+    },
+
+    {
+      title: "显示",
+      key: "thumbnail",
+      render: (item: ListItem) => {
+        return (
+          <Image src={item.thumbnail.full} alt={item.title} height={150} />
+        );
       },
     },
 

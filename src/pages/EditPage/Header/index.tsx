@@ -65,6 +65,27 @@ export default function Header() {
     });
   };
 
+  const saveAndDownload = () => {
+    saveCanvas((_id, isNew, res) => {
+      message.success("保存成功");
+
+      if (isNew) {
+        // 新增
+        navigate(`?id=${_id}`);
+      }
+
+      //  下载图片
+      const img = res.thumbnail.full;
+      const ele = document.createElement("a");
+      ele.href = img.replace("http://template.codebus.tech/", "");
+      ele.download = res.title + ".png";
+      ele.style.display = "none";
+      document.body.appendChild(ele);
+      ele.click();
+      document.body.removeChild(ele);
+    });
+  };
+
   const emptyCanvas = () => {
     clearCanvas();
   };
@@ -105,7 +126,8 @@ export default function Header() {
         <span
           className={classNames(
             "iconfont icon-chexiaofanhuichehuishangyibu",
-            styles.icon
+            styles.icon,
+            styles.nextStep
           )}
           style={{transform: `rotateY{180}deg`}}></span>
         <span className={styles.txt}>下一步 </span>
@@ -116,6 +138,15 @@ export default function Header() {
         <span
           className={classNames("iconfont icon-qingkong", styles.icon)}></span>
         <span className={styles.txt}>清空</span>
+      </div>
+
+      <div className={classNames(styles.item)} onClick={saveAndDownload}>
+        <span
+          className={classNames(
+            "iconfont icon-cloud-download",
+            styles.icon
+          )}></span>
+        <span className={styles.txt}>保存并下载图片</span>
       </div>
     </div>
   );
