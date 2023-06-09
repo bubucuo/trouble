@@ -128,7 +128,6 @@ export const saveCanvas = async (
 export const addCanvasByTpl = (res: any) => {
   useEditStore.setState((draft) => {
     draft.canvas.content = JSON.parse(res.content);
-    draft.canvas.id = null;
     draft.canvas.title = res.title + " 副本";
     draft.canvas.type = "content";
 
