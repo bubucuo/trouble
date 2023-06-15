@@ -1,5 +1,4 @@
-import {defaultComponentStyle} from "src/utils/const";
-import {isImgComponent} from ".";
+import {isImgComponent, defaultComponentStyle} from "src/utils/const";
 import {addCmp} from "src/store/editStore";
 import leftSideStyles from "./leftSide.module.less";
 

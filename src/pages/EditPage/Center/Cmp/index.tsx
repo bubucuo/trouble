@@ -1,11 +1,11 @@
 import {ICmpWithKey} from "src/store/editStoreTypes";
 import styles from "./index.module.less";
-import {isImgComponent, isTextComponent} from "../../LeftSider";
 import {Img, Text} from "./CmpDetail";
 import classNames from "classnames";
 import {omit, pick} from "lodash";
 import {setCmpSelected, setCmpsSelected} from "src/store/editStore";
 import {memo} from "react";
+import {isImgComponent, isTextComponent} from "src/utils/const";
 
 interface ICmpProps {
   cmp: ICmpWithKey;

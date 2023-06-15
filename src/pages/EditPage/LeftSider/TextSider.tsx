@@ -1,7 +1,6 @@
-import {defaultComponentStyle} from "src/utils/const";
+import {isTextComponent, defaultComponentStyle} from "src/utils/const";
 import leftSideStyles from "./leftSide.module.less";
 import {addCmp} from "src/store/editStore";
-import {isTextComponent} from ".";
 
 const defaultStyle = {
   ...defaultComponentStyle,

@@ -2,6 +2,7 @@ import useEditStore, {
   addCmp,
   clearCanvas,
   fetchCanvas,
+  initCanvas,
 } from "src/store/editStore";
 import styles from "./index.module.less";
 import Cmp from "../Cmp";
@@ -24,9 +25,14 @@ export default function Canvas() {
   useEffect(() => {
     if (id) {
       fetchCanvas(id);
-    } else {
-      clearCanvas();
     }
+
+    return () => {
+      // 退出页面之前，初始化数据。否则下次再次进入页面，上次数据会被再次利用。
+      // 这个目的其实在28行的else里实现也可以，但是这样的话，编辑页退出之后，数据依然是存在内存中的，只是下次再进入页面的时候才被初始化
+      // 因此为了内存考虑，可以在组件销毁前，执行初始化函数
+      initCanvas();
+    };
   }, []);
 
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {

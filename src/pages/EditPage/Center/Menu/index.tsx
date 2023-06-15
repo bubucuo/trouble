@@ -11,8 +11,8 @@ import {
 import styles from "./index.module.less";
 import {Style} from "src/store/editStoreTypes";
 import {ICmpWithKey} from "../../../../store/editStoreTypes";
-import {isGraphComponent, isImgComponent} from "../../LeftSider";
 import {pick} from "lodash";
+import {isGraphComponent, isImgComponent} from "src/utils/const";
 
 export default function Menu({
   style,

@@ -1,5 +1,6 @@
 import useEditStore, {
   recordCanvasChangeHistory_2,
+  setCmpSelected,
   updateAssemblyCmpsByDistance,
   updateSelectedCmpAttr,
   updateSelectedCmpStyle,
@@ -8,7 +9,7 @@ import styles from "./index.module.less";
 import {throttle} from "lodash";
 import useZoomStore from "src/store/zoomStore";
 import StretchDots from "./StretchDots";
-import {isTextComponent} from "../../LeftSider";
+import {isTextComponent} from "src/utils/const";
 import {useEffect, useState} from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import Menu from "../Menu";
@@ -77,13 +78,14 @@ export default function EditBox() {
     return null;
   }
 
-  let top = 9999,
-    left = 9999,
-    bottom = -9999,
-    right = -9999;
+  let top = 999999,
+    left = 999999,
+    bottom = -999999,
+    right = -999999;
 
   assembly.forEach((index) => {
     const cmp = cmps[index];
+
     top = Math.min(top, cmp.style.top);
     left = Math.min(left, cmp.style.left);
 

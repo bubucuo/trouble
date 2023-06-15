@@ -20,7 +20,7 @@ export interface ICmp {
 }
 
 export interface ICmpWithKey extends ICmp {
-  key: number;
+  key: string;
 }
 
 export type EditStoreState = {

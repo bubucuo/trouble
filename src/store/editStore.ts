@@ -48,6 +48,37 @@ const useEditStore = create(
   }))
 );
 
+// 初始化
+export const initCanvas = () => {
+  useEditStore.setState((draft) => {
+    (draft.canvas = {
+      id: null,
+      title: "未命名",
+      type: "content",
+      content: getDefaultCanvasContent(),
+    }),
+      (draft.hasSavedCanvas = true); // 画布编辑后是否被保存
+    // 记录选中组件的下标
+    draft.assembly = new Set();
+
+    // 历史
+    (draft.canvasChangeHistory = [
+      {
+        canvas: {
+          id: null,
+          title: "未命名",
+          type: "content",
+          content: getDefaultCanvasContent(),
+        },
+        assembly: new Set(),
+      },
+    ]),
+      (draft.canvasChangeHistoryIndex = 0);
+  });
+
+  resetZoom();
+};
+
 export const clearCanvas = () => {
   useEditStore.setState((draft) => {
     draft.canvas.content = getDefaultCanvasContent();
@@ -606,10 +637,15 @@ export const updateSelectedCmpStyle = (
 };
 
 // 修改单个组件的属性
-export const updateSelectedCmpAttr = (name: string, value: string) => {
+export const updateSelectedCmpAttr = (name: string, value: string | Object) => {
   useEditStore.setState((draft: any) => {
     const selectedIndex = selectedCmpIndexSelector(draft);
-    draft.canvas.content.cmps[selectedIndex][name] = value;
+    if (typeof value === "object") {
+      Object.assign(draft.canvas.content.cmps[selectedIndex][name], value);
+    } else {
+      draft.canvas.content.cmps[selectedIndex][name] = value;
+    }
+
     draft.hasSavedCanvas = false;
     recordCanvasChangeHistory(draft);
   });

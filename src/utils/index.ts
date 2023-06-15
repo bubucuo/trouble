@@ -1,7 +1,7 @@
 import {ICmpWithKey} from "src/store/editStoreTypes";
 
 export function getOnlyKey() {
-  return Math.random();
+  return Math.ceil(Math.random() * 1000000000) + "";
 }
 
 export function isCmpInView(cmp: ICmpWithKey) {
