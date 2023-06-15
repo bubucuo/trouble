@@ -6,12 +6,7 @@ import Item from "src/lib/Item";
 
 export type HandleAttributesChangeType = (obj: any) => void;
 
-export default function EditCmp({
-  selectedCmp,
-}: {
-  selectedCmp: ICmpWithKey;
-  formKeys: any;
-}) {
+export default function EditCmp({selectedCmp}: {selectedCmp: ICmpWithKey}) {
   const {value, style, onClick} = selectedCmp;
 
   const handleAttributesChange: HandleAttributesChangeType = (obj) => {
