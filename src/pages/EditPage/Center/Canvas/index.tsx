@@ -1,6 +1,5 @@
 import useEditStore, {
   addCmp,
-  clearCanvas,
   fetchCanvas,
   initCanvas,
 } from "src/store/editStore";
