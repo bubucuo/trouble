@@ -10,9 +10,13 @@ import {
 } from "src/store/editStore";
 import styles from "./index.module.less";
 import {Style} from "src/store/editStoreTypes";
-import {ICmpWithKey} from "../../../../store/editStoreTypes";
+import {ICmpWithKey} from "src/store/editStoreTypes";
 import {pick} from "lodash";
-import {isGraphComponent, isImgComponent} from "src/utils/const";
+import {
+  isGraphComponent,
+  isGroupComponent,
+  isImgComponent,
+} from "src/utils/const";
 
 export default function Menu({
   style,
@@ -121,6 +125,13 @@ function Item(props: ItemProps) {
           ])}></span>
       );
       right = "图形";
+      break;
+
+    case isGroupComponent:
+      left = (
+        <span className={classNames(styles.left, "iconfont icon-zuhe")}></span>
+      );
+      right = "组合组件";
       break;
 
     // case isTextComponent:

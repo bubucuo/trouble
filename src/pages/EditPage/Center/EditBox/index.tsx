@@ -9,12 +9,13 @@ import styles from "./index.module.less";
 import {throttle} from "lodash";
 import useZoomStore from "src/store/zoomStore";
 import StretchDots from "./StretchDots";
-import {isTextComponent} from "src/utils/const";
+import {isGroupComponent, isTextComponent} from "src/utils/const";
 import {useEffect, useState} from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import Menu from "../Menu";
 import AlignLines from "./AlignLines";
 import Rotate from "./Rotate";
+import EditBoxOfMultiCmps from "./EditBoxOfMultiCmps";
 
 export default function EditBox() {
   const zoom = useZoomStore((state) => state.zoom);
@@ -73,39 +74,78 @@ export default function EditBox() {
     document.addEventListener("mouseup", up);
   };
 
+  const doubleClickEditBox = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (selectedCmp.type & isGroupComponent) {
+      // 组合组件
+      // 此时根据位置计算想要选中的组件是谁
+      const canvasDomPos = {
+        top: 114 + 1,
+        left:
+          document.body.clientWidth / 2 -
+          ((canvasStyle.width + 2) / 2) * (zoom / 100),
+      };
+
+      const relativePosition = {
+        top: e.pageY - canvasDomPos.top,
+        left: e.pageX - canvasDomPos.left,
+      };
+      const len = cmps.length;
+      for (let i = len - 1; i >= 0; i--) {
+        const cmp = cmps[i];
+        if (cmp.groupKey !== selectedCmp.key) {
+          continue;
+        }
+        let {top, left, width, height} = cmps[i].style;
+
+        const right = left + width,
+          bottom = top + height;
+        if (
+          relativePosition.top >= top &&
+          relativePosition.top <= bottom &&
+          relativePosition.left >= left &&
+          relativePosition.left <= right
+        ) {
+          // 选中子节点
+          setCmpSelected(i);
+          return;
+        }
+      }
+      // 检查这个点是否在子组件范围内
+    } else if (selectedCmp.type & isTextComponent) {
+      setTextareaFocused(true);
+    }
+  };
+
   const size = assembly.size;
   if (size === 0) {
     return null;
   }
 
-  let top = 999999,
-    left = 999999,
-    bottom = -999999,
-    right = -999999;
+  if (size > 1) {
+    return (
+      <EditBoxOfMultiCmps
+        onMouseDownOfCmp={onMouseDownOfCmp}
+        showMenu={showMenu}
+        setShowMenu={setShowMenu}
+      />
+    );
+  }
 
-  assembly.forEach((index) => {
-    const cmp = cmps[index];
-
-    top = Math.min(top, cmp.style.top);
-    left = Math.min(left, cmp.style.left);
-
-    bottom = Math.max(bottom, cmp.style.top + cmp.style.height);
-    right = Math.max(right, cmp.style.left + cmp.style.width);
-  });
-
-  let width = right - left + 4;
-  let height = bottom - top + 4;
-
-  top -= 2;
-  left -= 2;
+  let {top, left, width, height} = selectedCmp.style;
 
   const transform = `rotate(${
     size === 1 ? selectedCmp.style.transform : 0
   }deg)`;
 
+  // 边框加在外层
+  width += 4;
+  height += 4;
+
   return (
     <>
-      {size === 1 && <AlignLines canvasStyle={canvasStyle} />}
+      <AlignLines canvasStyle={canvasStyle} />
       <div
         className={styles.main}
         style={{
@@ -120,9 +160,7 @@ export default function EditBox() {
         onClick={(e) => {
           e.stopPropagation();
         }}
-        onDoubleClick={() => {
-          setTextareaFocused(true);
-        }}
+        onDoubleClick={doubleClickEditBox}
         onContextMenu={() => {
           setShowMenu(true);
         }}
@@ -130,29 +168,34 @@ export default function EditBox() {
           setTextareaFocused(false);
           setShowMenu(false);
         }}>
-        {size === 1 &&
-          selectedCmp.type === isTextComponent &&
-          textareaFocused && (
-            <TextareaAutosize
-              value={selectedCmp.value}
-              style={{
-                ...selectedCmp.style,
-                top: 0,
-                left: 0,
-              }}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                updateSelectedCmpAttr("value", newValue);
-              }}
-              onHeightChange={(height) => {
-                updateSelectedCmpStyle({height});
-              }}
-            />
-          )}
+        {selectedCmp.type === isTextComponent && textareaFocused && (
+          <TextareaAutosize
+            value={selectedCmp.value}
+            style={{
+              ...selectedCmp.style,
+              // 为了和下面字体重合，2是border宽度
+              top: 0,
+              left: 0,
+            }}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              updateSelectedCmpAttr("value", newValue);
+            }}
+            onHeightChange={(height) => {
+              updateSelectedCmpStyle({height});
+            }}
+          />
+        )}
 
         {showMenu && (
           <Menu
-            style={{left: width}}
+            style={{
+              left: width - 2,
+              transform: `rotate(${
+                size === 1 ? -selectedCmp.style.transform : 0
+              }deg)`,
+              transformOrigin: "0% 0%",
+            }}
             assemblySize={size}
             cmps={cmps}
             selectedIndex={Array.from(assembly)[0]}
@@ -160,8 +203,9 @@ export default function EditBox() {
         )}
 
         <StretchDots zoom={zoom} style={{width, height}} />
-
-        {size === 1 && <Rotate zoom={zoom} selectedCmp={selectedCmp} />}
+        {selectedCmp.type !== isGroupComponent && (
+          <Rotate zoom={zoom} selectedCmp={selectedCmp} />
+        )}
       </div>
     </>
   );

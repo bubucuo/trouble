@@ -9,12 +9,19 @@ import type {
   ICmpWithKey,
   IContent,
 } from "./editStoreTypes";
-import {getOnlyKey, isCmpInView} from "src/utils";
+import {
+  computeBoxStyle,
+  getOnlyKey,
+  isCmpInView,
+  updateGroupStyle,
+} from "src/utils";
 import Axios from "src/request/axios";
 import {getCanvasByIdEnd, saveCanvasEnd} from "src/request/end";
 import {resetZoom} from "./zoomStore";
 import {recordCanvasChangeHistory} from "./historySlice";
 import {cloneDeep} from "lodash";
+import {defaultComponentStyle_0, isGroupComponent} from "src/utils/const";
+import {current} from "immer";
 
 const showDiff = 12;
 const adjustDiff = 3;
@@ -127,12 +134,83 @@ export const addAssemblyCmps = () => {
 };
 
 //  删除选中的组件
+// 如果选中的是组合组件，则要把相关的子组件全部删除
+// 如果选中的是组合子组件，则除了删除这个组件之外，还要更新父组合组件的 groupCmpKeys
 export const delSelectedCmps = () => {
   useEditStore.setState((draft) => {
-    const assembly = draft.assembly;
-    draft.canvas.content.cmps = draft.canvas.content.cmps.filter(
-      (_, index) => !assembly.has(index)
-    );
+    let {cmps} = draft.canvas.content;
+    const map = getCmpsMap(cmps);
+    // newAssembly 会存储待删除的子组件、父组件、普通组件的下标等
+    const newAssembly: Set<number> = new Set();
+
+    draft.assembly.forEach((index) => {
+      const cmp = cmps[index];
+      if (cmp.type & isGroupComponent) {
+        cmp.groupCmpKeys?.forEach((item) => {
+          newAssembly.add(map.get(item));
+        });
+      }
+      // 如果是group组件，最后添加
+      newAssembly.add(index);
+    });
+
+    // ! 当删除单个组合组件的子节点之后，需要调整父组件的位置和宽高
+    // 因为在删除单个之后，cmps index会发生变化，为了复用map和cmps，我们在这里先调整父组件的位置和宽高
+    if (newAssembly.size === 1) {
+      const child: ICmpWithKey = cmps[Array.from(newAssembly)[0]];
+      // child是要被删除的组件，
+      // 所以接下来要调整矩形，这个矩形的位置和宽高根据除child之外的组合子组件来计算
+      if (child.groupKey) {
+        const groupIndex = map.get(child.groupKey);
+        const group = cmps[groupIndex];
+        // 这个节点要删除，因此要寻找的是其它相关子组件的index
+        const _newAssembly: Set<number> = new Set();
+        group.groupCmpKeys?.forEach((key) => {
+          if (key !== child.key) {
+            _newAssembly.add(map.get(key));
+          }
+        });
+
+        Object.assign(group.style, computeBoxStyle(cmps, _newAssembly));
+      }
+    }
+    // 删除节点
+    cmps = cmps.filter((cmp, index) => {
+      // 这个组件要被删除
+      const del = newAssembly.has(index);
+      if (del) {
+        // 如果这个组件是组合子组件
+        let groupKey = cmp.groupKey;
+
+        if (groupKey) {
+          const groupIndex = map.get(cmp.groupKey);
+          // 如果父组件也要被删除，这里就不用管了，不然要更新下父组件的 groupCmpKeys
+          if (!newAssembly.has(groupIndex)) {
+            const group = cmps[groupIndex];
+            const s = new Set(group.groupCmpKeys);
+            s.delete(cmp.key);
+            group.groupCmpKeys = Array.from(s);
+          }
+        }
+      }
+
+      if (cmp.type & isGroupComponent) {
+        const {groupCmpKeys} = cmp;
+        const len = groupCmpKeys!.length;
+        if (len < 2) {
+          // 如果只有一个子组件了，那么没必要再是组合组件了
+          if (groupCmpKeys?.length === 1) {
+            const singleCmpIndex = map.get(groupCmpKeys[0]);
+            cmps[singleCmpIndex].groupKey = undefined;
+          }
+          return false;
+        }
+      }
+
+      return !del;
+    });
+
+    draft.canvas.content.cmps = cmps;
     draft.hasSavedCanvas = false;
     draft.assembly.clear();
     recordCanvasChangeHistory(draft);
@@ -203,8 +281,17 @@ export const fetchCanvas = async (id: number) => {
 // 全部选中
 export const setAllCmpsSelected = () => {
   useEditStore.setState((draft) => {
-    let len = draft.canvas.content.cmps.length;
-    draft.assembly = new Set(Array.from({length: len}, (a, b) => b));
+    const cmps = draft.canvas.content.cmps;
+    let len = cmps.length;
+    // 当存在组合组件，需要筛选出来组合子组件
+    const array = [];
+    for (let i = 0; i < len; i++) {
+      if (cmps[i].groupKey) {
+        continue;
+      }
+      array.push(i);
+    }
+    draft.assembly = new Set(array);
   });
 };
 
@@ -212,6 +299,16 @@ export const setAllCmpsSelected = () => {
 // 如果再次点击已经选中的组件，则取消选中
 export const setCmpsSelected = (indexes: Array<number>) => {
   useEditStore.setState((draft) => {
+    const cmps = cmpsSelector(draft);
+    // 如果此时已经有组合子组件被选中，不允许和其它组件一起选中
+    if (draft.assembly.size === 1) {
+      const selectedIndex = selectedCmpIndexSelector(draft);
+      const selectedCmp = cmps[selectedIndex];
+      if (selectedCmp.groupKey) {
+        // 取消原来的组合子组件选中状态
+        draft.assembly = new Set();
+      }
+    }
     if (indexes)
       indexes.forEach((index) => {
         if (draft.assembly.has(index)) {
@@ -228,6 +325,7 @@ export const setCmpsSelected = (indexes: Array<number>) => {
 // 选中单个
 // 如果index为-1，则取消选中
 export const setCmpSelected = (index: number) => {
+  // 如果是组合组件，则选中其相关的组件
   if (index === -1) {
     useEditStore.setState((draft) => {
       if (draft.assembly.size > 0) {
@@ -248,9 +346,24 @@ export const updateAssemblyCmpsByDistance = (
   autoAdjustment?: boolean
 ) => {
   useEditStore.setState((draft) => {
-    draft.assembly.forEach((index) => {
-      const selectedCmp = {...draft.canvas.content.cmps[index]};
+    // 如果包括组合组件，那么此时需要寻找相关的子组件
+    const {cmps} = draft.canvas.content;
+    const map = getCmpsMap(cmps);
+    // 下标：组合组件子组件、组合组件的父组件、普通组件、
+    let newAssembly: Set<number> = new Set();
 
+    draft.assembly.forEach((index) => {
+      const cmp = cmps[index];
+      if (cmp.type & isGroupComponent) {
+        cmp.groupCmpKeys?.forEach((item) => {
+          newAssembly.add(map.get(item));
+        });
+      }
+      newAssembly.add(index);
+    });
+
+    newAssembly.forEach((index) => {
+      const selectedCmp = {...cmps[index]};
       let invalid = false;
       for (const key in newStyle) {
         if (
@@ -260,11 +373,16 @@ export const updateAssemblyCmpsByDistance = (
           invalid = true;
           break;
         }
+
         selectedCmp.style[key] += newStyle[key];
       }
 
-      // 检查自动调整
-      if (draft.assembly.size === 1 && autoAdjustment) {
+      // 检查自动调整，对齐
+      if (
+        draft.assembly.size === 1 &&
+        !selectedCmp.groupKey &&
+        autoAdjustment
+      ) {
         // 对齐画布或者组件
         // 画布
         autoAlignToCanvas(canvasStyleSelector(draft), selectedCmp);
@@ -273,9 +391,15 @@ export const updateAssemblyCmpsByDistance = (
         // 这个时候画布和组件会相互影响。一般产品会做一个取舍，对齐画布还是组件
         const cmps = cmpsSelector(draft);
         cmps.forEach((cmp, cmpIndex) => {
-          // 如果组件不在可视区，这个时候用户看不到，也就不用对齐
           const inView = isCmpInView(cmp);
-          if (cmpIndex !== index && inView) {
+
+          // 如果选中的是组合组件，那么与它自己的子组件肯定不对齐
+          // 如果是组合组件，不要和自己的子组件对齐
+          if (
+            selectedCmp.type & isGroupComponent &&
+            selectedCmp.key === cmp.groupKey
+          ) {
+          } else if (cmpIndex !== index && inView) {
             autoAlignToCmp(cmp.style, selectedCmp);
           }
         });
@@ -285,8 +409,23 @@ export const updateAssemblyCmpsByDistance = (
         draft.canvas.content.cmps[index] = selectedCmp;
       }
 
-      draft.hasSavedCanvas = false;
+      // 移动或者拉伸单个子组件之后，父组件的宽高和位置也会发生变化
+      // 重新计算组合组件的位置和宽高
+      // 如果group变动，那么其相关子节点的位置也要发生变化
+      if (newAssembly.size === 1 && selectedCmp.groupKey) {
+        const groupIndex = map.get(selectedCmp.groupKey);
+        const group = cmps[groupIndex];
+        const _newAssembly: Set<number> = new Set();
+        group.groupCmpKeys?.forEach((key: string) => {
+          _newAssembly.add(map.get(key));
+        });
+
+        Object.assign(group.style, computeBoxStyle(cmps, _newAssembly));
+      }
     });
+
+    draft.canvas.content.cmps = cmps;
+    draft.hasSavedCanvas = false;
   });
 };
 
@@ -769,6 +908,87 @@ export const subZIndex = () => {
   });
 };
 
+// 组合组件
+// 把多个子组件组合到一个组合组件里
+// 如果子组件本身就是组合组件，那么需要把这个组合组件的子组件筛选取出来，最后再把所有子组件放到一个组合组件里。最后不要忘记把原先的组合组件删除
+export const groupCmps = () => {
+  useEditStore.setState((draft) => {
+    let {cmps} = draft.canvas.content;
+    const map = getCmpsMap(cmps);
+
+    const {top, left, width, height} = computeBoxStyle(cmps, draft.assembly);
+    // 组合所有子组件
+    // 生成一个新的父组件，
+    const groupCmp: ICmpWithKey = {
+      key: getOnlyKey(),
+      type: isGroupComponent,
+      style: {
+        defaultComponentStyle_0,
+        top,
+        left,
+        width,
+        height,
+      },
+      groupCmpKeys: [],
+    };
+
+    draft.assembly.forEach((index: number) => {
+      const cmp = cmps[index];
+      // 如果组件是组合组件，遍历查找这个组合组件的子组件
+      if (cmp.type & isGroupComponent) {
+        cmp.groupCmpKeys?.forEach((key) => {
+          const childCmpIndex = map.get(key);
+          const child = cmps[childCmpIndex];
+          groupCmp.groupCmpKeys!.push(child.key);
+          cmp.groupKey = child.key;
+          map.delete(child.key);
+        });
+      } else {
+        groupCmp.groupCmpKeys!.push(cmp.key);
+        cmp.groupKey = groupCmp.key;
+      }
+    });
+
+    // 删除老的组合组件
+    cmps = cmps.filter(
+      (cmp, index) =>
+        !(cmp.type & isGroupComponent && draft.assembly.has(index))
+    );
+
+    cmps.push(groupCmp);
+    draft.canvas.content.cmps = cmps;
+    draft.hasSavedCanvas = false;
+    draft.assembly = new Set([cmps.length - 1]);
+    recordCanvasChangeHistory(draft);
+  });
+};
+
+// 取消组合
+// 选中了一个组件组合，把子组件拆分出来
+export const cancelGroupCmps = () => {
+  useEditStore.setState((draft) => {
+    // 1. 拆分子组件
+    // 2. 删除父组件
+    // 3. 选中子组件
+    let {cmps} = draft.canvas.content;
+    const selectedIndex = selectedCmpIndexSelector(draft);
+    const selectedGroup = cmps[selectedIndex];
+    const map = getCmpsMap(cmps);
+    const newAssembly: Set<number> = new Set();
+    selectedGroup.groupCmpKeys?.forEach((key) => {
+      const cmpIndex = map.get(key);
+      const cmp = cmps[cmpIndex];
+      cmp.groupKey = undefined;
+      newAssembly.add(cmpIndex);
+    });
+    cmps = cmps.slice(0, selectedIndex).concat(cmps.slice(selectedIndex + 1));
+    draft.canvas.content.cmps = cmps;
+    draft.hasSavedCanvas = false;
+    draft.assembly = newAssembly;
+    recordCanvasChangeHistory(draft);
+  });
+};
+
 export default useEditStore;
 
 // 选中的单个组件的index
@@ -784,6 +1004,14 @@ export const cmpsSelector = (store: IEditStore): Array<ICmpWithKey> => {
 export const canvasStyleSelector = (store: IEditStore): Style => {
   return store.canvas.content.style;
 };
+
+export function getCmpsMap(cmps: Array<ICmpWithKey>) {
+  const map = new Map();
+  cmps.forEach((cmp, index) => {
+    map.set(cmp.key, index);
+  });
+  return map;
+}
 
 function getDefaultCanvasContent(): IContent {
   return {

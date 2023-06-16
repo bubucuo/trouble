@@ -51,8 +51,8 @@ const Cmp = memo((props: ICmpProps) => {
       onClick={setSelected}
       id={"cmp" + cmp.key}>
       <div className={styles.inner} style={{...innerStyle}}>
-        {cmp.type === isTextComponent && <Text {...cmp} />}
-        {cmp.type === isImgComponent && <Img {...cmp} />}
+        {cmp.type === isTextComponent && <Text value={cmp.value} />}
+        {cmp.type === isImgComponent && <Img value={cmp.value} />}
       </div>
     </div>
   );
