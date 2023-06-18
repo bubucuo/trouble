@@ -9,19 +9,13 @@ import type {
   ICmpWithKey,
   IContent,
 } from "./editStoreTypes";
-import {
-  computeBoxStyle,
-  getOnlyKey,
-  isCmpInView,
-  updateGroupStyle,
-} from "src/utils";
+import {computeBoxStyle, getOnlyKey, isCmpInView} from "src/utils";
 import Axios from "src/request/axios";
 import {getCanvasByIdEnd, saveCanvasEnd} from "src/request/end";
 import {resetZoom} from "./zoomStore";
 import {recordCanvasChangeHistory} from "./historySlice";
 import {cloneDeep} from "lodash";
 import {defaultComponentStyle_0, isGroupComponent} from "src/utils/const";
-import {current} from "immer";
 
 const showDiff = 12;
 const adjustDiff = 3;
@@ -337,6 +331,15 @@ export const setCmpSelected = (index: number) => {
       draft.assembly = new Set([index]);
     });
   }
+};
+
+// 根据组合子组件index，返回父组件index
+export const getCmpGroupIndex = (childIndex: number): undefined | number => {
+  const store = useEditStore.getState();
+  const cmps = cmpsSelector(store);
+  const map = getCmpsMap(cmps);
+  const groupIndex = map.get(cmps[childIndex].groupKey);
+  return groupIndex;
 };
 
 // ! 修改组件属性
@@ -819,45 +822,90 @@ export const editAssemblyStyle = (_style: Style) => {
 };
 
 // ! 单个组件修改层级
+// 0  4 5 1 2 3
 // 置顶，把组件放到数组最后
-// 0 1  3 4 2
+// 如果是组合组件N，包含n个子组件，则组件顺序如下：
+// 0...m, n0,n1,n2...,N 则把组合组件放到最后，
+// m + n + 1 = len
+// [m0,m1,...mm,n0,n1...,nn, N]
 export const topZIndex = () => {
   useEditStore.setState((draft) => {
     const cmps = draft.canvas.content.cmps;
     const selectedIndex = selectedCmpIndexSelector(draft);
-    if (selectedIndex === cmps.length - 1) {
-      return;
+    const selectedCmp = cmps[selectedIndex];
+    if (selectedCmp.type & isGroupComponent) {
+      // 组合组件
+      const len = cmps.length;
+      const groupCmpKeys = new Set(selectedCmp.groupCmpKeys);
+      let m = 0,
+        n = len - groupCmpKeys.size - 1;
+      const cmps2 = [...cmps];
+      for (let i = 0; i < len; i++) {
+        const cmp = cmps2[i];
+        if (cmp.key === selectedCmp.key) {
+          // 父组件
+          cmps[len - 1] = cmp;
+        } else if (groupCmpKeys.has(cmp.key)) {
+          // 子组件
+          cmps[n++] = cmp;
+        } else {
+          cmps[m++] = cmp;
+        }
+      }
+    } else {
+      if (selectedIndex === cmps.length - 1) {
+        return;
+      }
+      draft.canvas.content.cmps = cmps
+        .slice(0, selectedIndex)
+        .concat(cmps.slice(selectedIndex + 1))
+        .concat(cmps[selectedIndex]);
     }
-    draft.canvas.content.cmps = cmps
-      .slice(0, selectedIndex)
-      .concat(cmps.slice(selectedIndex + 1))
-      .concat(cmps[selectedIndex]);
 
     draft.hasSavedCanvas = false;
-
     draft.assembly = new Set([cmps.length - 1]);
-
     recordCanvasChangeHistory(draft);
   });
 };
 
-// 置底，把组件放到数组最后
+// 置底，把组件放到数组位置0
+// 如果是组合组件 M，包含m个子组件，则组件顺序如下：
+// M, m0, m1, m2,..., 组件其它
 // 0 1 2 3 4
 export const bottomZIndex = () => {
   useEditStore.setState((draft) => {
     const cmps = draft.canvas.content.cmps;
     const selectedIndex = selectedCmpIndexSelector(draft);
-    if (selectedIndex === 0) {
-      return;
+    const selectedCmp = cmps[selectedIndex];
+    if (selectedCmp.type & isGroupComponent) {
+      // 组合组件
+      const len = cmps.length;
+      const groupCmpKeys = new Set(selectedCmp.groupCmpKeys);
+      let m = 1,
+        n = groupCmpKeys.size + 1;
+      const cmps2 = [...cmps];
+      for (let i = 0; i < len; i++) {
+        const cmp = cmps2[i];
+        if (cmp.key === selectedCmp.key) {
+          // 父组件
+          cmps[0] = cmp;
+        } else if (groupCmpKeys.has(cmp.key)) {
+          // 子组件
+          cmps[m++] = cmp;
+        } else {
+          cmps[n++] = cmp;
+        }
+      }
+    } else {
+      if (selectedIndex === 0) {
+        return;
+      }
+      draft.canvas.content.cmps = [cmps[selectedIndex]]
+        .concat(cmps.slice(0, selectedIndex))
+        .concat(cmps.slice(selectedIndex + 1));
     }
-    draft.canvas.content.cmps = [cmps[selectedIndex]]
-      .concat(cmps.slice(0, selectedIndex))
-      .concat(cmps.slice(selectedIndex + 1));
-
     draft.hasSavedCanvas = false;
-
     draft.assembly = new Set([0]);
-
     recordCanvasChangeHistory(draft);
   });
 };
@@ -923,7 +971,7 @@ export const groupCmps = () => {
       key: getOnlyKey(),
       type: isGroupComponent,
       style: {
-        defaultComponentStyle_0,
+        ...defaultComponentStyle_0,
         top,
         left,
         width,

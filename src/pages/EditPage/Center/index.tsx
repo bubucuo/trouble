@@ -2,11 +2,13 @@ import styles from "./index.module.less";
 import Canvas from "./Canvas";
 import useEditStore, {
   addZIndex,
+  bottomZIndex,
   canvasStyleSelector,
   delSelectedCmps,
   setAllCmpsSelected,
   setCmpSelected,
   subZIndex,
+  topZIndex,
 } from "src/store/editStore";
 import Zoom from "./Zoom";
 import useZoomStore from "src/store/zoomStore";
@@ -41,13 +43,23 @@ export default function Center() {
         // 上移一层
         case "ArrowUp":
           e.preventDefault();
-          addZIndex();
+          if (e.shiftKey) {
+            // 置顶
+            topZIndex();
+          } else {
+            addZIndex();
+          }
           return;
 
         // 下移一层
         case "ArrowDown":
           e.preventDefault();
-          subZIndex();
+          if (e.shiftKey) {
+            // 置底部
+            bottomZIndex();
+          } else {
+            subZIndex();
+          }
           return;
       }
     }

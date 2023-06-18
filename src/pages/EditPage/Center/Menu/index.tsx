@@ -33,10 +33,10 @@ export default function Menu({
     return null;
   }
 
+  const selectedCmp = cmps[selectedIndex];
+
   // 检查当前组件与选中的单个组件是否有重叠
   const overlap = (cmp: ICmpWithKey) => {
-    const selectedCmp = cmps[selectedIndex];
-
     const _style = selectedCmp.style;
     const selectedCmpStyle = {
       top: _style.top,
@@ -72,10 +72,21 @@ export default function Menu({
         <li onClick={delSelectedCmps}>删除组件 DEL</li>
         {assemblySize === 1 && (
           <>
-            <li onClick={addZIndex}> 上移一层 CMD+↑</li>
-            <li onClick={subZIndex}>下移一层 CMD+↓</li>
-            <li onClick={topZIndex}>置顶</li>
-            <li onClick={bottomZIndex}>置底</li>
+            {selectedCmp.type != isGroupComponent && (
+              <>
+                <li
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    addZIndex();
+                  }}>
+                  上移一层 CMD+↑
+                </li>
+                <li onClick={subZIndex}>下移一层 CMD+↓</li>
+              </>
+            )}
+            <li onClick={topZIndex}>置顶 CMD+SHIFT+↑</li>
+            <li onClick={bottomZIndex}>置底 CMD+SHIFT+↓</li>
             <li>附件组件</li>
           </>
         )}

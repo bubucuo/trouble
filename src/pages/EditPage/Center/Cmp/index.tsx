@@ -3,7 +3,11 @@ import styles from "./index.module.less";
 import {Img, Text} from "./CmpDetail";
 import classNames from "classnames";
 import {omit, pick} from "lodash";
-import {setCmpSelected, setCmpsSelected} from "src/store/editStore";
+import {
+  getCmpGroupIndex,
+  setCmpSelected,
+  setCmpsSelected,
+} from "src/store/editStore";
 import {memo} from "react";
 import {isImgComponent, isTextComponent} from "src/utils/const";
 
@@ -22,7 +26,9 @@ const Cmp = memo((props: ICmpProps) => {
     if (e.metaKey) {
       setCmpsSelected([index]);
     } else {
-      setCmpSelected(index);
+      // 如果这个组件属于组合组件，那么默认选中组合组件
+      const groupIndex = getCmpGroupIndex(index);
+      setCmpSelected(groupIndex != undefined ? groupIndex : index);
     }
   };
 
