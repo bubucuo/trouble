@@ -254,7 +254,7 @@ export const delSelectedCmps = () => {
       }
     }
     // 删除节点
-    let hasFromDelete = false;
+    let hasFormDelete = false;
     cmps = cmps.filter((cmp, index) => {
       // 这个组件要被删除
       const del = newAssembly.has(index);
@@ -274,7 +274,7 @@ export const delSelectedCmps = () => {
         }
 
         if (cmp.type & isFormComponent) {
-          hasFromDelete = true;
+          hasFormDelete = true;
         }
       }
 
@@ -294,7 +294,7 @@ export const delSelectedCmps = () => {
       return !del;
     });
 
-    if (hasFromDelete) {
+    if (hasFormDelete) {
       // 更新formKeys
       const uselessFormKeys = new Set(formKeys); // 记录无用的formKey
       cmps.forEach((cmp) => {
