@@ -217,7 +217,7 @@ export const addAssemblyCmps = () => {
 // 如果选中的是组合子组件，则除了删除这个组件之外，还要更新父组合组件的 groupCmpKeys
 export const delSelectedCmps = () => {
   useEditStore.setState((draft) => {
-    let {cmps} = draft.canvas.content;
+    let {cmps, formKeys} = draft.canvas.content;
     const map = getCmpsMap(cmps);
     // newAssembly 会存储待删除的子组件、父组件、普通组件的下标等
     const newAssembly: Set<number> = new Set();
@@ -254,6 +254,7 @@ export const delSelectedCmps = () => {
       }
     }
     // 删除节点
+    let hasFromDelete = false;
     cmps = cmps.filter((cmp, index) => {
       // 这个组件要被删除
       const del = newAssembly.has(index);
@@ -270,6 +271,10 @@ export const delSelectedCmps = () => {
             s.delete(cmp.key);
             group.groupCmpKeys = Array.from(s);
           }
+        }
+
+        if (cmp.type & isFormComponent) {
+          hasFromDelete = true;
         }
       }
 
@@ -289,6 +294,26 @@ export const delSelectedCmps = () => {
       return !del;
     });
 
+    if (hasFromDelete) {
+      // 更新formKeys
+      const uselessFormKeys = new Set(formKeys); // 记录无用的formKey
+      cmps.forEach((cmp) => {
+        const {formKey} = cmp;
+        if (formKey && uselessFormKeys.has(formKey)) {
+          // 表单组件
+          uselessFormKeys.delete(formKey);
+        }
+      });
+      const newFormKeys = new Set(formKeys);
+      newFormKeys.forEach((formKey) => {
+        if (uselessFormKeys.has(formKey)) {
+          newFormKeys.delete(formKey);
+        }
+      });
+      if (newFormKeys.size !== formKeys?.length) {
+        draft.canvas.content.formKeys = Array.from(newFormKeys);
+      }
+    }
     draft.canvas.content.cmps = cmps;
     draft.hasSavedCanvas = false;
     draft.assembly.clear();
