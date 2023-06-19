@@ -1,6 +1,6 @@
 import {ICmpWithKey} from "src/store/editStoreTypes";
 import styles from "./index.module.less";
-import {Img, Text} from "./CmpDetail";
+import {Button, Img, Input, Text} from "./CmpDetail";
 import classNames from "classnames";
 import {omit, pick} from "lodash";
 import {
@@ -9,7 +9,12 @@ import {
   setCmpsSelected,
 } from "src/store/editStore";
 import {memo} from "react";
-import {isImgComponent, isTextComponent} from "src/utils/const";
+import {
+  isImgComponent,
+  isTextComponent,
+  isFormComponent_Button,
+  isFormComponent_Input,
+} from "src/utils/const";
 
 interface ICmpProps {
   cmp: ICmpWithKey;
@@ -44,7 +49,7 @@ const Cmp = memo((props: ICmpProps) => {
 
   const transform = `rotate(${style.transform}deg)`;
 
-  console.log("cmp render"); //sy-log
+  // console.log("cmp render"); //sy-log
 
   return (
     <div
@@ -59,6 +64,8 @@ const Cmp = memo((props: ICmpProps) => {
       <div className={styles.inner} style={{...innerStyle}}>
         {cmp.type === isTextComponent && <Text value={cmp.value} />}
         {cmp.type === isImgComponent && <Img value={cmp.value} />}
+        {cmp.type === isFormComponent_Input && <Input {...cmp} />}
+        {cmp.type === isFormComponent_Button && <Button value={cmp.value} />}
       </div>
     </div>
   );

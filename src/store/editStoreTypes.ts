@@ -10,19 +10,35 @@ export interface ICanvas {
 export interface IContent {
   style: Style;
   cmps: Array<ICmpWithKey>;
+  formKeys?: Array<string>;
 }
 
+type ISubmit = {
+  url: string;
+  afterSuccess: "pop" | "url";
+  popMsg: string;
+  link: string;
+};
 export interface ICmp {
   type: number;
   style: Style;
   value?: string;
-  onClick?: string;
+  onClick?: string | ISubmit;
 
   // 组合组件: 父组件、子组件
   //父组件 key
   groupKey?: string; // 父组件key
   // group组件的子组件 key 数组
   groupCmpKeys?: Array<string>;
+
+  // 表单组件
+  // form item
+  formItemName?: string;
+  formKey?: string; // 标记form的key
+  desc?: string;
+  // input
+  inputType?: string;
+  placeholder?: string;
 }
 
 export interface ICmpWithKey extends ICmp {

@@ -15,7 +15,12 @@ import {getCanvasByIdEnd, saveCanvasEnd} from "src/request/end";
 import {resetZoom} from "./zoomStore";
 import {recordCanvasChangeHistory} from "./historySlice";
 import {cloneDeep} from "lodash";
-import {defaultComponentStyle_0, isGroupComponent} from "src/utils/const";
+import {
+  defaultComponentStyle_0,
+  isFormComponent,
+  isGroupComponent,
+} from "src/utils/const";
+import {ICmp} from "./editStoreTypes";
 
 const showDiff = 12;
 const adjustDiff = 3;
@@ -91,14 +96,77 @@ export const clearCanvas = () => {
   resetZoom();
 };
 
-export const addCmp = (_cmp: ICmp) => {
+function getStoreFormKey(store: EditStoreState, cmp: ICmpWithKey) {
+  let {formKey} = cmp;
+  if (cmp.type & isFormComponent && !formKey) {
+    formKey = getOnlyKey();
+    if (!store.canvas.content.formKeys) {
+      store.canvas.content.formKeys = [];
+    }
+
+    store.canvas.content.formKeys.push(formKey);
+  }
+
+  return formKey;
+}
+export const addCmp = (_cmp: any) => {
+  if (_cmp.type & isGroupComponent) {
+    addGroup(_cmp);
+    return;
+  }
+
   useEditStore.setState((draft) => {
-    draft.canvas.content.cmps.push({..._cmp, key: getOnlyKey()});
+    draft.canvas.content.cmps.push({
+      ..._cmp,
+      key: getOnlyKey(),
+      formKey: getStoreFormKey(draft, _cmp),
+    });
+
     draft.hasSavedCanvas = false;
     draft.assembly = new Set([draft.canvas.content.cmps.length - 1]);
     recordCanvasChangeHistory(draft);
   });
 };
+
+export function addGroup(group: any) {
+  const {type, style, formKey} = group;
+  // 添加组合组件 | 表单组件
+
+  useEditStore.setState((draft) => {
+    const groupCmp: ICmpWithKey = {
+      type,
+      key: getOnlyKey(),
+      groupCmpKeys: [],
+      style,
+      formKey: getStoreFormKey(draft, group),
+    };
+
+    const groups: Array<ICmpWithKey> = [];
+
+    group.children.forEach((child: ICmp) => {
+      const cmp: ICmpWithKey = {
+        ...child,
+        key: getOnlyKey(),
+        formKey,
+        groupKey: groupCmp.key,
+        style: {
+          ...child.style,
+          top: child.style.top + style.top,
+          left: child.style.left + style.left,
+        },
+      };
+      groups.push(cmp);
+      groupCmp.groupCmpKeys?.push(cmp.key);
+    });
+
+    groups.push(groupCmp);
+
+    draft.canvas.content.cmps = draft.canvas.content.cmps.concat(groups);
+    draft.hasSavedCanvas = false;
+    draft.assembly = new Set([draft.canvas.content.cmps.length - 1]);
+    recordCanvasChangeHistory(draft);
+  });
+}
 
 function getCopyCmp(cmp: ICmpWithKey) {
   const newCmp = cloneDeep(cmp);
@@ -1061,6 +1129,15 @@ export default useEditStore;
 export const selectedCmpIndexSelector = (store: IEditStore): number => {
   const selectedCmpIndex = Array.from(store.assembly)[0];
   return selectedCmpIndex === undefined ? -1 : selectedCmpIndex;
+};
+
+// 仅用于选中单个组件
+export const selectedSingleCmpSelector = (
+  store: IEditStore
+): ICmpWithKey | null => {
+  const selectedCmpIndex = selectedCmpIndexSelector(store);
+  const cmps = cmpsSelector(store);
+  return selectedCmpIndex >= 0 ? cmps[selectedCmpIndex] : null;
 };
 
 export const cmpsSelector = (store: IEditStore): Array<ICmpWithKey> => {

@@ -22,7 +22,7 @@ export default function RightSider() {
   let isGroup = false;
   if (assemblySize === 1) {
     selectedCmp = canvas.content.cmps[Array.from(assembly)[0]];
-    isGroup = selectedCmp.type === isGroupComponent;
+    isGroup = !!(selectedCmp.type & isGroupComponent);
   }
 
   return (
@@ -39,7 +39,10 @@ export default function RightSider() {
         (assemblySize === 0 ? (
           <EditCanvas canvas={canvas} />
         ) : assemblySize === 1 && !isGroup ? (
-          <EditCmp selectedCmp={selectedCmp!} />
+          <EditCmp
+            selectedCmp={selectedCmp!}
+            formKeys={canvas.content.formKeys}
+          />
         ) : (
           <EditMultiCmps isGroup={isGroup} />
         ))}
