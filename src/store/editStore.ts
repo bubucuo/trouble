@@ -940,7 +940,7 @@ export const groupCmps = () => {
           const childCmpIndex = map.get(key);
           const child = cmps[childCmpIndex];
           groupCmp.groupCmpKeys!.push(child.key);
-          cmp.groupKey = child.key;
+          child.groupKey = groupCmp.key;
           map.delete(child.key);
         });
       } else {
