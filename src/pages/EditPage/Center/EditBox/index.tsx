@@ -1,65 +1,49 @@
 import useEditStore, {
-  cmpsSelector,
-  dontRecordHistory,
-  selectedCmpSelector,
+  recordCanvasChangeHistory_2,
+  setCmpSelected,
+  updateAssemblyCmpsByDistance,
+  updateSelectedCmpAttr,
+  updateSelectedCmpStyle,
 } from "src/store/editStore";
 import styles from "./index.module.less";
-import useZoomStore from "../Zoom/zoomStore";
 import {throttle} from "lodash";
-import Rotate from "./Rotate";
+import useZoomStore from "src/store/zoomStore";
 import StretchDots from "./StretchDots";
-import EditSingle from "./EditSingle";
+import {isGroupComponent, isTextComponent} from "src/utils/const";
+import {useEffect, useState} from "react";
+import TextareaAutosize from "react-textarea-autosize";
+import Menu from "../Menu";
+import AlignLines from "./AlignLines";
+import Rotate from "./Rotate";
+import EditBoxOfMultiCmps from "./EditBoxOfMultiCmps";
 
 export default function EditBox() {
-  const editStore = useEditStore();
   const zoom = useZoomStore((state) => state.zoom);
-  const {assembly} = editStore;
+  const [canvas, assembly] = useEditStore((state) => [
+    state.canvas,
+    state.assembly,
+  ]);
 
-  const size = assembly.size;
+  const {cmps, style: canvasStyle} = canvas.content;
+  const selectedIndex = Array.from(assembly)[0];
 
-  if (size === 0) {
-    return null;
-  }
+  useEffect(() => {
+    setShowMenu(false);
+  }, [selectedIndex]);
 
-  if (size === 1) {
-    return <EditSingle zoom={zoom} />;
-  }
+  // 只有单个文本组件的时候才会用到
+  const selectedCmp = cmps[selectedIndex];
+  const [textareaFocused, setTextareaFocused] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
-  // 多个组件，此时需要计算外层的框架
-  const cmps = cmpsSelector(editStore);
-
-  let top = 9999,
-    bottom = -9999,
-    left = 9999,
-    right = -9999;
-  assembly.forEach((index) => {
-    const cmp = cmps[index];
-
-    top = Math.min(top, parseInt(cmp.style.top as string));
-    left = Math.min(left, parseInt(cmp.style.left as string));
-
-    bottom = Math.max(
-      bottom,
-      parseInt(cmp.style.top as string) + parseInt(cmp.style.height as string)
-    );
-
-    right = Math.max(
-      right,
-      parseInt(cmp.style.left as string) + parseInt(cmp.style.width as string)
-    );
-  });
-
-  // 在画布上移动组件位置
-  const onMouseDownOfCmp = (e) => {
-    // 否则会触发其他组件的选中行为
-    e.preventDefault();
-
+  const onMouseDownOfCmp = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (textareaFocused) {
+      return;
+    }
     let startX = e.pageX;
     let startY = e.pageY;
 
-    let hasMoved = false;
     const move = throttle((e) => {
-      hasMoved = true;
       const x = e.pageX;
       const y = e.pageY;
 
@@ -69,48 +53,160 @@ export default function EditBox() {
       disX = disX * (100 / zoom);
       disY = disY * (100 / zoom);
 
-      editStore.updateAssemblyCmps({top: disY, left: disX}, dontRecordHistory);
+      // 拖拽，允许自动调整
+      updateAssemblyCmpsByDistance({top: disY, left: disX}, true);
 
       startX = x;
       startY = y;
     }, 50);
 
     const up = () => {
+      // 隐藏吸附线
+      document.querySelectorAll(".alignLine").forEach((element) => {
+        (element as HTMLElement).style.display = "none";
+      });
+      recordCanvasChangeHistory_2();
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
-      if (hasMoved) {
-        editStore.recordCanvasChangeHistoryAfterBatch();
-      }
     };
+
     document.addEventListener("mousemove", move);
     document.addEventListener("mouseup", up);
   };
 
-  let width = right - left + 6,
-    height = bottom - top + 8;
-  top -= 4;
-  left -= 4;
+  const doubleClickEditBox = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (selectedCmp.type & isGroupComponent) {
+      // 组合组件
+      // 此时根据位置计算想要选中的组件是谁
+      const canvasDomPos = {
+        top: 114 + 1,
+        left:
+          document.body.clientWidth / 2 -
+          ((canvasStyle.width + 2) / 2) * (zoom / 100),
+      };
+
+      const relativePosition = {
+        top: e.pageY - canvasDomPos.top,
+        left: e.pageX - canvasDomPos.left,
+      };
+      const len = cmps.length;
+      for (let i = len - 1; i >= 0; i--) {
+        const cmp = cmps[i];
+        if (cmp.groupKey !== selectedCmp.key) {
+          continue;
+        }
+        let {top, left, width, height} = cmps[i].style;
+
+        const right = left + width,
+          bottom = top + height;
+        if (
+          relativePosition.top >= top &&
+          relativePosition.top <= bottom &&
+          relativePosition.left >= left &&
+          relativePosition.left <= right
+        ) {
+          // 选中子节点
+          setCmpSelected(i);
+          return;
+        }
+      }
+      // 检查这个点是否在子组件范围内
+    } else if (selectedCmp.type & isTextComponent) {
+      setTextareaFocused(true);
+    }
+  };
+
+  const size = assembly.size;
+  if (size === 0) {
+    return null;
+  }
+
+  if (size > 1) {
+    return (
+      <EditBoxOfMultiCmps
+        onMouseDownOfCmp={onMouseDownOfCmp}
+        showMenu={showMenu}
+        setShowMenu={setShowMenu}
+      />
+    );
+  }
+
+  let {top, left, width, height} = selectedCmp.style;
+
+  const transform = `rotate(${
+    size === 1 ? selectedCmp.style.transform : 0
+  }deg)`;
+
+  // 边框加在外层
+  width += 4;
+  height += 4;
 
   return (
-    <div
-      className={styles.main}
-      style={{
-        zIndex: 99999,
-        width,
-        height,
-        top,
-        left,
-      }}
-      onMouseDown={onMouseDownOfCmp}>
-      <StretchDots
-        zoom={zoom}
+    <>
+      <AlignLines canvasStyle={canvasStyle} />
+      <div
+        className={styles.main}
         style={{
+          zIndex: 99999,
+          top,
+          left,
           width,
           height,
+          transform,
         }}
-      />
-      {/* 旋转组件的标记 */}
-      <Rotate zoom={zoom} style={{width, height}} />
-    </div>
+        onMouseDown={onMouseDownOfCmp}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        onDoubleClick={doubleClickEditBox}
+        onContextMenu={() => {
+          setShowMenu(true);
+        }}
+        onMouseLeave={() => {
+          setTextareaFocused(false);
+          setShowMenu(false);
+        }}>
+        {selectedCmp.type === isTextComponent && textareaFocused && (
+          <TextareaAutosize
+            value={selectedCmp.value}
+            style={{
+              ...selectedCmp.style,
+              // 为了和下面字体重合，2是border宽度
+              top: 0,
+              left: 0,
+            }}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              updateSelectedCmpAttr("value", newValue);
+            }}
+            onHeightChange={(height) => {
+              updateSelectedCmpStyle({height});
+            }}
+          />
+        )}
+
+        {showMenu && (
+          <Menu
+            style={{
+              left: width - 2,
+              transform: `rotate(${
+                size === 1 ? -selectedCmp.style.transform : 0
+              }deg)`,
+              transformOrigin: "0% 0%",
+            }}
+            assemblySize={size}
+            cmps={cmps}
+            selectedIndex={Array.from(assembly)[0]}
+          />
+        )}
+
+        <StretchDots zoom={zoom} style={{width, height}} />
+        {selectedCmp.type !== isGroupComponent && (
+          <Rotate zoom={zoom} selectedCmp={selectedCmp} />
+        )}
+      </div>
+    </>
   );
 }

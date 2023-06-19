@@ -1,45 +1,58 @@
-import {_Style} from "src/store/editStoreTypes";
+import useEditStore, {
+  addCmp,
+  fetchCanvas,
+  initCanvas,
+} from "src/store/editStore";
 import styles from "./index.module.less";
 import Cmp from "../Cmp";
-import useEditStore from "src/store/editStore";
-import useZoomStore from "../Zoom/zoomStore";
+import {useEffect} from "react";
+import {useCanvasId} from "src/store/hooks";
 import EditBox from "../EditBox";
+import useZoomStore from "src/store/zoomStore";
+import {ICmpWithKey} from "src/store/editStoreTypes";
+import ReferenceLines from "../ReferenceLines";
 
-interface CanvasProps {
-  selectedIndex: number;
-}
-
-export default function Canvas({selectedIndex}: CanvasProps) {
+export default function Canvas() {
   const zoom = useZoomStore((state) => state.zoom);
+  const [canvas, assembly] = useEditStore((state) => [
+    state.canvas,
+    state.assembly,
+  ]);
+  const {cmps, style} = canvas.content;
 
-  const editStore = useEditStore();
-  const {canvas, assembly, setCmpsSelected} = editStore;
-  const {cmps, style} = canvas;
+  const id = useCanvasId();
+  useEffect(() => {
+    if (id) {
+      fetchCanvas(id);
+    }
 
-  const onDrop = (e: any) => {
-    const endX = e.pageX;
-    const endY = e.pageY;
+    return () => {
+      // 退出页面之前，初始化数据。否则下次再次进入页面，上次数据会被再次利用。
+      // 这个目的其实在28行的else里实现也可以，但是这样的话，编辑页退出之后，数据依然是存在内存中的，只是下次再进入页面的时候才被初始化
+      // 因此为了内存考虑，可以在组件销毁前，执行初始化函数
+      initCanvas();
+    };
+  }, []);
 
-    let dragCmp = e.dataTransfer.getData("drag-cmp");
-
+  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    const canvasDomPos = {
+      top: 114 + 1,
+      left:
+        document.body.clientWidth / 2 - ((style.width + 2) / 2) * (zoom / 100),
+    };
+    // 1. 读取被拖拽的组件信息
+    let dragCmp: any = e.dataTransfer.getData("drag-cmp");
     if (!dragCmp) {
       return;
     }
+    dragCmp = JSON.parse(dragCmp) as ICmpWithKey;
 
-    dragCmp = JSON.parse(dragCmp);
+    // 2. 读取用户松手的位置，相对网页
+    const endX = e.pageX;
+    const endY = e.pageY;
 
-    const canvasDOMPos = {
-      top: 110,
-      left:
-        document.body.clientWidth / 2 -
-        (parseInt(style.width as string) / 2) * (zoom / 100),
-    };
-
-    const startX = canvasDOMPos.left;
-    const startY = canvasDOMPos.top;
-
-    let disX = endX - startX;
-    let disY = endY - startY;
+    let disX = endX - canvasDomPos.left;
+    let disY = endY - canvasDomPos.top;
 
     disX = disX * (100 / zoom);
     disY = disY * (100 / zoom);
@@ -47,12 +60,14 @@ export default function Canvas({selectedIndex}: CanvasProps) {
     dragCmp.style.left = disX - dragCmp.style.width / 2;
     dragCmp.style.top = disY - dragCmp.style.height / 2;
 
-    editStore.addCmp(dragCmp);
+    // 3. 把组件存到state store中
+    addCmp(dragCmp);
   };
 
-  const allowDrop = (e: any) => {
+  const allowDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
+  console.log("canvas render", cmps); //sy-log
 
   return (
     <div
@@ -62,29 +77,19 @@ export default function Canvas({selectedIndex}: CanvasProps) {
         ...style,
         backgroundImage: `url(${style.backgroundImage})`,
         transform: `scale(${zoom / 100})`,
-        boxSizing: "border-box",
       }}
       onDrop={onDrop}
       onDragOver={allowDrop}>
       <EditBox />
+      {cmps.map((item, index) => (
+        <Cmp
+          key={item.key}
+          cmp={item}
+          index={index}
+          isSelected={assembly.has(index)}></Cmp>
+      ))}
 
-      <div
-        className={styles.cmps}
-        style={{
-          width: style.width,
-          height: style.height,
-        }}>
-        {/* 组件区域 */}
-        {cmps.map((cmp: any, index: number) => (
-          <Cmp
-            key={cmp.key}
-            cmp={cmp}
-            index={index}
-            isSelected={assembly.has(index)}
-            setCmpsSelected={setCmpsSelected}
-          />
-        ))}
-      </div>
+      <ReferenceLines canvasStyle={style} />
     </div>
   );
 }

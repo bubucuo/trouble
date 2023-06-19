@@ -1,15 +1,32 @@
-import {Button, Card, Form, Input, Checkbox} from "antd";
-import {login} from "src/request/login";
-import {register} from "src/request/register";
-import {useNavigate, useLocation} from "react-router-dom";
+import {Button, Form, Input, Checkbox, Modal} from "antd";
+import {useEffect} from "react";
+import Axios from "src/request/axios";
+import {registerEnd} from "src/request/end";
+import useGlobalStore from "src/store/globalStore";
+import useUserStore, {fetchUserInfo, login, logout} from "src/store/userStore";
 
 export default function Login() {
-  let navigate = useNavigate();
+  // 校验登录
+  const {isLogin, name} = useUserStore();
+  const loading = useGlobalStore((state) => state.loading);
 
-  let location = useLocation();
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
 
-  let from = location.state?.from?.pathname || "/";
+  if (loading) {
+    return null;
+  }
 
+  // 用户已经登录，显示用户信息
+  if (isLogin) {
+    return (
+      <Button style={{float: "right", marginTop: 16}} onClick={logout}>
+        {name}退出登录
+      </Button>
+    );
+  }
+  // 用户没有登录，显示登录框
   const onFinish = ({
     name,
     password,
@@ -24,9 +41,7 @@ export default function Login() {
     if (register_login) {
       registerAndLogin({name, password});
     } else {
-      login({name, password}, () => {
-        window.location.href = from;
-      });
+      login({name, password});
     }
   };
 
@@ -34,16 +49,15 @@ export default function Login() {
     console.log("Failed:", errorInfo);
   };
 
-  const registerAndLogin = (values: {name: string; password: string}) => {
-    register(values, () => {
-      login(values, () => {
-        navigate(from);
-      });
-    });
+  const registerAndLogin = async (values: {name: string; password: string}) => {
+    const res = await Axios.post(registerEnd, values);
+    if (res) {
+      login(values);
+    }
   };
 
   return (
-    <Card title="注册与登录">
+    <Modal title="注册与登录" open={true} closable={false} footer={[]}>
       <p className="red">登录之后才可使用~</p>
       <Form
         name="basic"
@@ -100,6 +114,6 @@ export default function Login() {
           </Button>
         </Form.Item>
       </Form>
-    </Card>
+    </Modal>
   );
 }

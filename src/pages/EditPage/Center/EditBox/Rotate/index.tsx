@@ -1,39 +1,37 @@
 import classNames from "classnames";
-import styles from "./index.module.less";
-import useEditStore, {
-  dontRecordHistory,
-  selectedCmpSelector,
-} from "src/store/editStore";
 import {throttle} from "lodash";
+import {ICmpWithKey} from "src/store/editStoreTypes";
+import {
+  recordCanvasChangeHistory_2,
+  updateSelectedCmpStyle,
+} from "src/store/editStore";
+import styles from "./index.module.less";
 
 interface IRotateProps {
   zoom: number;
-  style: any;
+  selectedCmp: ICmpWithKey;
 }
 
 export default function Rotate(props: IRotateProps) {
-  const editStore = useEditStore();
-
-  const {zoom, style} = props;
-  const {width, height, transform} = style;
+  const {selectedCmp} = props;
 
   // 旋转组件
-  const rotate = (e) => {
+  const rotate = (e: React.MouseEvent<HTMLDivElement>) => {
+    // 不要影响 EditBox 的移动事件
     e.stopPropagation();
-    e.preventDefault();
-
-    const cmp = selectedCmpSelector(editStore);
 
     const {zoom} = props;
-    const {style} = cmp;
+    const {style} = selectedCmp;
     const {height, transform} = style;
-    const trans = parseFloat(transform);
 
-    const r = height / 2;
+    // 角度转弧度：角度*π/180
+    const angle = ((transform + 90) * Math.PI) / 180;
 
-    const ang = ((trans + 90) * Math.PI) / 180;
-
-    const [offsetX, offsetY] = [-Math.cos(ang) * r, -Math.sin(ang) * r];
+    const radius = height / 2;
+    const [offsetX, offsetY] = [
+      -Math.cos(angle) * radius,
+      -Math.sin(angle) * radius,
+    ];
 
     let startX = e.pageX + offsetX;
     let startY = e.pageY + offsetY;
@@ -48,22 +46,18 @@ export default function Rotate(props: IRotateProps) {
       disX = disX * (100 / zoom);
       disY = disY * (100 / zoom);
 
-      let deg: number = (360 * Math.atan2(disY, disX)) / (2 * Math.PI) - 90;
+      // Math.atan() 函数返回一个数值的反正切（以弧度为单位），一个-π/2到π/2弧度之间的数值。
+      // 弧度变角度 180/ π*弧度
+      let deg = (180 / Math.PI) * Math.atan2(disY, disX) - 90;
+      deg = Math.ceil(deg);
 
-      deg = Math.ceil(deg); // parseInt(deg);
-
-      editStore.updateAssemblyCmps(
-        {
-          transform: deg - transform,
-        },
-        dontRecordHistory
-      );
-    }, 180);
+      updateSelectedCmpStyle({transform: deg}, false);
+    }, 50);
 
     const up = () => {
+      recordCanvasChangeHistory_2();
       document.removeEventListener("mousemove", move);
       document.removeEventListener("mouseup", up);
-      editStore.recordCanvasChangeHistoryAfterBatch();
     };
 
     document.addEventListener("mousemove", move);
@@ -72,11 +66,6 @@ export default function Rotate(props: IRotateProps) {
   return (
     <div
       className={classNames(styles.rotate, "iconfont icon-xuanzhuan")}
-      style={{
-        top: height + (30 * 100) / zoom,
-        left: width / 2 - 13,
-        transform,
-      }}
       onMouseDown={rotate}
     />
   );

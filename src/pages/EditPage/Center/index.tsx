@@ -1,115 +1,119 @@
-import React from "react";
-import useEditStore, {selectedCmpIndexSelector} from "src/store/editStore";
-import Menu from "../Menu";
 import styles from "./index.module.less";
 import Canvas from "./Canvas";
+import useEditStore, {
+  addZIndex,
+  bottomZIndex,
+  canvasStyleSelector,
+  delSelectedCmps,
+  setAllCmpsSelected,
+  setCmpSelected,
+  subZIndex,
+  topZIndex,
+} from "src/store/editStore";
 import Zoom from "./Zoom";
-import useZoomStore from "./Zoom/zoomStore";
+import useZoomStore from "src/store/zoomStore";
+import {updateAssemblyCmpsByDistance} from "src/store/editStore";
 
 export default function Center() {
-  const editStore = useEditStore();
-  const {canvas, setCmpsSelected} = editStore;
-  const {zoomIn, zoomOut} = useZoomStore();
-  const {cmps} = canvas;
+  const canvasStyle = useEditStore(canvasStyleSelector);
+  const {zoom, zoomIn, zoomOut} = useZoomStore();
 
-  const selectedIndex = selectedCmpIndexSelector(editStore);
-
-  const whichKeyEvent = (e) => {
-    if (
-      (e.target as Element).nodeName === "INPUT" ||
-      (e.target as Element).nodeName === "TEXTAREA"
-    ) {
+  const keyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if ((e.target as Element).nodeName === "TEXTAREA") {
       return;
     }
 
+    // CMD + key
     if (e.metaKey) {
       switch (e.code) {
         case "KeyA":
-          // 选中所有组件
-          // 返回所有数组下标
-          setCmpsSelected(
-            Object.keys(cmps).map((item: string): number => parseInt(item))
-          );
-          break;
-        case "KeyZ":
-          if (e.shiftKey) {
-            editStore.goNextCanvasHistory();
-          } else {
-            editStore.goPrevCanvasHistory();
-          }
-          break;
+          setAllCmpsSelected();
+          return;
 
         case "Equal":
           zoomOut();
-          break;
+          e.preventDefault();
+          return;
+
         case "Minus":
           zoomIn();
-          break;
+          e.preventDefault();
+          return;
+
+        // 上移一层
+        case "ArrowUp":
+          e.preventDefault();
+          if (e.shiftKey) {
+            // 置顶
+            topZIndex();
+          } else {
+            addZIndex();
+          }
+          return;
+
+        // 下移一层
+        case "ArrowDown":
+          e.preventDefault();
+          if (e.shiftKey) {
+            // 置底部
+            bottomZIndex();
+          } else {
+            subZIndex();
+          }
+          return;
       }
-
-      // 阻止默认事件，比如网页的缩放
-      e.preventDefault();
-      return;
     }
 
-    const selectedCmp = cmps[selectedIndex];
-    if (!selectedCmp) {
-      return;
+    // 键盘事件
+    switch (e.code) {
+      case "Backspace":
+        delSelectedCmps();
+        return;
+
+      // 左移
+      case "ArrowLeft":
+        e.preventDefault();
+        updateAssemblyCmpsByDistance({left: -1});
+        return;
+
+      // 右移
+      case "ArrowRight":
+        e.preventDefault();
+        updateAssemblyCmpsByDistance({left: 1});
+        return;
+
+      // 上移
+      case "ArrowUp":
+        e.preventDefault();
+        updateAssemblyCmpsByDistance({top: -1});
+        return;
+
+      // 下移
+      case "ArrowDown":
+        e.preventDefault();
+        updateAssemblyCmpsByDistance({top: 1});
+        return;
     }
-
-    if (e.keyCode < 37 || e.keyCode > 40) {
-      return;
-    }
-
-    // 阻止事件传播，不然别的输入框的输入事件都不生效了
-    e.stopPropagation();
-    // 禁止默认事件，不然引发的可能是页面的上下左右滚动。
-    e.preventDefault();
-
-    const newStyle: {top?: number; left?: number} = {};
-
-    switch (e.keyCode) {
-      // 左
-      case 37:
-        newStyle.left = -1;
-        break;
-
-      // 上
-      case 38:
-        newStyle.top = -1;
-        break;
-
-      // 右
-      case 39:
-        newStyle.left = 1;
-        break;
-
-      // 下
-      case 40:
-        newStyle.top = 1;
-        break;
-
-      default:
-        break;
-    }
-
-    editStore.updateAssemblyCmps(newStyle);
   };
-
   return (
     <div
       id="center"
       className={styles.main}
+      style={{
+        minHeight: (zoom / 100) * canvasStyle.height + 100,
+      }}
       tabIndex={0}
-      onKeyDown={whichKeyEvent}
-      onClick={(e: any) => {
-        if ((e.target as Element).id === "center") {
-          setCmpsSelected(-1);
+      onClick={(e: React.MouseEvent) => {
+        if ((e.target as HTMLElement).id.indexOf("cmp") === -1) {
+          setCmpSelected(-1);
         }
+      }}
+      onKeyDown={keyDown}
+      onContextMenu={(e) => {
+        e.preventDefault();
       }}>
-      <Canvas selectedIndex={selectedIndex} />
+      <Canvas />
 
-      <Menu />
       <Zoom />
     </div>
   );

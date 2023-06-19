@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": "http://template.codebus.tech",
+      "/static": "http://template.codebus.tech",
     },
   },
 

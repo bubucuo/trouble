@@ -1,5 +1,3 @@
-/* @import "~antd/dist/antd.css"; */
-
 html {
   height: 100%;
 }
@@ -22,7 +20,10 @@ code {
     monospace;
 }
 
-* {
+*,
+ol,
+ul,
+dl {
   margin: 0;
   padding: 0;
   border: none;
@@ -34,9 +35,9 @@ code {
 select,
 input {
   /* min-width: 80px; */
-  min-height: 28px;
+  /* min-height: 28px;
   line-height: 28px;
-  border: solid 1px #eee;
+  border: solid 1px #eee; */
   padding: 0 6px;
   outline: none;
   box-sizing: border-box;
@@ -77,4 +78,25 @@ ul {
 
 .red {
   color: red;
+}
+
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999999;
+  font-size: 20px;
+}
+
+.selectedBorder {
+  margin-top: -2px;
+  margin-left: -2px;
+
+  border: solid 2px #02dcf7;
 }

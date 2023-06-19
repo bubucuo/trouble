@@ -4,11 +4,11 @@ specifiers:
   '@types/lodash': ^4.14.192
   '@types/react': ^18.0.28
   '@types/react-dom': ^18.0.11
+  '@types/react-router-dom': ^5.3.3
   '@vitejs/plugin-react': ^3.1.0
   antd: ^5.4.0
   axios: ^1.3.4
   classnames: ^2.3.2
-  csstype: ^3.1.2
   immer: ^9.0.21
   less: ^4.1.3
   less-loader: ^11.1.0
@@ -16,7 +16,8 @@ specifiers:
   react: ^18.2.0
   react-color: ^2.19.3
   react-dom: ^18.2.0
-  react-router-dom: ^6.10.0
+  react-router-dom: ^6.11.2
+  react-textarea-autosize: ^8.4.1
   typescript: ^4.9.3
   vite: ^4.2.0
   vite-plugin-mock: ^2.9.6
@@ -31,15 +32,16 @@ dependencies:
   react: 18.2.0
   react-color: 2.19.3_react@18.2.0
   react-dom: 18.2.0_react@18.2.0
-  react-router-dom: 6.10.0_biqbaboplfbrettd7655fr4n2y
+  react-router-dom: 6.11.2_biqbaboplfbrettd7655fr4n2y
+  react-textarea-autosize: 8.4.1_pofolu2o2erjq4lhyzl3hqovzq
   zustand: 4.3.7_immer@9.0.21+react@18.2.0
 
 devDependencies:
   '@types/lodash': 4.14.192
   '@types/react': 18.0.33
   '@types/react-dom': 18.0.11
+  '@types/react-router-dom': 5.3.3
   '@vitejs/plugin-react': 3.1.0_vite@4.2.1
-  csstype: 3.1.2
   less: 4.1.3
   less-loader: 11.1.0_less@4.1.3
   lodash: 4.17.21
@@ -700,8 +702,8 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /@remix-run/router/1.5.0:
-    resolution: {integrity: sha512-bkUDCp8o1MvFO+qxkODcbhSqRa6P2GXgrGZVpt0dCXNW2HCSCqYI0ZoAqEOSAjRWmmlKcYgFvN4B4S+zo/f8kg==}
+  /@remix-run/router/1.6.2:
+    resolution: {integrity: sha512-LzqpSrMK/3JBAVBI9u3NWtOhWNw5AMQfrUFYB0+bDHTSw17z++WJLsPsxAuK+oSddsxk4d7F/JcdDPM1M5YAhA==}
     engines: {node: '>=14'}
     dev: false
 
@@ -734,6 +736,10 @@ packages:
     resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
     dev: true
 
+  /@types/history/4.7.11:
+    resolution: {integrity: sha512-qjDJRrmvBMiTx+jyLxvLfJU7UznFuokDv4f3WRuriHKERccVpFU+8XMQUAbDzoiJCsmexxRExQeMwwCdamSKDA==}
+    dev: true
+
   /@types/lodash/4.14.192:
     resolution: {integrity: sha512-km+Vyn3BYm5ytMO13k9KTp27O75rbQ0NFw+U//g+PX7VZyjCioXaRFisqSIJRECljcTv73G3i6BpglNGHgUQ5A==}
     dev: true
@@ -748,11 +754,25 @@ packages:
 
   /@types/prop-types/15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
-    dev: true
 
   /@types/react-dom/18.0.11:
     resolution: {integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==}
     dependencies:
+      '@types/react': 18.0.33
+    dev: true
+
+  /@types/react-router-dom/5.3.3:
+    resolution: {integrity: sha512-kpqnYK4wcdm5UaWI3fLcELopqLrHgLqNsdpHauzlQktfkHL3npOSwtj1Uz9oKBAzs7lFtVkV8j83voAz2D8fhw==}
+    dependencies:
+      '@types/history': 4.7.11
+      '@types/react': 18.0.33
+      '@types/react-router': 5.1.20
+    dev: true
+
+  /@types/react-router/5.1.20:
+    resolution: {integrity: sha512-jGjmu/ZqS7FjSH6owMcD5qpq19+1RS9DeVRqfl1FeBMxTDQAGwlMWOcs52NDoXaNKyG3d1cYQFMs9rCrb88o9Q==}
+    dependencies:
+      '@types/history': 4.7.11
       '@types/react': 18.0.33
     dev: true
 
@@ -762,7 +782,6 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
       csstype: 3.1.2
-    dev: true
 
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
@@ -772,7 +791,6 @@ packages:
 
   /@types/scheduler/0.16.3:
     resolution: {integrity: sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==}
-    dev: true
 
   /@vitejs/plugin-react/3.1.0_vite@4.2.1:
     resolution: {integrity: sha512-AfgcRL8ZBhAlc3BFdigClmTUMISmmzHn7sB2h9U1odvc5U/MjWXsAaz18b/WoppUTDBzxOJwo2VdClfUcItu9g==}
@@ -2158,27 +2176,41 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /react-router-dom/6.10.0_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-E5dfxRPuXKJqzwSe/qGcqdwa18QiWC6f3H3cWXM24qj4N0/beCIf/CWTipop2xm7mR0RCS99NnaqPNjHtrAzCg==}
+  /react-router-dom/6.11.2_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-JNbKtAeh1VSJQnH6RvBDNhxNwemRj7KxCzc5jb7zvDSKRnPWIFj9pO+eXqjM69gQJ0r46hSz1x4l9y0651DKWw==}
     engines: {node: '>=14'}
     peerDependencies:
       react: '>=16.8'
       react-dom: '>=16.8'
     dependencies:
-      '@remix-run/router': 1.5.0
+      '@remix-run/router': 1.6.2
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      react-router: 6.10.0_react@18.2.0
+      react-router: 6.11.2_react@18.2.0
     dev: false
 
-  /react-router/6.10.0_react@18.2.0:
-    resolution: {integrity: sha512-Nrg0BWpQqrC3ZFFkyewrflCud9dio9ME3ojHCF/WLsprJVzkq3q3UeEhMCAW1dobjeGbWgjNn/PVF6m46ANxXQ==}
+  /react-router/6.11.2_react@18.2.0:
+    resolution: {integrity: sha512-74z9xUSaSX07t3LM+pS6Un0T55ibUE/79CzfZpy5wsPDZaea1F8QkrsiyRnA2YQ7LwE/umaydzXZV80iDCPkMg==}
     engines: {node: '>=14'}
     peerDependencies:
       react: '>=16.8'
     dependencies:
-      '@remix-run/router': 1.5.0
+      '@remix-run/router': 1.6.2
       react: 18.2.0
+    dev: false
+
+  /react-textarea-autosize/8.4.1_pofolu2o2erjq4lhyzl3hqovzq:
+    resolution: {integrity: sha512-aD2C+qK6QypknC+lCMzteOdIjoMbNlgSFmJjCV+DrfTPwp59i/it9mMNf2HDzvRjQgKAyBDPyLJhcrzElf2U4Q==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.21.0
+      react: 18.2.0
+      use-composed-ref: 1.3.0_react@18.2.0
+      use-latest: 1.2.1_pofolu2o2erjq4lhyzl3hqovzq
+    transitivePeerDependencies:
+      - '@types/react'
     dev: false
 
   /react/18.2.0:
@@ -2380,6 +2412,41 @@ packages:
       escalade: 3.1.1
       picocolors: 1.0.0
     dev: true
+
+  /use-composed-ref/1.3.0_react@18.2.0:
+    resolution: {integrity: sha512-GLMG0Jc/jiKov/3Ulid1wbv3r54K9HlMW29IWcDFPEqFkSO2nS0MuefWgMJpeHQ9YJeXDL3ZUF+P3jdXlZX/cQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+    dev: false
+
+  /use-isomorphic-layout-effect/1.1.2_pofolu2o2erjq4lhyzl3hqovzq:
+    resolution: {integrity: sha512-49L8yCO3iGT/ZF9QttjwLF/ZD9Iwto5LnH5LmEdk/6cFmXddqi2ulF0edxTwjj+7mqvpVVGQWvbXZdn32wRSHA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@types/react': 18.0.33
+      react: 18.2.0
+    dev: false
+
+  /use-latest/1.2.1_pofolu2o2erjq4lhyzl3hqovzq:
+    resolution: {integrity: sha512-xA+AVm/Wlg3e2P/JiItTziwS7FK92LWrDB0p+hgXloIMuVCeJJ8v6f0eeHyPZaJrM+usM1FkFfbNCrJGs8A/zw==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@types/react': 18.0.33
+      react: 18.2.0
+      use-isomorphic-layout-effect: 1.1.2_pofolu2o2erjq4lhyzl3hqovzq
+    dev: false
 
   /use-sync-external-store/1.2.0_react@18.2.0:
     resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}

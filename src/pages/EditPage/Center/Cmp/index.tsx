@@ -1,83 +1,74 @@
-import React from "react";
-import Img from "./Img";
-import Lines from "../EditBox/Lines";
-import type {ICmpWithKey} from "src/store/editStoreTypes";
+import {ICmpWithKey} from "src/store/editStoreTypes";
 import styles from "./index.module.less";
-import {isImgComponent, isTextComponent} from "../../Left";
-
-import Text from "./Text";
-import {isEqual} from "lodash";
+import {Button, Img, Input, Text} from "./CmpDetail";
+import classNames from "classnames";
+import {omit, pick} from "lodash";
+import {
+  getCmpGroupIndex,
+  setCmpSelected,
+  setCmpsSelected,
+} from "src/store/editStore";
+import {memo} from "react";
+import {
+  isImgComponent,
+  isTextComponent,
+  isFormComponent_Button,
+  isFormComponent_Input,
+} from "src/utils/const";
 
 interface ICmpProps {
   cmp: ICmpWithKey;
   index: number;
   isSelected: boolean;
-  setCmpsSelected: (indexes: number | Array<number>) => void;
 }
 
-const Cmp = React.memo(
-  (props: ICmpProps) => {
-    const {cmp, index, isSelected, setCmpsSelected} = props;
+const Cmp = memo((props: ICmpProps) => {
+  const {cmp, index, isSelected} = props;
+  const {style} = cmp;
 
-    const {style} = cmp;
+  const setSelected = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (e.metaKey) {
+      setCmpsSelected([index]);
+    } else {
+      // 如果这个组件属于组合组件，那么默认选中组合组件
+      const groupIndex = getCmpGroupIndex(index);
+      setCmpSelected(groupIndex != undefined ? groupIndex : index);
+    }
+  };
 
-    const {width, height} = style;
-    const transform = `rotate(${style.transform}deg)`;
+  const outerStyle = pick(style, [
+    "position",
+    "top",
+    "left",
+    "width",
+    "height",
+  ]);
 
-    const zIndex = index;
+  const innerStyle = omit(style, "position", "top", "left");
 
-    const innerWidth =
-      (style.width as number) - (style.borderWidth as number) * 2;
-    const innerHeight =
-      (style.height as number) - (style.borderWidth as number) * 2;
+  const transform = `rotate(${style.transform}deg)`;
 
-    const setSelected = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (e.metaKey) {
-        // 把选中的组件填入组件集合
-        setCmpsSelected([index]);
-      } else {
-        setCmpsSelected(index);
-      }
-    };
+  // console.log("cmp render"); //sy-log
 
-    console.log("cmp render"); //sy-log
-    return (
-      <div
-        className={styles.main}
-        style={{
-          ...style,
-          transform,
-          zIndex,
-        }}
-        onClick={setSelected}>
-        {isSelected && (
-          <Lines
-            style={{width, height, transform}}
-            basePos={style.borderWidth as number}
-          />
-        )}
-
-        {/* 组件本身 , 注意如果是文本组件 ，如果处于选中状态，则目前处理是，textarea与这里的div Text重叠*/}
-        <div
-          className={styles.cmp}
-          style={{
-            width: innerWidth,
-            height: innerHeight,
-          }}>
-          {cmp.type === isTextComponent && <Text {...cmp} />}
-          {cmp.type === isImgComponent && <Img {...cmp} />}
-        </div>
+  return (
+    <div
+      className={classNames(styles.main, isSelected && "selectedBorder")}
+      style={{
+        ...outerStyle,
+        transform,
+        zIndex: index,
+      }}
+      onClick={setSelected}
+      id={"cmp" + cmp.key}>
+      <div className={styles.inner} style={{...innerStyle}}>
+        {cmp.type === isTextComponent && <Text value={cmp.value} />}
+        {cmp.type === isImgComponent && <Img value={cmp.value} />}
+        {cmp.type === isFormComponent_Input && <Input {...cmp} />}
+        {cmp.type === isFormComponent_Button && <Button value={cmp.value} />}
       </div>
-    );
-  },
-
-  (prev: ICmpProps, next: ICmpProps): boolean => {
-    let noChange =
-      isEqual(prev.cmp, next.cmp) &&
-      isEqual(prev.index, next.index) &&
-      isEqual(prev.isSelected, next.isSelected);
-    return noChange;
-  }
-);
+    </div>
+  );
+});
 
 export default Cmp;

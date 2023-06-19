@@ -15,6 +15,9 @@ export default function InputColor({onChangeComplete, color, ...rest}: any) {
         if (!visible) {
           setVisible(true);
         }
+      }}
+      onMouseLeave={() => {
+        setVisible(false);
       }}>
       {visible && (
         <div
@@ -23,6 +26,10 @@ export default function InputColor({onChangeComplete, color, ...rest}: any) {
             position: "relative",
             marginTop: "32px",
             marginLeft: "-70px",
+            padding: "10px",
+            width: "340px",
+            border: "solid 1px #333",
+            backgroundColor: "white",
           }}>
           <span
             style={{

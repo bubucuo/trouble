@@ -1,38 +1,22 @@
-import {BrowserRouter as Router, Route, Routes, Outlet} from "react-router-dom";
-import Login from "./components/Login";
-import List from "./pages/List";
-import Edit from "./pages/EditPage";
-import docCookies from "./utils/cookies";
-import styles from "./app.module.less";
-import {useEffect, useState} from "react";
+import {
+  Route,
+  RouterProvider,
+  createBrowserRouter,
+  createRoutesFromElements,
+} from "react-router-dom";
+import EditPage from "./pages/EditPage";
+import ListPage from "./pages/ListPage";
+import RequireAuth from "./components/RequireAuth";
 
 export default function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<RequireAuth />}>
-          <Route index element={<Edit />} />
-          <Route path="list" element={<List />} />
-        </Route>
-        <Route path="login" element={<Login />} />
-      </Routes>
-    </Router>
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route path="/" element={<RequireAuth />}>
+        <Route index element={<EditPage />} />
+        <Route path="list" element={<ListPage />} />
+      </Route>
+    )
   );
-}
 
-function RequireAuth() {
-  const auth = docCookies.getItem("sessionId");
-
-  return (
-    <div className={styles.app}>
-      <Outlet />
-      {!auth && (
-        <div className={styles.mask}>
-          <div className={styles.login}>
-            <Login />
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }

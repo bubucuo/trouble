@@ -1,30 +1,19 @@
-import {useFetchCanvas} from "src/store/editStoreHooks";
-import Header from "./Header";
+import {Layout} from "antd";
 import styles from "./index.module.less";
-import Left from "./Left";
+import LeftSider from "./LeftSider";
 import Center from "./Center";
-import Right from "./Right";
-import {useEffect} from "react";
+import RightSider from "./RightSider";
+import Header from "./Header";
 
-export default function Edit() {
-  useFetchCanvas();
-
-  useEffect(() => {
-    window.oncontextmenu = function (e) {
-      //禁止右键
-      e.preventDefault();
-    };
-  }, []);
-
-  console.log("Edit render"); //sy-log
+export default function EditPage() {
   return (
-    <div className={styles.main}>
+    <Layout className={styles.main}>
       <Header />
       <div className={styles.content}>
-        <Left />
+        <LeftSider />
         <Center />
-        <Right />
+        <RightSider />
       </div>
-    </div>
+    </Layout>
   );
 }
