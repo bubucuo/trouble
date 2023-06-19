@@ -20,7 +20,6 @@ import {
   isFormComponent,
   isGroupComponent,
 } from "src/utils/const";
-import {ICmp} from "./editStoreTypes";
 
 const showDiff = 12;
 const adjustDiff = 3;
