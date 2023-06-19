@@ -314,26 +314,27 @@ export default function EditCmpStyle({
         </Item>
       )}
 
+      <Item label="动画名称">
+        <select
+          className={styles.itemRight}
+          value={styleValue.animationName || ""}
+          onChange={(e) => {
+            handleAnimationStyleChange(e, {
+              name: "animationName",
+              value: e.target.value,
+            });
+          }}>
+          <option value="">无动画</option>
+          <option value="toggle">闪烁</option>
+          <option value="jello">果冻</option>
+          <option value="shake">抖动</option>
+          <option value="wobble">左右摇摆</option>
+        </select>
+      </Item>
+
       {/* 动画 */}
       {styleValue.animationName !== undefined && (
         <>
-          <Item label="动画名称">
-            <select
-              className={styles.itemRight}
-              value={styleValue.animationName || ""}
-              onChange={(e) => {
-                handleAnimationStyleChange(e, {
-                  name: "animationName",
-                  value: e.target.value,
-                });
-              }}>
-              <option value="">无动画</option>
-              <option value="toggle">闪烁</option>
-              <option value="jello">果冻</option>
-              <option value="shake">抖动</option>
-              <option value="wobble">左右摇摆</option>
-            </select>
-          </Item>
           {/* 用户定义了动画名称，以下动画属性才是有效的 */}
           {styleValue.animationName && (
             <>
@@ -487,18 +488,14 @@ export default function EditCmpStyle({
           )}
         </>
       ) : (
-        onClick === "string" && (
-          <Item label="点击跳转: ">
-            <input
-              className={styles.itemRight}
-              type="text"
-              value={onClick}
-              onChange={(e) =>
-                handleAttributesChange({onClick: e.target.value})
-              }
-            />
-          </Item>
-        )
+        <Item label="点击跳转: ">
+          <input
+            className={styles.itemRight}
+            type="text"
+            value={onClick}
+            onChange={(e) => handleAttributesChange({onClick: e.target.value})}
+          />
+        </Item>
       )}
     </>
   );
