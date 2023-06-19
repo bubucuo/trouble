@@ -1,4 +1,5 @@
 import {
+  defaultComponentStyle,
   defaultComponentStyle_0,
   isFormComponent,
   isFormComponent_Button,
@@ -150,7 +151,7 @@ const settings = [
     value: "提交",
     desc: "提交按钮",
     style: {
-      ...defaultComponentStyle_0,
+      ...defaultComponentStyle,
       width: 150,
       height: 60,
       lineHeight: "60px",
