@@ -22,4 +22,8 @@ export const deleteCanvasByIdEnd = end + "/api/web/content/delete";
 export const getCanvasListEnd = end + "/api/web/content/list?";
 export const getTemplateListEnd = end + "/api/web/template/list?pageSize=1000";
 
+// 发布、下架
+export const publishEnd = end + "/api/web/content/publish";
+export const unpublishEnd = end + "/api/web/content/unpublish ";
+
 export const myAxios = axios;
