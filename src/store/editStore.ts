@@ -100,22 +100,40 @@ export const addCmp = (_cmp: ICmp) => {
   });
 };
 
+function getCopyCmp(cmp: ICmpWithKey) {
+  const newCmp = cloneDeep(cmp);
+  newCmp.key = getOnlyKey();
+  newCmp.style.top += 40;
+  newCmp.style.left += 40;
+  return newCmp;
+}
+
 // ! 右键菜单
 // 复制选中的单个或者多个组件
 export const addAssemblyCmps = () => {
   useEditStore.setState((draft) => {
     const newCmps: Array<ICmpWithKey> = [];
     const cmps = draft.canvas.content.cmps;
+    const map = getCmpsMap(cmps);
     let newAssembly: Set<number> = new Set();
     let i = cmps.length;
 
     draft.assembly.forEach((index) => {
       const cmp = cmps[index];
-      const newCmp = cloneDeep(cmp);
-      newCmp.key = getOnlyKey();
-
-      newCmp.style.top += 40;
-      newCmp.style.left += 40;
+      const newCmp = getCopyCmp(cmp);
+      // 组合组件
+      if (newCmp.type & isGroupComponent) {
+        newCmp.groupCmpKeys = [];
+        cmp.groupCmpKeys?.forEach((key) => {
+          const childIndex = map.get(key);
+          const child = cmps[childIndex];
+          const newChild = getCopyCmp(child);
+          newChild.groupKey = newCmp.key;
+          newCmp.groupCmpKeys?.push(newChild.key);
+          newCmps.push(newChild);
+          i++;
+        });
+      }
 
       newCmps.push(newCmp);
       newAssembly.add(i++);
