@@ -9,10 +9,10 @@ import {useEffect} from "react";
 export default function Header() {
   const hasSavedCanvas = useEditStore(({hasSavedCanvas}) => hasSavedCanvas);
 
-  unstable_usePrompt({
-    when: !hasSavedCanvas,
-    message: "离开后数据将不会被保存，确认要离开吗?",
-  });
+  // unstable_usePrompt({
+  //   when: !hasSavedCanvas,
+  //   message: "离开后数据将不会被保存，确认要离开吗?",
+  // });
 
   const navigate = useNavigate();
 
