@@ -1,6 +1,6 @@
-import {Card, Divider, Table, Space, Button, Modal, message, Image} from "antd";
-import {useEffect, useState} from "react";
-import {Link} from "react-router-dom";
+import { Card, Divider, Table, Space, Button, Modal, message, Image } from "antd";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Axios from "src/request/axios";
 import {
   deleteCanvasByIdEnd,
@@ -15,11 +15,11 @@ interface ListItem {
   type: "content" | "template"; // 页面、模板页面
   title: string;
   content: string;
-  thumbnail: {full: string};
+  thumbnail: { full: string };
   publish: boolean;
 }
 
-const pagination = {pageSize: 9999, current: 1};
+const pagination = { pageSize: 9999, current: 1 };
 export default function ListPage() {
   const [list, setList] = useState([]);
 
@@ -31,7 +31,7 @@ export default function ListPage() {
     }
     const res: any = await Axios.get(
       getCanvasListEnd +
-        `pageSize=${pagination.pageSize}&pageNo=${pagination.current}`
+      `pageSize=${pagination.pageSize}&pageNo=${pagination.current}`
     );
     let data = res?.content || [];
     setList(data);
@@ -42,7 +42,7 @@ export default function ListPage() {
       title: "删除",
       content: "您确定要删除吗？",
       onOk: async () => {
-        await Axios.post(deleteCanvasByIdEnd, {id});
+        await Axios.post(deleteCanvasByIdEnd, { id });
         message.success("删除成功");
         fresh();
       },
@@ -131,7 +131,7 @@ export default function ListPage() {
       key: "thumbnail",
       render: (item: ListItem) => {
         return (
-          <Image src={item.thumbnail.full} alt={item.title} height={150} />
+          item.thumbnail && <Image src={item.thumbnail.full} alt={item.title} height={150} />
         );
       },
     },
@@ -140,7 +140,7 @@ export default function ListPage() {
       title: "动作",
       key: "action",
       render: (item: ListItem) => {
-        const {id} = item;
+        const { id } = item;
         return (
           <Space size="middle">
             {/* 这里应该是发布之后才可以查看 */}
