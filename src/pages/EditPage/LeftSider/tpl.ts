@@ -3,7 +3,7 @@ export const settings = [
   {
     id: _id++,
     title: "精通React",
-    thumbnail: {header: "https://www.bubucuo.cn/react-head.png"},
+    thumbnail: { header: "https://www.bubucuo.tech/react-head.png" },
     type: "template",
     content: JSON.stringify({
       style: {
@@ -19,7 +19,7 @@ export const settings = [
       cmps: [
         {
           key: 0.3860585230608764,
-          value: "https://www.bubucuo.cn/tree.png",
+          value: "https://www.bubucuo.tech/tree.png",
           style: {
             position: "absolute",
             top: 820.333333333333,
@@ -36,7 +36,7 @@ export const settings = [
         },
         {
           key: 0.46365164238209244,
-          value: "https://www.bubucuo.cn/bg1.png",
+          value: "https://www.bubucuo.tech/bg1.png",
           style: {
             position: "absolute",
             top: 2.6666666666664955,
@@ -52,7 +52,7 @@ export const settings = [
           type: 2,
         },
         {
-          value: "https://www.bubucuo.cn/color_line.png",
+          value: "https://www.bubucuo.tech/color_line.png",
           style: {
             position: "absolute",
             top: 6934.000000000001,
@@ -69,7 +69,7 @@ export const settings = [
           key: 0.34654537262239304,
         },
         {
-          value: "https://www.bubucuo.cn/ribbon.png",
+          value: "https://www.bubucuo.tech/ribbon.png",
           style: {
             position: "absolute",
             top: 4953.666666666667,
@@ -105,7 +105,7 @@ export const settings = [
         },
         {
           key: 0.534850732632776,
-          value: "https://www.bubucuo.cn/react-head.png",
+          value: "https://www.bubucuo.tech/react-head.png",
           style: {
             position: "absolute",
             top: 312.6666666666673,
@@ -155,7 +155,7 @@ export const settings = [
         },
         {
           key: 0.4594197912293638,
-          value: "https://www.bubucuo.cn/blue-star.png",
+          value: "https://www.bubucuo.tech/blue-star.png",
           style: {
             position: "absolute",
             top: 666.333333333333,
@@ -172,7 +172,7 @@ export const settings = [
         },
         {
           key: 0.45078607010441796,
-          value: "https://www.bubucuo.cn/girl.png",
+          value: "https://www.bubucuo.tech/girl.png",
           style: {
             position: "absolute",
             top: 1057.3333333333342,
@@ -189,7 +189,7 @@ export const settings = [
         },
         {
           key: 0.5498624272093084,
-          value: "https://www.bubucuo.cn/dancer.png",
+          value: "https://www.bubucuo.tech/dancer.png",
           style: {
             position: "absolute",
             top: 729.6666666666666,
@@ -252,7 +252,7 @@ export const settings = [
           key: 0.5628331215042139,
         },
         {
-          value: "https://www.bubucuo.cn/yellow-star.png",
+          value: "https://www.bubucuo.tech/yellow-star.png",
           style: {
             position: "absolute",
             top: 1392.0000000000007,
@@ -316,7 +316,7 @@ export const settings = [
           key: 0.9088302981292888,
         },
         {
-          value: "https://www.bubucuo.cn/yellow-star.png",
+          value: "https://www.bubucuo.tech/yellow-star.png",
           style: {
             position: "absolute",
             top: 2405.6666666666656,
@@ -333,7 +333,7 @@ export const settings = [
           key: 0.1268271648476469,
         },
         {
-          value: "https://www.bubucuo.cn/book.png",
+          value: "https://www.bubucuo.tech/book.png",
           style: {
             position: "absolute",
             top: 3237.9999999999995,
@@ -397,7 +397,7 @@ export const settings = [
           key: 0.7467154258577349,
         },
         {
-          value: "https://www.bubucuo.cn/yellow-star.png",
+          value: "https://www.bubucuo.tech/yellow-star.png",
           style: {
             position: "absolute",
             top: 2941.6666666666665,
@@ -714,7 +714,7 @@ export const settings = [
           key: 0.7222882900994978,
         },
         {
-          value: "https://www.bubucuo.cn/bg2.png",
+          value: "https://www.bubucuo.tech/bg2.png",
           style: {
             position: "absolute",
             top: 5404.000000000001,
@@ -779,7 +779,7 @@ export const settings = [
           key: 0.5266737136463195,
         },
         {
-          value: "https://www.bubucuo.cn/balloon_ribbon.png",
+          value: "https://www.bubucuo.tech/balloon_ribbon.png",
           style: {
             position: "absolute",
             top: 6012.000000000001,
@@ -814,7 +814,7 @@ export const settings = [
           key: 0.7510267690864492,
         },
         {
-          value: "https://www.bubucuo.cn/plank.png",
+          value: "https://www.bubucuo.tech/plank.png",
           style: {
             position: "absolute",
             top: 5976.000000000001,
@@ -926,7 +926,7 @@ export const settings = [
           key: 0.6609359313845731,
         },
         {
-          value: "https://www.bubucuo.cn/icon.png",
+          value: "https://www.bubucuo.tech/icon.png",
           style: {
             position: "absolute",
             top: 5137.333333333333,
@@ -979,7 +979,7 @@ export const settings = [
           key: 0.22241997856940188,
         },
         {
-          value: "https://www.bubucuo.cn/balance.png",
+          value: "https://www.bubucuo.tech/balance.png",
           style: {
             position: "absolute",
             top: 6872.333333333334,
@@ -1038,7 +1038,7 @@ export const settings = [
           key: 0.09661138720208329,
         },
         {
-          value: "https://www.bubucuo.cn/star.png",
+          value: "https://www.bubucuo.tech/star.png",
           style: {
             position: "absolute",
             top: 4054.0000000000027,
@@ -1055,7 +1055,7 @@ export const settings = [
           key: 0.17652411077488717,
         },
         {
-          value: "https://www.bubucuo.cn/red-girl.png",
+          value: "https://www.bubucuo.tech/red-girl.png",
           style: {
             position: "absolute",
             top: 4922.000000000001,
@@ -1072,7 +1072,7 @@ export const settings = [
           key: 0.04677706025041739,
         },
         {
-          value: "https://www.bubucuo.cn/deer.png",
+          value: "https://www.bubucuo.tech/deer.png",
           style: {
             position: "absolute",
             top: 6850.000000000001,
@@ -1089,7 +1089,7 @@ export const settings = [
           key: 0.13964987035649723,
         },
         {
-          value: "https://www.bubucuo.cn/gaoshaoyun-react.webp",
+          value: "https://www.bubucuo.tech/gaoshaoyun-react.webp",
           style: {
             position: "absolute",
             top: 6197.000000000001,
@@ -1270,7 +1270,7 @@ export const settings = [
         },
         {
           key: 0.9084638260168219,
-          value: "https://www.bubucuo.cn/lock.png",
+          value: "https://www.bubucuo.tech/lock.png",
           style: {
             position: "absolute",
             top: 786.6666666666663,
@@ -1428,7 +1428,7 @@ export const settings = [
         },
         {
           value:
-            "https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c376d0ace24e44a99f58e96701f36af9~tplv-k3u1fbpfcp-watermark.image?",
+            "https://p6-juejin.byteimg.com/tos.tech-i-k3u1fbpfcp/c376d0ace24e44a99f58e96701f36af9~tplv-k3u1fbpfcp-watermark.image?",
           style: {
             position: "absolute",
             top: 7002.000000000001,
@@ -1446,7 +1446,7 @@ export const settings = [
         },
       ],
       key: 0,
-      img: "https://www.bubucuo.cn/react-head.png",
+      img: "https://www.bubucuo.tech/react-head.png",
       title: "精通React",
     }),
   },
@@ -1470,7 +1470,7 @@ export const settings = [
       },
       cmps: [
         {
-          value: "https://www.bubucuo.cn/gaoshaoyun-lowcode.webp",
+          value: "https://www.bubucuo.tech/gaoshaoyun-lowcode.webp",
           style: {
             position: "absolute",
             top: 3933,
@@ -1487,7 +1487,7 @@ export const settings = [
           key: 0.4259412008629684,
         },
         {
-          value: "https://www.bubucuo.cn/hua-bg.png",
+          value: "https://www.bubucuo.tech/hua-bg.png",
           style: {
             position: "absolute",
             top: 4720.784313725484,
@@ -1504,7 +1504,7 @@ export const settings = [
           key: 0.676929504558925,
         },
         {
-          value: "https://www.bubucuo.cn/board.png",
+          value: "https://www.bubucuo.tech/board.png",
           style: {
             position: "absolute",
             top: 4816.862745098029,
@@ -1540,7 +1540,7 @@ export const settings = [
         },
         {
           key: 0.46365164238209244,
-          value: "https://www.bubucuo.cn/bg1.png",
+          value: "https://www.bubucuo.tech/bg1.png",
           style: {
             position: "absolute",
             top: 58,
@@ -1557,7 +1557,7 @@ export const settings = [
         },
         {
           key: 0.9084638260168219,
-          value: "https://www.bubucuo.cn/lock.png",
+          value: "https://www.bubucuo.tech/lock.png",
           style: {
             position: "absolute",
             top: 557,
@@ -1620,7 +1620,7 @@ export const settings = [
           key: 0.9107798699721636,
         },
         {
-          value: "https://www.bubucuo.cn/yellow-star.png",
+          value: "https://www.bubucuo.tech/yellow-star.png",
           style: {
             position: "absolute",
             top: 1172,
@@ -1637,7 +1637,7 @@ export const settings = [
           key: 0.3836135008998969,
         },
         {
-          value: "https://www.bubucuo.cn/bg2.png",
+          value: "https://www.bubucuo.tech/bg2.png",
           style: {
             position: "absolute",
             top: 3376.769230769236,
@@ -1678,7 +1678,7 @@ export const settings = [
           key: 0.2160005901319011,
         },
         {
-          value: "https://www.bubucuo.cn/sale.png",
+          value: "https://www.bubucuo.tech/sale.png",
           style: {
             position: "absolute",
             top: 4828.66666666667,
@@ -1762,7 +1762,7 @@ export const settings = [
           key: 0.09661138720208329,
         },
         {
-          value: "https://www.bubucuo.cn/star.png",
+          value: "https://www.bubucuo.tech/star.png",
           style: {
             position: "absolute",
             top: 3246,
@@ -1779,7 +1779,7 @@ export const settings = [
           key: 0.17652411077488717,
         },
         {
-          value: "https://www.bubucuo.cn/technoiogy.png",
+          value: "https://www.bubucuo.tech/technoiogy.png",
           style: {
             position: "absolute",
             top: 252,
@@ -1796,7 +1796,7 @@ export const settings = [
           key: 0.30901181821023216,
         },
         {
-          value: "https://www.bubucuo.cn/title.png",
+          value: "https://www.bubucuo.tech/title.png",
           style: {
             position: "absolute",
             top: 100,
@@ -1813,7 +1813,7 @@ export const settings = [
           key: 0.9529657285829101,
         },
         {
-          value: "https://www.bubucuo.cn/paper_plane.png",
+          value: "https://www.bubucuo.tech/paper_plane.png",
           style: {
             position: "absolute",
             top: 0,
@@ -1830,7 +1830,7 @@ export const settings = [
           key: 0.2999399392821902,
         },
         {
-          value: "https://www.bubucuo.cn/paper_plane.png",
+          value: "https://www.bubucuo.tech/paper_plane.png",
           style: {
             position: "absolute",
             top: 782,
@@ -1847,7 +1847,7 @@ export const settings = [
           key: 0.7582888736605065,
         },
         {
-          value: "https://www.bubucuo.cn/fire_bird.png",
+          value: "https://www.bubucuo.tech/fire_bird.png",
           style: {
             position: "absolute",
             top: 563,
@@ -1864,7 +1864,7 @@ export const settings = [
           key: 0.49049376849027926,
         },
         {
-          value: "https://www.bubucuo.cn/pink_flower.png",
+          value: "https://www.bubucuo.tech/pink_flower.png",
           style: {
             position: "absolute",
             top: 1228,
@@ -1881,7 +1881,7 @@ export const settings = [
           key: 0.13344426988402303,
         },
         {
-          value: "https://www.bubucuo.cn/red_flower.png",
+          value: "https://www.bubucuo.tech/red_flower.png",
           style: {
             position: "absolute",
             top: 1848,
@@ -1898,7 +1898,7 @@ export const settings = [
           key: 0.8178218824492909,
         },
         {
-          value: "https://www.bubucuo.cn/OMG.png",
+          value: "https://www.bubucuo.tech/OMG.png",
           style: {
             position: "absolute",
             top: 1845,
@@ -1915,7 +1915,7 @@ export const settings = [
           key: 0.02099549312365956,
         },
         {
-          value: "https://www.bubucuo.cn/rainbow1.png",
+          value: "https://www.bubucuo.tech/rainbow1.png",
           style: {
             position: "absolute",
             top: 1951.8039215686276,
@@ -1932,7 +1932,7 @@ export const settings = [
           key: 0.31328135923908973,
         },
         {
-          value: "https://www.bubucuo.cn/rainbow.png",
+          value: "https://www.bubucuo.tech/rainbow.png",
           style: {
             position: "absolute",
             top: 1939.8627450980403,
@@ -1998,7 +1998,7 @@ export const settings = [
           key: 0.3205450179714402,
         },
         {
-          value: "https://www.bubucuo.cn/pink_ball.png",
+          value: "https://www.bubucuo.tech/pink_ball.png",
           style: {
             position: "absolute",
             top: 2983.0769230769247,
@@ -2015,7 +2015,7 @@ export const settings = [
           key: 0.021370837837130452,
         },
         {
-          value: "https://www.bubucuo.cn/icon.png",
+          value: "https://www.bubucuo.tech/icon.png",
           style: {
             position: "absolute",
             top: 2660.615384615385,
@@ -2080,7 +2080,7 @@ export const settings = [
           key: 0.5266737136463195,
         },
         {
-          value: "https://www.bubucuo.cn/cloud.png",
+          value: "https://www.bubucuo.tech/cloud.png",
           style: {
             position: "absolute",
             top: 3742.3529411764694,
@@ -2120,7 +2120,8 @@ export const settings = [
           key: 0.9129426673590202,
         },
         {
-          value: "https://www.bubucuo.cn/39c32b1693ca603b95a0c10622d72a27.png",
+          value:
+            "https://www.bubucuo.tech/39c32b1693ca603b95a0c10622d72a27.png",
           style: {
             position: "absolute",
             top: 4016.862745098034,
@@ -2137,7 +2138,7 @@ export const settings = [
           key: 0.6025099095082334,
         },
         {
-          value: "https://www.bubucuo.cn/star1.png",
+          value: "https://www.bubucuo.tech/star1.png",
           style: {
             position: "absolute",
             top: 4248.235294117642,
@@ -2226,7 +2227,7 @@ export const settings = [
           key: 0.6609359313845731,
         },
         {
-          value: "https://www.bubucuo.cn/flower.png",
+          value: "https://www.bubucuo.tech/flower.png",
           style: {
             position: "absolute",
             top: 4662.803921568628,
@@ -2243,7 +2244,7 @@ export const settings = [
           key: 0.5959843143856347,
         },
         {
-          value: "https://www.bubucuo.cn/lowcode-buy.webp",
+          value: "https://www.bubucuo.tech/lowcode-buy.webp",
           style: {
             position: "absolute",
             top: 5707.058823529409,
@@ -2260,7 +2261,7 @@ export const settings = [
           key: 0.1237743826901394,
         },
         {
-          value: "https://www.bubucuo.cn/wx.webp",
+          value: "https://www.bubucuo.tech/wx.webp",
           style: {
             position: "absolute",
             top: 4665.058823529412,
@@ -2277,7 +2278,7 @@ export const settings = [
           key: 0.2995609037256024,
         },
         {
-          value: "https://www.bubucuo.cn/lowcode-show.png",
+          value: "https://www.bubucuo.tech/lowcode-show.png",
           style: {
             position: "absolute",
             top: 2361.960784313727,
@@ -2349,7 +2350,7 @@ export const settings = [
         },
       ],
       key: 0,
-      img: "https://www.bubucuo.cn/react-head.png",
+      img: "https://www.bubucuo.tech/react-head.png",
     }),
   },
 
@@ -2602,7 +2603,7 @@ export const settings = [
           key: 0.3078063429155675,
         },
         {
-          value: "https://www.bubucuo.cn/lock.png",
+          value: "https://www.bubucuo.tech/lock.png",
           style: {
             position: "absolute",
             top: 740.9999999999982,
@@ -3507,7 +3508,7 @@ export const settings = [
           key: 0.7686330758395559,
         },
         {
-          value: "https://www.bubucuo.cn/icon.png",
+          value: "https://www.bubucuo.tech/icon.png",
           style: {
             position: "absolute",
             top: 3833.0000000000036,
@@ -3573,7 +3574,7 @@ export const settings = [
           key: 0.16825509582204212,
         },
         {
-          value: "https://www.bubucuo.cn/balloon_ribbon.png",
+          value: "https://www.bubucuo.tech/balloon_ribbon.png",
           style: {
             position: "absolute",
             top: 4766.666666666671,
@@ -3625,7 +3626,7 @@ export const settings = [
           key: 0.024334398698609316,
         },
         {
-          value: "https://www.bubucuo.cn/plank.png",
+          value: "https://www.bubucuo.tech/plank.png",
           style: {
             position: "absolute",
             top: 4733.333333333345,
@@ -3759,7 +3760,7 @@ export const settings = [
           key: 0.6097049698838672,
         },
         {
-          value: "https://www.bubucuo.cn/gaoshaoyun-react.webp",
+          value: "https://www.bubucuo.tech/gaoshaoyun-react.webp",
           style: {
             position: "absolute",
             top: 4922.666666666681,
@@ -3794,7 +3795,7 @@ export const settings = [
           key: 0.7960442027993155,
         },
         {
-          value: "https://www.bubucuo.cn/wx.webp",
+          value: "https://www.bubucuo.tech/wx.webp",
           style: {
             position: "absolute",
             top: 5473.333333333347,
@@ -3829,7 +3830,7 @@ export const settings = [
           key: 0.09373147642133328,
         },
         {
-          value: "https://www.bubucuo.cn/sale.png",
+          value: "https://www.bubucuo.tech/sale.png",
           style: {
             position: "absolute",
             top: 5646.666666666666,
